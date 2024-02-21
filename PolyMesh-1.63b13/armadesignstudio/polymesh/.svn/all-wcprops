@@ -1,0 +1,233 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh
+END
+AdvancedExtrudeTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/aoisp/!svn/ver/46/PolyMesh/trunk/artofillusion/polymesh/AdvancedExtrudeTool.java
+END
+PMCreateFaceTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/PMCreateFaceTool.java
+END
+PMOBJImporter.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/PMOBJImporter.java
+END
+PMKnifeTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/aoisp/!svn/ver/43/PolyMesh/trunk/artofillusion/polymesh/PMKnifeTool.java
+END
+SSMRManipulator.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/aoisp/!svn/ver/44/PolyMesh/trunk/artofillusion/polymesh/SSMRManipulator.java
+END
+PMBevelExtrudeTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/PMBevelExtrudeTool.java
+END
+SSMR3DManipulator.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/SSMR3DManipulator.java
+END
+PolyMeshEditorWindow.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svnroot/aoisp/!svn/ver/59/PolyMesh/trunk/artofillusion/polymesh/PolyMeshEditorWindow.java
+END
+UVMappingCanvas.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/aoisp/!svn/ver/33/PolyMesh/trunk/artofillusion/polymesh/UVMappingCanvas.java
+END
+TextureUtilities.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/aoisp/!svn/ver/7/PolyMesh/trunk/artofillusion/polymesh/TextureUtilities.java
+END
+UVMappingData.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/UVMappingData.java
+END
+Command.java
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/aoisp/!svn/ver/28/PolyMesh/trunk/artofillusion/polymesh/Command.java
+END
+Manipulator.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/aoisp/!svn/ver/44/PolyMesh/trunk/artofillusion/polymesh/Manipulator.java
+END
+QuadMesh.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/aoisp/!svn/ver/59/PolyMesh/trunk/artofillusion/polymesh/QuadMesh.java
+END
+PMToolTip.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/PMToolTip.java
+END
+PolyMesh.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/aoisp/!svn/ver/67/PolyMesh/trunk/artofillusion/polymesh/PolyMesh.java
+END
+PolymeshValueWidget.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/PolymeshValueWidget.java
+END
+UVMappingManipulator.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/UVMappingManipulator.java
+END
+PolyMeshViewer.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/PolyMeshViewer.java
+END
+AdvancedEditingTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/aoisp/!svn/ver/46/PolyMesh/trunk/artofillusion/polymesh/AdvancedEditingTool.java
+END
+PMOBJExporter.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/PMOBJExporter.java
+END
+PMOBJTranslator.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/PMOBJTranslator.java
+END
+MeshPreviewer.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/MeshPreviewer.java
+END
+UnfoldedMesh.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/aoisp/!svn/ver/27/PolyMesh/trunk/artofillusion/polymesh/UnfoldedMesh.java
+END
+MeshStandardTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/aoisp/!svn/ver/44/PolyMesh/trunk/artofillusion/polymesh/MeshStandardTool.java
+END
+MouseDragManipulator.java
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/aoisp/!svn/ver/7/PolyMesh/trunk/artofillusion/polymesh/MouseDragManipulator.java
+END
+SSMR2DManipulator.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svnroot/aoisp/!svn/ver/44/PolyMesh/trunk/artofillusion/polymesh/SSMR2DManipulator.java
+END
+CreatePolyMeshTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/CreatePolyMeshTool.java
+END
+PMExtrudeCurveTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/PMExtrudeCurveTool.java
+END
+PolyMeshPlugin.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/aoisp/!svn/ver/59/PolyMesh/trunk/artofillusion/polymesh/PolyMeshPlugin.java
+END
+AdvancedBevelExtrudeTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/aoisp/!svn/ver/46/PolyMesh/trunk/artofillusion/polymesh/AdvancedBevelExtrudeTool.java
+END
+PMSewTool.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/aoisp/!svn/ver/41/PolyMesh/trunk/artofillusion/polymesh/PMSewTool.java
+END
+MeshUnfolder.java
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/aoisp/!svn/ver/46/PolyMesh/trunk/artofillusion/polymesh/MeshUnfolder.java
+END
+PMUndoRedoStack.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/aoisp/!svn/ver/29/PolyMesh/trunk/artofillusion/polymesh/PMUndoRedoStack.java
+END
+TextureImageInfo.java
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/aoisp/!svn/ver/7/PolyMesh/trunk/artofillusion/polymesh/TextureImageInfo.java
+END
+TextureImageExporter.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svnroot/aoisp/!svn/ver/31/PolyMesh/trunk/artofillusion/polymesh/TextureImageExporter.java
+END
+UVMappingEditorDialog.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svnroot/aoisp/!svn/ver/57/PolyMesh/trunk/artofillusion/polymesh/UVMappingEditorDialog.java
+END
+PMValueField.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/aoisp/!svn/ver/7/PolyMesh/trunk/artofillusion/polymesh/PMValueField.java
+END

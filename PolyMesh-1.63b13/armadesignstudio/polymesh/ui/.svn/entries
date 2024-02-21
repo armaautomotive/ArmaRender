@@ -1,0 +1,40 @@
+8
+
+dir
+56
+http://aoisp.svn.sourceforge.net/svnroot/aoisp/PolyMesh/trunk/artofillusion/polymesh/ui
+http://aoisp.svn.sourceforge.net/svnroot/aoisp
+
+
+
+2007-08-07T00:04:27.621115Z
+42
+fpgui
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+9e8d6f4f-4e25-0410-a64e-d1de04b13f86
+
+ColorButton.java
+file
+
+
+
+
+2007-07-25T21:30:38.000000Z
+ef39132a3ddd7a32476a6277e8c08f41
+2007-08-07T00:04:27.621115Z
+42
+fpgui
+

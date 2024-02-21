@@ -1,0 +1,15 @@
+
+
+Feb 5 2023
+
+1) item tree right top region clean color
+2) arc tube intersect should not intersect with itself. Curved segments.
+3) tube geometry to arc tube breaks on tubes with ends that are not flat.
+4) importing tube geometry should also add notches for ends. Most notches are not flat
+5) arc tube bend gcode export has rotation bug, looks like 90deg off.
+
+
+
+6) Shift or Ctrl resize arc point to maintain segment normal. Easy way to expend or shrink arc end without changing angle.
+
+

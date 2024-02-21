@@ -1,0 +1,36 @@
+Arma Automotive Inc.
+Arma Design Studio Software
+Installation Guide
+
+Updated: March 19, 2023
+
+
+Java Distribution on Ubuntu Linux 22.04
+
+> apt install openjdk-17-jdk openjdk-17-jre
+> cd Adssrc
+> ./run.sh
+
+
+Java Distribution on Mircosoft Windows 11
+
+Install a JRE from: https://www.java.com/en/download/manual.jsp
+Run the installation.
+Open a terminal and navigate to the extracted ArmaDesignStudio.zip file.
+> cd Adssrc
+> run.bat
+
+
+Java Distribution on M based Mac OS
+
+Install a JRE from: https://www.azul.com/downloads/?package=jdk#zulu
+Choose version 17 or higher.
+Run the installation.
+Open a terminal and navigate to the extracted ArmaDesignStudio.zip file.
+> cd Adssrc
+> ./run.sh 
+
+
+
+
+

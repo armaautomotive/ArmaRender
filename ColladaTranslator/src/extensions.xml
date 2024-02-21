@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="yes"?>
+<extension name="ColladaTranslator" version="0.01">
+  <author>Stan (MisterAcoustic)</author>
+  <date>June 2008</date>
+
+  <plugin class="armadesignstudio.translators.ColladaTranslator" >
+
+<!--
+     <export method="exportCollada" id="stan.ColladaTranslator.export" >
+Import an STL file
+
+@param the File object to export to
+     </export>
+-->
+  </plugin>
+
+  <resource type="TranslateBundle" id="Collada" name="ColladaTranslator" />
+
+<!--
+  <resource type="fileType" id="dae" name="stan.ColladaTranslator.import" />
+-->
+
+  <!-- by default, insist that the user must confirm download -->
+  <filter preAlpha="confirm" />
+
+  <description>
+Export facilities for Collada files
+  </description>
+  <comments>
+This plugin provides eport (only) support to the Collada format.
+
+**This version is still regarded as pre-alpha quality **
+  </comments>
+  <history>
+     <log version="0.01" Author="Stan">
+ - original coding
+     </log>
+  </history>
+</extension>
+

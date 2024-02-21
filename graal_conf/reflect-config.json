@@ -1,0 +1,756 @@
+[
+{
+  "name":"[Ljava.awt.event.MouseMotionListener;"
+},
+{
+  "name":"armadesignstudio.osspecific.MacOSPlugin",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.plugin.SolidTool",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.polymesh.PMOBJTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.polymesh.PolyMeshPlugin",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.raster.Raster",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.raytracer.PhotonSourceFactory"
+},
+{
+  "name":"armadesignstudio.raytracer.RTObjectFactory"
+},
+{
+  "name":"armadesignstudio.raytracer.RaytracerRenderer",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.spmanager.SPManagerPlugin",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.spmanager.postinstall.PostInstall",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.ArrayTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.CSGTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.ExtrudeTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.LatheTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.SkinTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.TextTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.tools.TubeTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.translators.ColladaTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.translators.GCodeTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.translators.OBJTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.translators.POVTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.translators.STLTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armadesignstudio.translators.VRMLTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.Account",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.Account$1$1",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.ArmaRender"
+},
+{
+  "name":"armarender.CrashSimulation",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.CrashSimulation$2",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.CurveEditorWindow",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }]
+},
+{
+  "name":"armarender.CurveViewer",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.DownloadFiles",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doCancel","parameterTypes":[] }]
+},
+{
+  "name":"armarender.DownloadFiles$FileTreeRenderer",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.InventoryManagement",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doCancel","parameterTypes":[] }]
+},
+{
+  "name":"armarender.LayoutWindow",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"actionPerformed","parameterTypes":["buoy.event.CommandEvent"] }, {"name":"addFolderCommand","parameterTypes":[] }, {"name":"backupCommand","parameterTypes":[] }, {"name":"downloadFilesCommand","parameterTypes":[] }, {"name":"editObjectCommand","parameterTypes":[] }, {"name":"getArcFromTubeMesh","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"intersectionFolderCommand","parameterTypes":[] }, {"name":"inventoryManagementCommand","parameterTypes":[] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"mouseExitedEvent","parameterTypes":["buoy.event.MouseExitedEvent"] }, {"name":"renderCommand","parameterTypes":[] }, {"name":"rotateSceneCommand","parameterTypes":[] }, {"name":"runCrashSimulation","parameterTypes":[] }, {"name":"setGCodeExportScale","parameterTypes":[] }, {"name":"setGridCommand","parameterTypes":[] }, {"name":"setTemplateCommand","parameterTypes":[] }, {"name":"soundTest","parameterTypes":[] }, {"name":"subtractFolderCommand","parameterTypes":[] }, {"name":"toggleSelectionHighlight","parameterTypes":[] }, {"name":"treeSelectionChanged","parameterTypes":[] }, {"name":"unionFolderCommand","parameterTypes":[] }, {"name":"updateMenus","parameterTypes":[] }]
+},
+{
+  "name":"armarender.LayoutWindow$1",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":["buoy.event.MousePressedEvent"] }]
+},
+{
+  "name":"armarender.LayoutWindow$2",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":["buoy.event.KeyPressedEvent"] }]
+},
+{
+  "name":"armarender.LayoutWindow$9",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":[] }]
+},
+{
+  "name":"armarender.MeshEditorWindow",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.MeshViewer",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.MoveScaleRotateMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.MoveScaleRotateObjectTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ObjectEditorWindow",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ObjectEditorWindow$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ObjectEditorWindow$2",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":["buoy.event.MousePressedEvent"] }]
+},
+{
+  "name":"armarender.ObjectPropertiesPanel",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"rebuildContents","parameterTypes":[] }]
+},
+{
+  "name":"armarender.ObjectViewer",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.PhysicalMaterial",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doSelectionChanged","parameterTypes":[] }, {"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"set","parameterTypes":[] }]
+},
+{
+  "name":"armarender.PhysicalMaterial$FileTreeRenderer",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.RecentFiles$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.RenderSetupDialog",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.RotateMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ScaleMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.SceneViewer",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"processMouseScrolled","parameterTypes":["buoy.event.MouseScrolledEvent"] }]
+},
+{
+  "name":"armarender.SceneViewer$ProgressBar",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.SkewMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.Splash",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.Splash$DrawingPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.SplineMeshEditorWindow",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }]
+},
+{
+  "name":"armarender.SplineMeshViewer",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.TaperMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ThickenMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ViewerCanvas",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processMouseDragged","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"processMousePressed","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"processMouseReleased","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"showPopupIfNeeded","parameterTypes":["buoy.event.WidgetMouseEvent"] }]
+},
+{
+  "name":"armarender.animation.Score",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"rebuildList","parameterTypes":[] }, {"name":"scrollbarChanged","parameterTypes":["buoy.event.ValueChangedEvent"] }]
+},
+{
+  "name":"armarender.animation.TimeAxis",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.animation.TracksPanel",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.material.ProceduralMaterial3D",
+  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.material.UniformMaterial",
+  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.texture.ImageMapTexture",
+  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.texture.ProceduralTexture2D",
+  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.texture.ProceduralTexture3D",
+  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.texture.UniformTexture",
+  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.translators.GCodeTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.translators.OBJTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.translators.POVTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.translators.STLTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.translators.VRMLTranslator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.ui.ComponentsDialog",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"buttonPressed","parameterTypes":["buoy.event.CommandEvent"] }]
+},
+{
+  "name":"armarender.ui.ComponentsDialog$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ui.DefaultToolButton",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Object","javax.swing.ImageIcon","javax.swing.ImageIcon"] }, {"name":"readPropertiesFromXMLNode","parameterTypes":["org.w3c.dom.Node"] }, {"name":"setProperties","parameterTypes":["java.lang.Object"] }]
+},
+{
+  "name":"armarender.ui.EditingTool"
+},
+{
+  "name":"armarender.ui.ImageFileChooser",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ui.InfiniteDragListener",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ui.PropertyEditor$ColorSelector",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ui.ToolPalette",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"mouseEntered","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"mouseExited","parameterTypes":[] }, {"name":"mouseMoved","parameterTypes":["buoy.event.MouseMovedEvent"] }, {"name":"mousePressed","parameterTypes":["buoy.event.MousePressedEvent"] }, {"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }]
+},
+{
+  "name":"armarender.ui.TreeList",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"mouseDragged","parameterTypes":["buoy.event.MouseDraggedEvent"] }, {"name":"mousePressed","parameterTypes":["buoy.event.MousePressedEvent"] }, {"name":"mouseReleased","parameterTypes":["buoy.event.MouseReleasedEvent"] }, {"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }]
+},
+{
+  "name":"armarender.ui.ValueSelector",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"paintDial","parameterTypes":["buoy.event.RepaintEvent"] }]
+},
+{
+  "name":"armarender.view.SoftwareCanvasDrawer",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }]
+},
+{
+  "name":"armarender.view.ViewerControl"
+},
+{
+  "name":"armarender.view.ViewerFrontButtonControl$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.view.ViewerFrontButtonControl$2",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":[] }]
+},
+{
+  "name":"armarender.view.ViewerLeftButtonControl$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.view.ViewerLeftButtonControl$2",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":[] }]
+},
+{
+  "name":"armarender.view.ViewerOrientationControl$OrientationChoice",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"viewChanged","parameterTypes":[] }]
+},
+{
+  "name":"armarender.view.ViewerPerspectiveControl$1",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":[] }]
+},
+{
+  "name":"armarender.view.ViewerPerspectiveControl$2",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.view.ViewerScaleControl$1",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":[] }]
+},
+{
+  "name":"armarender.view.ViewerScaleControl$2",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.view.ViewerTopButtonControl$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.view.ViewerTopButtonControl$2",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":[] }]
+},
+{
+  "name":"buoy.internal.SingleWidgetPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.internal.WidgetContainerPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BComboBox$2",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BDialog",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"buoy.widget.BDialog$BDialogComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BFrame$BFrameComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BScrollBar$BScrollBarComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BScrollPane$ContentViewport",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BScrollPane$ScrollPaneComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BWindow$BWindowComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.CustomWidget$CustomWidgetComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.RadioButtonGroup",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"buoy.widget.WindowWidget",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"dispose","parameterTypes":[] }]
+},
+{
+  "name":"buoyx.docking.DockableWidget$DockableWidgetPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoyx.docking.DragManager",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"com.apple.laf.AquaButtonBorder$Dynamic",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaButtonBorder$Named",
+  "methods":[{"name":"<init>","parameterTypes":["com.apple.laf.AquaButtonBorder$Named"] }]
+},
+{
+  "name":"com.apple.laf.AquaButtonBorder$Toggle",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaButtonCheckBoxUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaButtonRadioUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaButtonUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaButtonUI$AquaHierarchyButtonListener",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaComboBoxUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaFileChooserUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaGroupBorder$Titleless",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaKeyBindings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaLabelUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaListUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaLookAndFeel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaMenuBarUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaMenuItemUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaMenuPainter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaMenuUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaMnemonicHandler$AltProcessor",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaOptionPaneUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaPanelUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaPopupMenuSeparatorUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaPopupMenuUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaProgressBarUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaRootPaneUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaScrollBarUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaScrollPaneUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaScrollRegionBorder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaSliderUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaSplitPaneUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaTableHeaderUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaTableUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaTextAreaUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaTextFieldBorder",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.apple.laf.AquaTextFieldUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaToolTipUI",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaTreeUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.apple.laf.AquaUtilControlSize$PropertySizeListener",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"java.awt.SequencedEvent"
+},
+{
+  "name":"java.awt.SystemColor",
+  "fields":[{"name":"activeCaption"}, {"name":"activeCaptionBorder"}, {"name":"activeCaptionText"}, {"name":"control"}, {"name":"controlDkShadow"}, {"name":"controlHighlight"}, {"name":"controlLtHighlight"}, {"name":"controlShadow"}, {"name":"controlText"}, {"name":"desktop"}, {"name":"inactiveCaption"}, {"name":"inactiveCaptionBorder"}, {"name":"inactiveCaptionText"}, {"name":"info"}, {"name":"infoText"}, {"name":"menu"}, {"name":"menuText"}, {"name":"scrollbar"}, {"name":"text"}, {"name":"textHighlight"}, {"name":"textHighlightText"}, {"name":"textInactiveText"}, {"name":"textText"}, {"name":"window"}, {"name":"windowBorder"}, {"name":"windowText"}]
+},
+{
+  "name":"java.awt.Toolkit",
+  "fields":[{"name":"eventListener"}]
+},
+{
+  "name":"java.awt.event.KeyEvent",
+  "fields":[{"name":"VK_A"}, {"name":"VK_B"}, {"name":"VK_BACK_SLASH"}, {"name":"VK_BACK_SPACE"}, {"name":"VK_C"}, {"name":"VK_CONTEXT_MENU"}, {"name":"VK_COPY"}, {"name":"VK_CUT"}, {"name":"VK_D"}, {"name":"VK_DELETE"}, {"name":"VK_DOWN"}, {"name":"VK_E"}, {"name":"VK_END"}, {"name":"VK_ENTER"}, {"name":"VK_ESCAPE"}, {"name":"VK_F"}, {"name":"VK_F10"}, {"name":"VK_F6"}, {"name":"VK_F8"}, {"name":"VK_H"}, {"name":"VK_HOME"}, {"name":"VK_KP_DOWN"}, {"name":"VK_KP_LEFT"}, {"name":"VK_KP_RIGHT"}, {"name":"VK_KP_UP"}, {"name":"VK_LEFT"}, {"name":"VK_N"}, {"name":"VK_O"}, {"name":"VK_P"}, {"name":"VK_PAGE_DOWN"}, {"name":"VK_PAGE_UP"}, {"name":"VK_PASTE"}, {"name":"VK_RETURN"}, {"name":"VK_RIGHT"}, {"name":"VK_SPACE"}, {"name":"VK_T"}, {"name":"VK_TAB"}, {"name":"VK_UP"}, {"name":"VK_V"}, {"name":"VK_W"}, {"name":"VK_X"}]
+},
+{
+  "name":"java.lang.Thread",
+  "fields":[{"name":"threadLocalRandomProbe"}]
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicBoolean",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.AtomicReference",
+  "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.Striped64",
+  "fields":[{"name":"base"}, {"name":"cellsBusy"}]
+},
+{
+  "name":"javax.imageio.spi.ImageReaderSpi"
+},
+{
+  "name":"javax.imageio.spi.ImageReaderWriterSpi",
+  "methods":[{"name":"getFileSuffixes","parameterTypes":[] }, {"name":"getFormatNames","parameterTypes":[] }, {"name":"getMIMETypes","parameterTypes":[] }]
+},
+{
+  "name":"javax.imageio.spi.ImageWriterSpi"
+},
+{
+  "name":"javax.swing.PopupFactory",
+  "fields":[{"name":"HEAVY_WEIGHT_POPUP"}],
+  "methods":[{"name":"setPopupType","parameterTypes":["int"] }]
+},
+{
+  "name":"javax.swing.plaf.basic.BasicMenuItemUI",
+  "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
+},
+{
+  "name":"javax.swing.plaf.basic.BasicOptionPaneUI",
+  "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
+},
+{
+  "name":"javax.swing.plaf.basic.BasicPopupMenuUI",
+  "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
+},
+{
+  "name":"javax.swing.plaf.basic.BasicViewportUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"nik777.aoi.HelpPlugin",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.awt.shell.ShellFolderManager",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetDrawLineANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetDrawPathANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetDrawPolygonsANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetDrawRectANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetFillPathANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetFillRectANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.loops.SetFillSpansANY",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.java2d.marlin.DMarlinRenderingEngine",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.lwawt.macosx.CImage",
+  "methods":[{"name":"getCreator","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

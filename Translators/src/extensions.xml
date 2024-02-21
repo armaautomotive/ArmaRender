@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="yes"?>
+<extension name="Translators" version="2.5">
+  <author>Peter Eastman</author>
+  <date>2007</date>
+  <description>
+This plugin contains the standard translators which are included with Art of Illusion.  They allow
+importing and exporting a variety of file formats.
+  </description>
+  <comments>
+  </comments>
+  <plugin class="armarender.translators.OBJTranslator"/>
+  <plugin class="armarender.translators.STLTranslator"/>
+  <plugin class="armarender.translators.POVTranslator"/>
+  <plugin class="armarender.translators.VRMLTranslator"/>
+  <plugin class="armarender.translators.GCodeTranslator"/>
+</extension>
+

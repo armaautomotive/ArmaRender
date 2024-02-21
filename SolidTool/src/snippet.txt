@@ -1,0 +1,77 @@
+	/*
+	 * remove degenerate faces
+	 */
+	fix = findInvalidFaces(sel, findAll);
+	if (fix > 0) {
+	    super.setSelectionMode(FACE_MODE);
+	    super.setSelection(sel);
+	    super.deleteCommand();
+	    
+	    mesh = (TriangleMesh) objInfo.object;
+	    vert = (TriangleMesh.Vertex[]) mesh.getVertices();
+	    face = mesh.getFaces();
+	    edge = mesh.getEdges();
+
+	    msg("\ndeleted " + fix + " degenerate faces (" + face.length +
+		" remain)");
+	}
+
+	/* 
+	 * join/delete duplicate edges
+	 */
+	fix = findInvalidEdges(sel, findAll);
+	fixed = 0;
+	if (fix > 0) {
+
+	    // try to remap edges, so they can be deleted
+	    max = edge.length;
+	    for (x = 0; x < max; x++) {
+		if (sel[x]) {
+		    tempEdge = edge[x];
+
+		    sel[x] = false;
+
+		    if (tempEdge.f2 == -1) {
+
+			// try to replace this edge
+			key = getKey(vert[tempEdge.v1], vert[tempEdge.v2]);
+
+			list = (ArrayList) symbol.get(key);
+
+			// degenerate edge
+			if (list == null) {
+			    sel[x] = true;
+			    fixed++;
+			    continue;
+			}
+
+			for (y = list.size()-1; y >= 0; y--) {
+			    tempEdge2 = (TriangleMesh.Edge) list.get(y);
+
+			    if (tempEdge2.f2 == -1) {
+				id=((Integer)symbol.get(tempEdge2)).intValue();
+				if (replaceEdge(mesh, x, id)) {
+				    sel[x] = true;
+				    fixed++;
+				    break;
+				}
+			    }
+			}
+		    }
+		}
+	    }
+
+	    // delete those edges we remapped
+	    super.setSelectionMode(EDGE_MODE);
+	    super.setSelection(sel);
+	    super.deleteCommand();
+
+	    mesh = (TriangleMesh) objInfo.object;
+	    vert = (TriangleMesh.Vertex[]) mesh.getVertices();
+	    face = mesh.getFaces();
+	    edge = mesh.getEdges();
+
+	    msg("\ndeleted " + fixed + "/" + fix +
+		" duplicate/degenerate edges (" + edge.length + " remain)");
+	}
+

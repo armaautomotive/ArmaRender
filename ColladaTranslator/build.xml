@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+
+<project name="ColladaTranslator" default="dist" basedir=".">
+
+  <!-- ADJUST
+	you will need to set this to point to to an existing ArtOfIllusion 
+	installation or build area, so the ArtOfIllusion classes are found.
+   -->
+  <!--
+  <property name="ads" value ="ArmaDesignStudio" />
+  -->
+  <!-- {ads} is often the parent directory...
+       
+  -->
+  <property name="ads" value=".." />
+
+  <!-- ADJST set this to your name/handle/avatar -->
+  <property name="author" value="Stan (MisterAcoustic)" />
+
+  <!-- ADJUST set compiler options -->
+  <!--  <property name="build.compiler" value="classic" /> -->
+  <property name="target_version" value="17" />
+  <property name="source_version" value="17" />
+  <property name="debug" value="on" />
+
+  <!-- work out the full path to basedir -->
+  <dirname property="basedir.path" file="xxx" />
+
+  <!-- import global properties for this build -->
+  <property file="build.props" />
+	
+  <!--  you won't normally need to change any of these  -->
+  <property name="package" value="${ant.project.name}" />
+  <property name="src" value="src" />
+  <property name="build" value="../build" />
+  <property name="docs" value="docs" />
+  <property name="dist" value="Plugins" />
+  <property name="lib" value="lib" />
+  <property name="help" value="help" />
+  <property name="src-package" value="${package}-src-${curr-version}" />
+
+  <!-- secify names of libraries used -->
+  <property name="nanoxml" value="nanoxml-2.2.3.jar" />
+
+  <!-- construct classpath (library CLASSES to reference during compile -->
+  <path id="jarlibs">
+     <pathelement location="${ads}/ArmaDesignStudio.jar" />
+     <pathelement location="${ads}/Plugins/Translators.jar" />
+     <pathelement location="${ads}/Plugins/PreferencesPlugin.jar" />
+     <pathelement location="${lib}/${nanoxml}" />
+  </path>
+  <pathconvert refid="jarlibs" property="classpath" />
+
+  <!-- construct sourcepath (library SOURCE to include in compile -->
+<!--
+  <filelist id="srclibs" dir="." files="Util/src" />
+  <pathconvert refid="srclibs" property="sourcepath" />
+-->
+
+  <echo message="classpath=${classpath}" />
+  <echo message="sourcepath=${sourcepath}" />
+
+  <target name="init">
+
+    <!-- Create the time stamp -->
+    <tstamp/>
+
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}" />
+
+    <!-- Create the dist directory structure used by build -->
+    <mkdir dir="${dist}" />
+
+    <!-- Create the docs directory structure used by documentation -->
+    <mkdir dir="${docs}" />
+
+    <!-- update the version number in extensions.xml -->
+    <replace file="${src}/extensions.xml" >
+       <replacefilter token='version="${old-version}"&gt;'
+	      value='version="${curr-version}"&gt;' />
+
+       <!-- **NOTE** token is literal string: {version} -->
+       <replacefilter token="{version}" value="${curr-version}" />
+    </replace>
+
+    <!-- update the version number in a java source file
+    <replace file="${src}/a/b/D.java"
+       token='version = "${old-version}"'
+       value='version = "${curr-version}"' />
+    -->
+  	
+  </target>
+
+  <target name="compile" depends="init">
+
+    <!-- (optional) compile some external project
+    <ant dir="${util}" inheritAll="false" target="compile">
+      <property name="build" value="${build}" />
+      <property name="debug" value="${debug}" />
+      <property name="util.includes" value="${util.includes}" />
+    </ant>
+    -->
+
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}"
+	   classpath="${classpath}" sourcepath="${sourcepath}" debug="${debug}"
+	   target="${target_version}" source="${source_version}" />
+
+  </target>
+
+  <target name="dist" depends="compile">
+
+    <!-- create the jar file -->
+    <jar jarfile="${dist}/${package}.jar" basedir="${build}" >
+       <fileset dir="${src}" includes="extensions.xml, *.properties, icons/*" />
+       <zipfileset src="${lib}/${nanoxml}" />
+<!--
+       <zipfileset prefix="help" dir="${help}/help" />
+-->
+    </jar>
+
+  </target>
+
+  <target name="source">
+    <!-- create the source archives  -->
+    <zip file="${src-package}.zip" >
+       <zipfileset prefix="${package}/src" dir="${src}" />
+       <zipfileset prefix="${package}" dir="." includes="build.*" />
+       <zipfileset prefix="${package}/lib" dir="${lib}" includes="*.jar" />
+<!-- include a library SOURCE dir
+	   <zipfileset prefix="${package}/${util}" dir="${util}"
+		   includes="build.*, src/${util.includes}" />
+-->
+    </zip>
+       
+    <tar tarfile="${src-package}.tz" compression="gzip">
+       <tarfileset prefix="${package}/src" dir="${src}" />
+       <tarfileset prefix="${package}" dir="." includes="build.*" />
+       <tarfileset prefix="${package}/lib" dir="${lib}" includes="*.jar" />
+<!--
+       <tarfileset prefix="${package}/${util}" dir="${util}"
+		   includes="build.*, src/${util.includes}" />
+ -->
+    </tar>
+  </target>
+
+  <target name="docs" depends="init">
+    <javadoc packagenames="armadesignstudio.*"
+        sourcepath="${src}"
+        defaultexcludes="yes"
+        destdir="${docs}"
+        author="true"
+        version="true"
+        use="true"
+        source="${curr_version}"
+        windowtitle="${package}"
+	public="true">
+      <doctitle><![CDATA[<h1>${package}</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2008 by ${author}.</i>]]></bottom>
+    </javadoc>
+  </target>
+
+  <target name="clean">
+    <!-- Delete the ${build} and ${docs} directory trees -->
+    <delete dir="${docs}" />
+    <delete dir="${build}" />
+
+    <!-- delete dist jar -->
+    <delete file="${dist}/${package}.jar" />
+
+    <!-- delete source packages -->
+    <delete file="./${src-package}.zip" />
+    <delete file="./${src-package}.tz" />
+  </target>
+</project>
+

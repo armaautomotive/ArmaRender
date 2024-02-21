@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone="yes"?>
+<script>
+  <name>SolidTool</name>
+  <author>Nik Trevallyn-Jones</author>
+  <version>0.04</version>
+  <date>June 2005</date>
+  <description>
+Editing Tool for objects that must conform to the limitations of solids.
+
+A derived TriMeshEditorWindow with an additional menu for "Solid"
+operations, and a floating "shotgun" window for validating and editing.
+  </description>
+  <comments>
+This is a derivative work, derived from existing code within AOI.
+
+0.04
+- implemented scroll-to-selected feature
+- implemented initial "shotgun" editing features
+- fixed cosmetic bug in display after deselect
+
+0.03
+- re-implemented "apply grid" logic
+- fixed redisplay of modified object on exit
+
+0.02
+- fixed arrayindex exception
+- separated "fix" command into sub-menu with a fix command for each feature
+  type (fix points, fix edges, fix faces).
+- added "close" command that attempts to automatically close the solid
+- added "apply grid" command that aligns all (or all selected) features on
+  an imaginary grid
+
+0.01
+- original coding
+  </comments>
+</script>
+
+

@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<project name="ArmaRender" default="dist" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="ArmaRender/src" />
+  <property name="build" value="ArmaRender/build" />
+  <property name="docs" value="ArmaRender/docs" />
+  <property name="lib" value="lib" />
+  <property name="dist" value="." />
+  <property name="launch4j.dir" location="launch4j" />
+  
+  <!--  <property name="build.compiler" value="classic" /> -->
+
+  <!-- set of all library jars -->
+  <fileset id="libraries" dir="${lib}" includes="*.jar" />
+
+  <!-- set of all subproject build files -->
+  <fileset id="subproject.files" dir="." includes="*.xml" excludes="${ant.project.name}.xml" />
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}" />
+    <!-- Create the docs directory structure used by documentation -->
+    <mkdir dir="${docs}" />
+  </target>
+
+  <target name="compile" depends="init">
+    <!-- generate a classpath from the "libraries" fileset -->
+    <pathconvert property="classpath" refid="libraries" />
+
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" classpath="${classpath}" debug="on" target="1.9" source="1.9" includeantruntime="false" />
+  </target>
+
+  <target name="core" depends="compile">
+    <!-- generate a Manifest classpath from the "libraries" fileset-->
+    <pathconvert pathsep=" " dirsep="/" property="libraries" refid="libraries">
+      <map from="${basedir}/" to="" />
+    </pathconvert>
+
+    <!-- jar all the required files -->
+    <jar destfile="${dist}/ArmaRender.jar">
+      <fileset dir="${build}"/>
+      <fileset dir="${src}" includes="**/*.xml, **/*.properties, **/*.png, **/*.jpg, **/*.gif, **/*.wav, **/*.html, **/*.js" />
+      <manifest>
+        <attribute name="Main-Class" value="armarender.ArmaRender"/>
+        <attribute name="Class-Path" value="${libraries} jmf.jar"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="dist" depends="core" >
+    <!--
+    <subant target="" >
+      <fileset refid="subproject.files" />
+    </subant>
+    -->
+  </target>
+  
+  
+
+  <target name="docs" depends="init">
+    <javadoc packagenames="armadesignstudio.*"
+        sourcepath="${src}"
+        classpath="${lib}/*.jar"
+        source="1.7"
+        defaultexcludes="yes"
+        destdir="${docs}"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="Arma Design Studio Render Documentation"
+	public="true">
+      <doctitle><![CDATA[<h1>Arma Design Studio Render</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 1999-2011 by Peter Eastman, 2020-2023 Jon Taylor.</i>]]></bottom>
+    </javadoc>
+  </target>
+
+  <target name="clean">
+    <!-- Delete the ${build} and ${docs} directory trees -->
+    <delete dir="${build}" />
+    <delete dir="${docs}" />
+    
+    
+
+    <!-- execute the "clean" target for all found subproject ant files -->
+    <subant target="clean">
+      <fileset refid="subproject.files" />
+    </subant>
+  </target>
+</project>

@@ -1,0 +1,25 @@
+
+
+
+Test environment: M1 mac
+JVM: https://bell-sw.com/pages/downloads/native-image-kit/#nik-23-(jdk-21)
+Note: should work the same on windows and linux.
+Note: the native oracle based graalvm wont work on my mac.
+
+Build jar: ./build.sh
+Run jar: ./run.sh
+Build native: ./native_image.sh
+Run native: ./ArmaRender_Native
+
+
+Note: GraalVM can't handle reflection so there is a tool to configure certain functions by running java with the -agentlib attribute. 
+You don't need to run the command, this is just an fyi.
+
+
+Objective 1) Get the Tool icons working. There are many errors but the first one I want to resolve are the tool bar buttons. 
+Images do load in the Help menu Splash screen. 
+
+I think the relevent code is in ui.ThemeManager.java, DefaultToolButton.java, buoy.xml.IconResource.java.  
+
+
+

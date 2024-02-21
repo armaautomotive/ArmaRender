@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+
+<project name="SolidTool" default="dist" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="src" />
+  <property name="build" value="build" />
+  <property name="docs" value="docs" />
+  <property name="dist" value="../Plugins" />
+  <property name="package" value="SolidTool" />
+  <property name="src-package" value="${package}-src" />
+  <property name="src-build" value="${build}/${package}" />
+
+  <property name="adsjar" value="../ArmaDesignStudio.jar" />
+
+<!--  <property name="build.compiler" value="classic" /> -->
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}" />
+
+    <!-- Create the docs directory structure used by documentation -->
+    <mkdir dir="${docs}" />
+
+  </target>
+
+  <target name="compile" depends="init">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" classpath="${adsjar}" debug="on" target="17" source="17" />
+  </target>
+
+  <target name="dist" depends="compile">
+
+    <!-- create the jar file -->
+    <jar jarfile="${dist}/${package}.jar" basedir="${build}" >
+       <fileset dir="${src}" includes="${package}.xml, plugins" />
+    </jar>
+
+  </target>
+
+  <target name="source">
+    <!-- create the source archives  -->
+    <zip file="${dist}/${src-package}.zip" >
+       <zipfileset prefix="${package}/src" dir="${src}" />
+       <zipfileset prefix="${package}" dir="${dist}" includes="build.xml, README.txt" />
+    </zip>
+       
+    <tar tarfile="${dist}/${src-package}.tz" compression="gzip">
+       <tarfileset prefix="${package}/src" dir="${src}" />
+       <tarfileset prefix="${package}" dir="${dist}" includes="build.xml, README.txt" />
+    </tar>
+  </target>
+
+  <target name="docs" depends="init">
+    <javadoc packagenames="armadesignstudio.*"
+        sourcepath="${src}"
+        defaultexcludes="yes"
+        destdir="${docs}"
+        author="true"
+        version="true"
+        use="true"
+        windowtitle="LogPlugin"
+	public="true">
+      <doctitle><![CDATA[<h1>${package}</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2004 by ${author}.</i>]]></bottom>
+    </javadoc>
+  </target>
+
+  <target name="clean">
+    <!-- Delete the ${build} and ${docs} directory trees -->
+    <delete dir="${build}" />
+    <delete dir="${docs}" />
+    <delete file="${dist}/${package}.jar" />
+    <delete file="${dist}/${src-package}.zip" />
+    <delete file="${dist}/${src-package}.tz" />
+  </target>
+</project>
+

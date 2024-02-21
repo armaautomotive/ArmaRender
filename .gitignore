@@ -1,0 +1,5 @@
+3DModels/
+*.class
+.DS_Store
+Adssrc/HelpPlugin/build/
+Adssrc/Translators/build/
