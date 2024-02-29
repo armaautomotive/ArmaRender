@@ -1,0 +1,22 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+  }, {
+    "pattern":"\\Qarmarender/ArmaRender.class\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/appIcon.png\\E"
+  }]},
+  "bundles":[{
+    "name":"com.sun.java.swing.plaf.windows.resources.windows",
+    "classNames":["com.sun.java.swing.plaf.windows.resources.windows"]
+  }, {
+    "name":"com.sun.swing.internal.plaf.basic.resources.basic",
+    "classNames":["com.sun.swing.internal.plaf.basic.resources.basic"]
+  }, {
+    "name":"sun.awt.resources.awt",
+    "classNames":["sun.awt.resources.awt"]
+  }]
+}

@@ -63,7 +63,7 @@
   
 
   <target name="docs" depends="init">
-    <javadoc packagenames="armadesignstudio.*"
+    <javadoc packagenames="armarender.*"
         sourcepath="${src}"
         classpath="${lib}/*.jar"
         source="1.7"
