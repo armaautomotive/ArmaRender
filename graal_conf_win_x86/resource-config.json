@@ -1,260 +1,449 @@
 {
   "resources":{
-  "includes":[
-    {
-      "pattern":"\\Q5AxisPath_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageReaderSpi\\E"
-    }, 
-    {
-      "pattern":"\\Qarc_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ArmaRender.class\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/Icons/appIcon.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/Icons/defaultTheme.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/Icons/dial.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/Icons/dialKnob.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/Icons/favicon-32x32.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/infographic/title_400.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/0.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/1.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/2.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/6.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/dot.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/footer.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/titleImage0.jpg\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/titleImages/v.png\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/centerhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/nhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/phandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/qhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/uhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/uvscale.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/vhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/xhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/xscale.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/yhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/yscale.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/zhandle.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qarmarender/ui/manipulatorIcons/zscale.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qcamera_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qcube_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qcylendar_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QdimensionLinear_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qdimension_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qfolder.png\\E"
-    }, 
-    {
-      "pattern":"\\Qfolder_intersection.png\\E"
-    }, 
-    {
-      "pattern":"\\Qfolder_subtract.png\\E"
-    }, 
-    {
-      "pattern":"\\Qfolder_union.png\\E"
-    }, 
-    {
-      "pattern":"\\Qforward.png\\E"
-    }, 
-    {
-      "pattern":"\\Qfront.png\\E"
-    }, 
-    {
-      "pattern":"\\Qhidden.png\\E"
-    }, 
-    {
-      "pattern":"\\QinterpCurve_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qkeystrokes.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qlabel_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qleft.png\\E"
-    }, 
-    {
-      "pattern":"\\Qlight_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qlock.png\\E"
-    }, 
-    {
-      "pattern":"\\QmirrorPlane_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QmoveKey.gif\\E"
-    }, 
-    {
-      "pattern":"\\QmoveScaleRotate_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QmoveView_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qmove_1_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qmove_2_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QmultiMode.gif\\E"
-    }, 
-    {
-      "pattern":"\\QmultiPane_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QpanTrack.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qparallel_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qperspective_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qplay.png\\E"
-    }, 
-    {
-      "pattern":"\\Qpolygon_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qpolymesh/theme.xml\\E"
-    }, 
-    {
-      "pattern":"\\Qresize_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qrewind.png\\E"
-    }, 
-    {
-      "pattern":"\\QrotateView_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qrotate_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QsingleMode.gif\\E"
-    }, 
-    {
-      "pattern":"\\QsinglePane_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qsphere_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QsplineMeshVoid_48.png\\E"
-    }, 
-    {
-      "pattern":"\\QsplineMesh_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qstop.png\\E"
-    }, 
-    {
-      "pattern":"\\QsupportInterpCurve_48.png\\E"
-    }, 
-    {
-      "pattern":"\\Qtop.png\\E"
-    }, 
-    {
-      "pattern":"\\QtrackMode.gif\\E"
-    }, 
-    {
-      "pattern":"\\Qviews_96.png\\E"
-    }, 
-    {
-      "pattern":"\\Qvisible.png\\E"
-    }
-  ]},
-  "bundles":[
-    {
-      "name":"armarender",
-      "locales":[
-        "", 
-        "en"
-      ]
-    }, 
-    {
-      "name":"com.sun.java.swing.plaf.windows.resources.windows",
-      "classNames":["com.sun.java.swing.plaf.windows.resources.windows"]
-    }, 
-    {
-      "name":"com.sun.swing.internal.plaf.basic.resources.basic",
-      "classNames":["com.sun.swing.internal.plaf.basic.resources.basic"]
-    }, 
-    {
-      "name":"sun.awt.resources.awt",
-      "classNames":["sun.awt.resources.awt"]
-    }
-  ]
+  "includes":[{
+    "pattern":"\\Q5AxisPath_48.png\\E"
+  }, {
+    "pattern":"\\QButtonBackground.png\\E"
+  }, {
+    "pattern":"\\QButtonBackground\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.awt.im.spi.InputMethodDescriptor\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.InetAddressResolverProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.prefs.PreferencesFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageInputStreamSpi\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageOutputStreamSpi\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageReaderSpi\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageTranscoderSpi\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageWriterSpi\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.sound.sampled.spi.AudioFileReader\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.sound.sampled.spi.MixerProvider\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.apache.commons.logging.LogFactory\\E"
+  }, {
+    "pattern":"\\Qarc_48.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/armarender.class\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/ads.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/appIcon.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/defaultTheme.xml\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/dial.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/dialKnob.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/Icons/favicon-32x32.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/armarender/Icons/iconNotFound.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_autoLayoutPlate.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_evenMesh.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_export3dGCode.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_exportArcTubeBendGCode.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_exportArcTubeBendPDF.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_exportArcTubeNotchGCode.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_exportArcTubeNotchPDF.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_exportGroupGCode.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_setGCodePolyOrdersBySize.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_setLayoutView.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_setModelingView.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cam_tubeNesting.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/cfd_run.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/fea_clothSimulation.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/fea_runCrashSimulation.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/scene_SelectionOutline.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/title_400.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_addNotchesToTubeGeometryCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_addReferenceMarkerCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_addTabsToNotchCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_autoSkin.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_autoSkinByVoids.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_conformCurveToCurvesCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_conformMeshToCurvesCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_connectCurvesCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_connectedCurvesToQuadMeshCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_extractArcTubeGeometryCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_getArcFromTubeMesh.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_getSplineLength.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_joinMultipleSplines.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_mergeIntersectingNotchesCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_notchBentTubeAsPieCutsCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_notchTubeEndsCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_notchTubeEndsOuterCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_notchTubeIntersectionsAngledCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_notchTubeIntersectionsCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_notchTubeIntersectionsOuterCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_resizeMeshCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_rotateNotchNintyCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_routeEqualLengthTubesCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_snapTubeToAdjacentCentersCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_spaceEquallyCommand.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_splineGridSkin.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/infographic/tools_straightenSpline.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/sounds/deny.wav\\E"
+  }, {
+    "pattern":"\\Qarmarender/sounds/success.wav\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/0.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/1.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/2.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/3.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/4.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/5.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/6.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/7.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/8.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/dot.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/footer.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/pc_commands.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/titleImage0.jpg\\E"
+  }, {
+    "pattern":"\\Qarmarender/titleImages/v.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/centerhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/nhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/phandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/qhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/uhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/uvscale.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/vhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/xhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/xscale.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/yhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/yscale.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/zhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/zscale.gif\\E"
+  }, {
+    "pattern":"\\Qback_48.png\\E"
+  }, {
+    "pattern":"\\Qbottom_48.png\\E"
+  }, {
+    "pattern":"\\Qcamera_48.png\\E"
+  }, {
+    "pattern":"\\Qcolor_small_24.png\\E"
+  }, {
+    "pattern":"\\Qcommons-logging.properties\\E"
+  }, {
+    "pattern":"\\Qcube_48.png\\E"
+  }, {
+    "pattern":"\\Qcylendar_48.png\\E"
+  }, {
+    "pattern":"\\QdimensionLinear_48.png\\E"
+  }, {
+    "pattern":"\\Qdimension_48.png\\E"
+  }, {
+    "pattern":"\\Qedge_48.png\\E"
+  }, {
+    "pattern":"\\Qface_48.png\\E"
+  }, {
+    "pattern":"\\Qfocus_small_24.png\\E"
+  }, {
+    "pattern":"\\Qfolder.png\\E"
+  }, {
+    "pattern":"\\Qfolder_intersection.png\\E"
+  }, {
+    "pattern":"\\Qfolder_subtract.png\\E"
+  }, {
+    "pattern":"\\Qfolder_union.png\\E"
+  }, {
+    "pattern":"\\Qforward.png\\E"
+  }, {
+    "pattern":"\\Qfront.png\\E"
+  }, {
+    "pattern":"\\Qfront_48.png\\E"
+  }, {
+    "pattern":"\\Qfulcrum.png\\E"
+  }, {
+    "pattern":"\\Qgcode_small_24.png\\E"
+  }, {
+    "pattern":"\\Qhidden.png\\E"
+  }, {
+    "pattern":"\\QinterpCurve_48.png\\E"
+  }, {
+    "pattern":"\\Qlabel_48.png\\E"
+  }, {
+    "pattern":"\\Qleft.png\\E"
+  }, {
+    "pattern":"\\Qleft_48.png\\E"
+  }, {
+    "pattern":"\\Qlight_48.png\\E"
+  }, {
+    "pattern":"\\Qlock.png\\E"
+  }, {
+    "pattern":"\\QmirrorPlane_48.png\\E"
+  }, {
+    "pattern":"\\QmoveKey.gif\\E"
+  }, {
+    "pattern":"\\QmoveKey.png\\E"
+  }, {
+    "pattern":"\\QmovePoints_48.png\\E"
+  }, {
+    "pattern":"\\QmoveScaleRotate_48.png\\E"
+  }, {
+    "pattern":"\\QmoveView_48.png\\E"
+  }, {
+    "pattern":"\\Qmove_1_48.png\\E"
+  }, {
+    "pattern":"\\Qmove_2_48.png\\E"
+  }, {
+    "pattern":"\\QmultiMode.gif\\E"
+  }, {
+    "pattern":"\\QmultiMode.png\\E"
+  }, {
+    "pattern":"\\QmultiPane_48.png\\E"
+  }, {
+    "pattern":"\\Qnotch_end_small_24.png\\E"
+  }, {
+    "pattern":"\\Qnotch_intersection_small_24.gif\\E"
+  }, {
+    "pattern":"\\Qnotch_intersection_small_24.png\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Courier-Bold.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Courier-BoldOblique.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Courier-Oblique.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Courier.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Helvetica-Bold.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Helvetica-BoldOblique.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Helvetica-Oblique.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Helvetica.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Symbol.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Times-Bold.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Times-BoldItalic.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Times-Italic.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/Times-Roman.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/afm/ZapfDingbats.afm\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/glyphlist/glyphlist.txt\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/glyphlist/zapfdingbats.txt\\E"
+  }, {
+    "pattern":"\\Qorg/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf\\E"
+  }, {
+    "pattern":"\\QpanTrack.gif\\E"
+  }, {
+    "pattern":"\\QpanTrack.png\\E"
+  }, {
+    "pattern":"\\Qparallel_48.png\\E"
+  }, {
+    "pattern":"\\Qperspective_48.png\\E"
+  }, {
+    "pattern":"\\Qplay.png\\E"
+  }, {
+    "pattern":"\\Qpoint_48.png\\E"
+  }, {
+    "pattern":"\\Qpolygon_48.png\\E"
+  }, {
+    "pattern":"\\Qresize_24.png\\E"
+  }, {
+    "pattern":"\\Qresize_48.png\\E"
+  }, {
+    "pattern":"\\Qrewind.png\\E"
+  }, {
+    "pattern":"\\Qright_48.png\\E"
+  }, {
+    "pattern":"\\QrotateView_48.png\\E"
+  }, {
+    "pattern":"\\Qrotate_48.png\\E"
+  }, {
+    "pattern":"\\Qsave_small_24.png\\E"
+  }, {
+    "pattern":"\\Qselected/ButtonBackground.png\\E"
+  }, {
+    "pattern":"\\Qselected/ButtonBackground\\E"
+  }, {
+    "pattern":"\\Qshow_in_tree_24.gif\\E"
+  }, {
+    "pattern":"\\Qshow_in_tree_24.png\\E"
+  }, {
+    "pattern":"\\QsingleMode.gif\\E"
+  }, {
+    "pattern":"\\QsingleMode.png\\E"
+  }, {
+    "pattern":"\\QsinglePane_48.png\\E"
+  }, {
+    "pattern":"\\Qsnap_small_24.gif\\E"
+  }, {
+    "pattern":"\\Qsnap_small_24.png\\E"
+  }, {
+    "pattern":"\\Qsolid_42.png\\E"
+  }, {
+    "pattern":"\\Qsphere_48.png\\E"
+  }, {
+    "pattern":"\\QsplineMeshVoid_48.png\\E"
+  }, {
+    "pattern":"\\QsplineMesh_48.png\\E"
+  }, {
+    "pattern":"\\Qstitch.png\\E"
+  }, {
+    "pattern":"\\Qstop.png\\E"
+  }, {
+    "pattern":"\\QsupportInterpCurve_48.png\\E"
+  }, {
+    "pattern":"\\Qtab_slot_48.gif\\E"
+  }, {
+    "pattern":"\\Qtab_slot_48.png\\E"
+  }, {
+    "pattern":"\\Qtab_slot_small_24.png\\E"
+  }, {
+    "pattern":"\\QtoolNotFound.png\\E"
+  }, {
+    "pattern":"\\Qtop.png\\E"
+  }, {
+    "pattern":"\\Qtop_48.png\\E"
+  }, {
+    "pattern":"\\QtrackMode.gif\\E"
+  }, {
+    "pattern":"\\QtrackMode.png\\E"
+  }, {
+    "pattern":"\\Qtransparent_42.png\\E"
+  }, {
+    "pattern":"\\Qviews_96.png\\E"
+  }, {
+    "pattern":"\\Qvisible.png\\E"
+  }, {
+    "pattern":"armarender/Icons/.*"
+  }, {
+    "pattern":"armarender/titleImages/.*"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/nfkc.nrm\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt72b/uprops.icu\\E"
+  }, {
+    "pattern":"java.base:\\Qsun/net/idn/uidna.spp\\E"
+  }, {
+    "pattern":"java.base:\\Qsun/text/resources/WordBreakIteratorData\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/Computer.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/Directory.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/File.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/FloppyDrive.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/HardDrive.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/HomeFolder.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qcom/sun/java/swing/plaf/windows/icons/TreeLeaf.gif\\E"
+  }, {
+    "pattern":"java.desktop:\\Qjavax/swing/text/html/default.css\\E"
+  }, {
+    "pattern":"java.desktop:\\Qjavax/swing/text/html/parser/html32.bdtd\\E"
+  }]},
+  "bundles":[{
+    "name":"armarender",
+    "locales":["", "en", "und"]
+  }, {
+    "name":"com.sun.java.swing.plaf.windows.resources.windows",
+    "classNames":["com.sun.java.swing.plaf.windows.resources.windows"]
+  }, {
+    "name":"com.sun.swing.internal.plaf.basic.resources.basic",
+    "classNames":["com.sun.swing.internal.plaf.basic.resources.basic"]
+  }, {
+    "name":"sun.awt.resources.awt",
+    "classNames":["sun.awt.resources.awt"]
+  }]
 }
