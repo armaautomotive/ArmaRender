@@ -10,11 +10,11 @@
 */
 
 
-package armadesignstudio.tools;
+package armarender.tools;
 
-import armadesignstudio.*;
-import armadesignstudio.object.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.object.*;
+import armarender.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;

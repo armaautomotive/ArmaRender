@@ -8,12 +8,12 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package armadesignstudio.tools;
+package armarender.tools;
 
-import armadesignstudio.*;
-import armadesignstudio.math.*;
-import armadesignstudio.object.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.math.*;
+import armarender.object.*;
+import armarender.ui.*;
 import buoy.widget.*;
 
 /** The extrude tool creates new objects by extruding a curve or surface along a path. */

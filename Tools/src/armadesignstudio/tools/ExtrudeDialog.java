@@ -9,14 +9,14 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package armadesignstudio.tools;
+package armarender.tools;
 
-import armadesignstudio.*;
-import armadesignstudio.math.*;
-import armadesignstudio.object.*;
-import armadesignstudio.object.TriangleMesh.*;
-import armadesignstudio.texture.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.math.*;
+import armarender.object.*;
+import armarender.object.TriangleMesh.*;
+import armarender.texture.*;
+import armarender.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 import java.awt.*;
@@ -243,7 +243,7 @@ public class ExtrudeDialog extends BDialog
             obj = extrudeMesh(profile.getObject().convertToTriangleMesh(tolField.getValue()), path, profile.getCoords(), pathCoords, angleField.getValue()*Math.PI/180.0, orientBox.getState());
         } else {
              // 
-            if( profile.getObject() instanceof armadesignstudio.object.SplineMesh ){
+            if( profile.getObject() instanceof armarender.object.SplineMesh ){
                 ObjectInfo oi = profile;
                 SplineMesh sm = (SplineMesh)profile.getObject();
                 Vec3 normVec = new Vec3();

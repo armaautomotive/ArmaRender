@@ -9,13 +9,13 @@
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-package armadesignstudio.tools;
+package armarender.tools;
 
-import armadesignstudio.*;
-import armadesignstudio.animation.*;
-import armadesignstudio.object.*;
-import armadesignstudio.math.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.animation.*;
+import armarender.object.*;
+import armarender.math.*;
+import armarender.ui.*;
 import buoy.widget.*;
 import java.util.*;
 

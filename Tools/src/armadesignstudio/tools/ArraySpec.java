@@ -13,11 +13,11 @@
 */
 
 
-package armadesignstudio.tools;
+package armarender.tools;
 
-import armadesignstudio.*;
-import armadesignstudio.math.*;
-import armadesignstudio.object.*;
+import armarender.*;
+import armarender.math.*;
+import armarender.object.*;
 
 import java.util.*;
 

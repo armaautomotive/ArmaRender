@@ -9,10 +9,10 @@
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. 
 */
 
-package armadesignstudio.tools;
+package armarender.tools;
 
-import armadesignstudio.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.ui.*;
 import buoy.widget.*;
 import java.util.*;
 

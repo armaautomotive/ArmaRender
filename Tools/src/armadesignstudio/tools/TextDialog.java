@@ -1,4 +1,4 @@
-package armadesignstudio.tools;
+package armarender.tools;
 
 /* Copyright (C) 2013 by Peter Eastman
 
@@ -11,11 +11,11 @@ package armadesignstudio.tools;
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
 
-import armadesignstudio.*;
-import armadesignstudio.animation.*;
-import armadesignstudio.math.*;
-import armadesignstudio.object.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.animation.*;
+import armarender.math.*;
+import armarender.object.*;
+import armarender.ui.*;
 import buoy.event.*;
 import buoy.widget.*;
 

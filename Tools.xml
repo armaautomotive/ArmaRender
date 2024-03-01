@@ -22,7 +22,7 @@
 
   <target name="compile" depends="init">
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpath="${adsjar}" debug="on" target="1.7" source="1.7" includeantruntime="false" />
+    <javac srcdir="${src}" destdir="${build}" classpath="${adsjar}" debug="on" target="1.8" source="1.8" includeantruntime="false" />
   </target>
 
   <target name="dist" depends="compile">
@@ -41,7 +41,7 @@
         author="true"
         version="true"
         use="true"
-        windowtitle="Arma Design Studio Documentation"
+        windowtitle="Arma Render Documentation"
 	public="true">
       <doctitle><![CDATA[<h1>Arma Design Studio</h1>]]></doctitle>
       <bottom><![CDATA[<i>Copyright &#169; 1999-2008 by Peter Eastman.</i>]]></bottom>

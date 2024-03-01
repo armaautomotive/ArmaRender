@@ -7,19 +7,19 @@ This plugin contains the standard modeling tools which are included with Art of 
   </description>
   <comments>
   </comments>
-  <plugin class="armadesignstudio.tools.ArrayTool"/>
-  <plugin class="armadesignstudio.tools.CSGTool"/>
-  <plugin class="armadesignstudio.tools.ExtrudeTool">
-    <export method="extrudeCurve" id="armadesignstudio.tools.ExtrudeTool.extrudeCurve"/>
-    <export method="extrudeMesh" id="armadesignstudio.tools.ExtrudeTool.extrudeMesh"/>
+  <plugin class="armarender.tools.ArrayTool"/>
+  <plugin class="armarender.tools.CSGTool"/>
+  <plugin class="armarender.tools.ExtrudeTool">
+    <export method="extrudeCurve" id="armarender.tools.ExtrudeTool.extrudeCurve"/>
+    <export method="extrudeMesh" id="armarender.tools.ExtrudeTool.extrudeMesh"/>
   </plugin>
-  <plugin class="armadesignstudio.tools.LatheTool">
-    <export method="latheCurve" id="armadesignstudio.tools.LatheTool.latheCurve"/>
+  <plugin class="armarender.tools.LatheTool">
+    <export method="latheCurve" id="armarender.tools.LatheTool.latheCurve"/>
   </plugin>
-  <plugin class="armadesignstudio.tools.SkinTool"/>
-  <plugin class="armadesignstudio.tools.TextTool">
-    <export method="createText" id="armadesignstudio.tools.TextTool.createText"/>
+  <plugin class="armarender.tools.SkinTool"/>
+  <plugin class="armarender.tools.TextTool">
+    <export method="createText" id="armarender.tools.TextTool.createText"/>
   </plugin>
-  <plugin class="armadesignstudio.tools.TubeTool"/>
+  <plugin class="armarender.tools.TubeTool"/>
 </extension>
 

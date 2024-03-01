@@ -1,4 +1,4 @@
-package armadesignstudio.tools;
+package armarender.tools;
 
 /* Copyright (C) 2006-2013 by Peter Eastman and Julio Sangrador-Patón
 
@@ -10,11 +10,11 @@ package armadesignstudio.tools;
    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
    PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
 
-import armadesignstudio.*;
-import armadesignstudio.math.*;
-import armadesignstudio.object.*;
-import armadesignstudio.texture.*;
-import armadesignstudio.ui.*;
+import armarender.*;
+import armarender.math.*;
+import armarender.object.*;
+import armarender.texture.*;
+import armarender.ui.*;
 
 import java.awt.*;
 import java.awt.font.*;
