@@ -7,7 +7,7 @@
 	installation or build area, so the ArtOfIllusion classes are found.
    -->
   <!--
-  <property name="ads" value ="ArmaDesignStudio" />
+  <property name="ads" value ="ArmaRender" />
   -->
   <!-- {ads} is often the parent directory...
        
@@ -44,7 +44,7 @@
 
   <!-- construct classpath (library CLASSES to reference during compile -->
   <path id="jarlibs">
-     <pathelement location="${ads}/ArmaDesignStudio.jar" />
+     <pathelement location="${ads}/ArmaRender.jar" />
      <pathelement location="${ads}/Plugins/Translators.jar" />
      <pathelement location="${ads}/Plugins/PreferencesPlugin.jar" />
      <pathelement location="${lib}/${nanoxml}" />
@@ -145,7 +145,7 @@
   </target>
 
   <target name="docs" depends="init">
-    <javadoc packagenames="armadesignstudio.*"
+    <javadoc packagenames="armarender.*"
         sourcepath="${src}"
         defaultexcludes="yes"
         destdir="${docs}"

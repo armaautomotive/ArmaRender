@@ -2,10 +2,10 @@
 
 <project name="SPManager" default="dist" basedir=".">
 
-  <!-- set this to point to an appropriate ArmaDesignStudio.jar -->
-  <property name="adsjar" value="ArmaDesignStudio.jar" />
+  <!-- set this to point to an appropriate ArmaRender.jar -->
+  <property name="adsjar" value="ArmaRender.jar" />
 
-  <!-- set this to point to an appropriate ArmaDesignStudio/lib folder-->
+  <!-- set this to point to an appropriate ArmaRender/lib folder-->
   <property name="lib" value="lib" />
   
   <!-- get the current build properties -->
@@ -55,7 +55,7 @@
     </replace>
 
     <!-- update the version number -->
-    <replace file="${src}/armadesignstudio/spmanager/SPManagerFrame.java"
+    <replace file="${src}/armarender/spmanager/SPManagerFrame.java"
        token='version = "${old-version}"'
        value='version = "${curr-version}"' />
 
@@ -72,10 +72,10 @@
     <jar jarfile="${dist}/SPManager.jar" basedir="${build}" manifest="${src}/MANIFEST.MF">
 
 <!--  Only for update (ie prior to 2.5 final) packages
-       <fileset dir="${src}" includes="${package}.xml, plugins, *.properties, armadesignstudio/spmanager/icons/*" />
+       <fileset dir="${src}" includes="${package}.xml, plugins, *.properties, armarender/spmanager/icons/*" />
  -->
 
-       <fileset dir="${src}" includes="extensions.xml *.properties, armadesignstudio/spmanager/icons/*" />
+       <fileset dir="${src}" includes="extensions.xml *.properties, armarender/spmanager/icons/*" />
     </jar>
     
     <!--  Create the PostInstall jar file -->

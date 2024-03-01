@@ -7,7 +7,7 @@
   <property name="build" value="Tools/build" />
   <property name="docs" value="Tools/docs" />
   <property name="dist" value="Plugins" />
-  <property name="adsjar" value="ArmaDesignStudio.jar" />
+  <property name="adsjar" value="ArmaRender.jar" />
 
   <target name="init">
     <!-- Create the time stamp -->
@@ -33,7 +33,7 @@
   </target>
 
   <target name="docs" depends="init">
-    <javadoc packagenames="armadesignstudio.*"
+    <javadoc packagenames="armarender.*"
         sourcepath="${src}"
         classpath="${adsjar}"
         defaultexcludes="yes"

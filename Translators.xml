@@ -32,7 +32,7 @@
   </target>
 
   <target name="docs" depends="init">
-    <javadoc packagenames="armadesignstudio.*"
+    <javadoc packagenames="armarender.*"
         sourcepath="${src}"
         classpath="${adsjar}"
         defaultexcludes="yes"
