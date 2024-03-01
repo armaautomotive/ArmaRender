@@ -7,9 +7,9 @@ This plugin contains the standard renderers (Raster and Raytracer) which are inc
   </description>
   <comments>
   </comments>
-  <category class="armadesignstudio.raytracer.RTObjectFactory"/>
-  <category class="armadesignstudio.raytracer.PhotonSourceFactory"/>
-  <plugin class="armadesignstudio.raster.Raster"/>
-  <plugin class="armadesignstudio.raytracer.RaytracerRenderer"/>
+  <category class="armarender.raytracer.RTObjectFactory"/>
+  <category class="armarender.raytracer.PhotonSourceFactory"/>
+  <plugin class="armarender.raster.Raster"/>
+  <plugin class="armarender.raytracer.RaytracerRenderer"/>
 </extension>
 
