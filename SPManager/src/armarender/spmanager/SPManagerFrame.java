@@ -8,10 +8,10 @@
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
  *  PARTICULAR PURPOSE.  See the GNU General Public License for more details.
  */
-package armadesignstudio.spmanager;
+package armarender.spmanager;
 
-import armadesignstudio.*;
-import armadesignstudio.ui.UIUtilities;
+import armarender.*;
+import armarender.ui.UIUtilities;
 
 import java.awt.*;
 import javax.swing.*;

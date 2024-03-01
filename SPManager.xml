@@ -63,9 +63,9 @@
 
   <target name="compile" depends="init">
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpath="${classpath}" debug="on" target="1.7" source="1.7" includeantruntime="false" />
+    <javac srcdir="${src}" destdir="${build}" classpath="${classpath}" debug="on" target="1.8" source="1.8" includeantruntime="false" />
 
-    <javac srcdir="${postsrc}" destdir="${postbuild}" classpath="${classpath}" debug="on" target="1.7" source="1.7" includeantruntime="false" />
+    <javac srcdir="${postsrc}" destdir="${postbuild}" classpath="${classpath}" debug="on" target="1.8" source="1.8" includeantruntime="false" />
   </target>
 
   <target name="dist" depends="compile">
