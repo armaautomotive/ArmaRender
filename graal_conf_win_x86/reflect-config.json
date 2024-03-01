@@ -68,9 +68,26 @@
   "name":"armarender.ArmaRender"
 },
 {
+  "name":"armarender.CrashSimulation",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.CrashSimulation$2",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.CurveEditorWindow",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }, {"name":"keyPressed","parameterTypes":["buoy.event.KeyPressedEvent"] }]
+},
+{
+  "name":"armarender.CurveViewer",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"armarender.LayoutWindow",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"updateMenus","parameterTypes":[] }]
+  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"editObjectCommand","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"renderCommand","parameterTypes":[] }, {"name":"runCrashSimulation","parameterTypes":[] }, {"name":"updateMenus","parameterTypes":[] }]
 },
 {
   "name":"armarender.LayoutWindow$1",
@@ -79,7 +96,8 @@
 },
 {
   "name":"armarender.LayoutWindow$2",
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":["buoy.event.KeyPressedEvent"] }]
 },
 {
   "name":"armarender.LayoutWindow$9",
@@ -87,22 +105,93 @@
   "methods":[{"name":"processEvent","parameterTypes":[] }]
 },
 {
+  "name":"armarender.MeshEditorWindow",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.MeshViewer",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.MoveScaleRotateMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"armarender.MoveScaleRotateObjectTool",
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"armarender.ObjectEditorWindow",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ObjectEditorWindow$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ObjectEditorWindow$2",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":["buoy.event.MousePressedEvent"] }]
+},
+{
   "name":"armarender.ObjectPropertiesPanel",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"rebuildContents","parameterTypes":[] }]
+  "methods":[{"name":"coordinatesChanged","parameterTypes":["buoy.event.ValueChangedEvent"] }, {"name":"rebuildContents","parameterTypes":[] }]
+},
+{
+  "name":"armarender.ObjectViewer",
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"armarender.RecentFiles$1",
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"armarender.RenderSetupDialog",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.RenderingDialog",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doCancel","parameterTypes":[] }, {"name":"paintCanvas","parameterTypes":["buoy.event.RepaintEvent"] }]
+},
+{
+  "name":"armarender.RotateMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ScaleMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"armarender.SceneViewer",
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }]
+},
+{
+  "name":"armarender.SceneViewer$ProgressBar",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.SkewMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.SplineMeshEditorWindow",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }]
+},
+{
+  "name":"armarender.SplineMeshViewer",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.TaperMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ThickenMeshTool",
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"armarender.ViewerCanvas",
@@ -131,6 +220,41 @@
   "methods":[{"name":"getTypeName","parameterTypes":[] }]
 },
 {
+  "name":"armarender.raster.Raster",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.raytracer.PhotonSourceFactory"
+},
+{
+  "name":"armarender.raytracer.RTObjectFactory"
+},
+{
+  "name":"armarender.raytracer.RTTriangle$TriangleIntersection",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.raytracer.RaytracerRenderer",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.raytracer.RaytracerRenderer$2",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.raytracer.RaytracerRenderer$3",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.raytracer.RaytracerRenderer$4",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"processEvent","parameterTypes":["buoy.event.WidgetEvent"] }]
+},
+{
+  "name":"armarender.raytracer.RaytracerRenderer$5",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"armarender.texture.ImageMapTexture",
   "methods":[{"name":"getTypeName","parameterTypes":[] }]
 },
@@ -145,6 +269,34 @@
 {
   "name":"armarender.texture.UniformTexture",
   "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.ArrayTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.CSGTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.ExtrudeTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.LatheTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.SkinTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.TextTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.TubeTool",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"armarender.translators.GCodeTranslator",
@@ -167,14 +319,36 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"armarender.ui.ComponentsDialog",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"buttonPressed","parameterTypes":["buoy.event.CommandEvent"] }]
+},
+{
+  "name":"armarender.ui.ComponentsDialog$1",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"armarender.ui.DefaultToolButton",
-  "methods":[{"name":"<init>","parameterTypes":["java.lang.Object","javax.swing.ImageIcon","javax.swing.ImageIcon"] }]
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Object","javax.swing.ImageIcon","javax.swing.ImageIcon"] }, {"name":"readPropertiesFromXMLNode","parameterTypes":["org.w3c.dom.Node"] }, {"name":"setProperties","parameterTypes":["java.lang.Object"] }]
 },
 {
   "name":"armarender.ui.EditingTool"
 },
 {
   "name":"armarender.ui.InfiniteDragListener",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ui.PanelDialog",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"buttonPressed","parameterTypes":["buoy.event.CommandEvent"] }]
+},
+{
+  "name":"armarender.ui.PanelDialog$1",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.ui.PropertyEditor$ColorSelector",
   "queryAllDeclaredMethods":true
 },
 {
@@ -251,6 +425,59 @@
   "methods":[{"name":"processEvent","parameterTypes":[] }]
 },
 {
+  "name":"buoy.internal.SingleWidgetPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.internal.WidgetContainerPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BComboBox$2",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BDialog",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"buoy.widget.BDialog$BDialogComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BFrame$BFrameComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BScrollBar$BScrollBarComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BScrollPane$ContentViewport",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.BScrollPane$ScrollPaneComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.CustomWidget$CustomWidgetComponent",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"buoy.widget.RadioButtonGroup",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"buoy.widget.WindowWidget",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"dispose","parameterTypes":[] }]
+},
+{
+  "name":"buoyx.docking.DockableWidget$DockableWidgetPanel",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
   "name":"buoyx.docking.DragManager",
   "queryAllDeclaredMethods":true
 },
@@ -299,7 +526,15 @@
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
 },
 {
+  "name":"com.sun.java.swing.plaf.windows.WindowsProgressBarUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
   "name":"com.sun.java.swing.plaf.windows.WindowsRadioButtonMenuItemUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsRadioButtonUI",
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
 },
 {
@@ -319,6 +554,10 @@
 },
 {
   "name":"com.sun.java.swing.plaf.windows.WindowsSplitPaneUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsTabbedPaneUI",
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
 },
 {
@@ -395,6 +634,10 @@
 },
 {
   "name":"javax.swing.plaf.basic.BasicPopupMenuUI",
+  "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
+},
+{
+  "name":"javax.swing.plaf.basic.BasicRootPaneUI",
   "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
 },
 {

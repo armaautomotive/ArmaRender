@@ -179,6 +179,24 @@
   }, {
     "pattern":"\\Qarmarender/titleImages/v.png\\E"
   }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_E_W.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_NE_SW.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_NW_SE.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_N_E.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_N_S.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_N_W.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_S_E.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_S_W.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/arrows_all.gif\\E"
+  }, {
     "pattern":"\\Qarmarender/ui/manipulatorIcons/centerhandle.gif\\E"
   }, {
     "pattern":"\\Qarmarender/ui/manipulatorIcons/nhandle.gif\\E"
@@ -186,6 +204,22 @@
     "pattern":"\\Qarmarender/ui/manipulatorIcons/phandle.gif\\E"
   }, {
     "pattern":"\\Qarmarender/ui/manipulatorIcons/qhandle.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_bottom.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_bottomleft.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_bottomright.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_left.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_right.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_top.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_topleft.gif\\E"
+  }, {
+    "pattern":"\\Qarmarender/ui/manipulatorIcons/rotate_topright.gif\\E"
   }, {
     "pattern":"\\Qarmarender/ui/manipulatorIcons/uhandle.gif\\E"
   }, {
@@ -216,6 +250,10 @@
     "pattern":"\\Qcommons-logging.properties\\E"
   }, {
     "pattern":"\\Qcube_48.png\\E"
+  }, {
+    "pattern":"\\Qcurve.gif\\E"
+  }, {
+    "pattern":"\\Qcurve.png\\E"
   }, {
     "pattern":"\\Qcylendar_48.png\\E"
   }, {
@@ -251,6 +289,8 @@
   }, {
     "pattern":"\\QinterpCurve_48.png\\E"
   }, {
+    "pattern":"\\Qkeystrokes.xml\\E"
+  }, {
     "pattern":"\\Qlabel_48.png\\E"
   }, {
     "pattern":"\\Qleft.png\\E"
@@ -266,6 +306,8 @@
     "pattern":"\\QmoveKey.gif\\E"
   }, {
     "pattern":"\\QmoveKey.png\\E"
+  }, {
+    "pattern":"\\QmovePoints_48.gif\\E"
   }, {
     "pattern":"\\QmovePoints_48.png\\E"
   }, {
@@ -323,6 +365,10 @@
   }, {
     "pattern":"\\Qorg/apache/pdfbox/resources/ttf/LiberationSans-Regular.ttf\\E"
   }, {
+    "pattern":"\\QoutsetPoints_48.gif\\E"
+  }, {
+    "pattern":"\\QoutsetPoints_48.png\\E"
+  }, {
     "pattern":"\\QpanTrack.gif\\E"
   }, {
     "pattern":"\\QpanTrack.png\\E"
@@ -332,6 +378,10 @@
     "pattern":"\\Qperspective_48.png\\E"
   }, {
     "pattern":"\\Qplay.png\\E"
+  }, {
+    "pattern":"\\Qpoint.gif\\E"
+  }, {
+    "pattern":"\\Qpoint.png\\E"
   }, {
     "pattern":"\\Qpoint_48.png\\E"
   }, {
@@ -345,11 +395,19 @@
   }, {
     "pattern":"\\Qright_48.png\\E"
   }, {
+    "pattern":"\\QrotatePoints_48.gif\\E"
+  }, {
+    "pattern":"\\QrotatePoints_48.png\\E"
+  }, {
     "pattern":"\\QrotateView_48.png\\E"
   }, {
     "pattern":"\\Qrotate_48.png\\E"
   }, {
     "pattern":"\\Qsave_small_24.png\\E"
+  }, {
+    "pattern":"\\QscalePoints_48.gif\\E"
+  }, {
+    "pattern":"\\QscalePoints_48.png\\E"
   }, {
     "pattern":"\\Qselected/ButtonBackground.png\\E"
   }, {
@@ -364,6 +422,16 @@
     "pattern":"\\QsingleMode.png\\E"
   }, {
     "pattern":"\\QsinglePane_48.png\\E"
+  }, {
+    "pattern":"\\Qskeleton_48.gif\\E"
+  }, {
+    "pattern":"\\Qskeleton_48.png\\E"
+  }, {
+    "pattern":"\\QskewPoints_48.gif\\E"
+  }, {
+    "pattern":"\\QskewPoints_48.png\\E"
+  }, {
+    "pattern":"\\QsnapTo_48.png\\E"
   }, {
     "pattern":"\\Qsnap_small_24.gif\\E"
   }, {
@@ -388,6 +456,10 @@
     "pattern":"\\Qtab_slot_48.png\\E"
   }, {
     "pattern":"\\Qtab_slot_small_24.png\\E"
+  }, {
+    "pattern":"\\QtaperPoints_48.gif\\E"
+  }, {
+    "pattern":"\\QtaperPoints_48.png\\E"
   }, {
     "pattern":"\\QtoolNotFound.png\\E"
   }, {
@@ -437,7 +509,7 @@
   }]},
   "bundles":[{
     "name":"armarender",
-    "locales":["en", "und"]
+    "locales":["", "en", "und"]
   }, {
     "name":"com.sun.java.swing.plaf.windows.resources.windows",
     "classNames":["com.sun.java.swing.plaf.windows.resources.windows"]
