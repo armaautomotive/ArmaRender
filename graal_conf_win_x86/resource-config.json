@@ -5,13 +5,7 @@
       "pattern":"\\Q5AxisPath_48.png\\E"
     }, 
     {
-      "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
-    }, 
-    {
       "pattern":"\\QMETA-INF/services/javax.imageio.spi.ImageReaderSpi\\E"
-    }, 
-    {
-      "pattern":"\\QMETA-INF/services/javax.xml.parsers.DocumentBuilderFactory\\E"
     }, 
     {
       "pattern":"\\Qarc_48.png\\E"
@@ -24,6 +18,12 @@
     }, 
     {
       "pattern":"\\Qarmarender/Icons/defaultTheme.xml\\E"
+    }, 
+    {
+      "pattern":"\\Qarmarender/Icons/dial.png\\E"
+    }, 
+    {
+      "pattern":"\\Qarmarender/Icons/dialKnob.png\\E"
     }, 
     {
       "pattern":"\\Qarmarender/Icons/favicon-32x32.png\\E"

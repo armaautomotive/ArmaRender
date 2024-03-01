@@ -7,10 +7,10 @@
 
 
 native-image -Djava.awt.headless=false ^
- -H:ReflectionConfigurationFiles=graal_conf/reflect-config.json ^
- -H:ResourceConfigurationFiles=graal_conf/resource-config.json  ^
- -H:DynamicProxyConfigurationFiles=graal_conf/proxy-config.json ^
- -H:JNIConfigurationFiles=graal_conf/jni-config.json ^
+ -H:ReflectionConfigurationFiles=graal_conf_win_x86/reflect-config.json ^
+ -H:ResourceConfigurationFiles=graal_conf_win_x86/resource-config.json  ^
+ -H:DynamicProxyConfigurationFiles=graal_conf_win_x86/proxy-config.json ^
+ -H:JNIConfigurationFiles=graal_conf_win_x86/jni-config.json ^
  --enable-url-protocols=http ^
  -jar ArmaRender.jar ^
  -H:Name=ArmaRender_Native

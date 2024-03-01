@@ -3,6 +3,9 @@
   "name":"[Ljava.util.Locale;"
 },
 {
+  "name":"[Lsun.awt.shell.ShellFolderColumnInfo;"
+},
+{
   "name":"[Lsun.java2d.loops.GraphicsPrimitive;"
 },
 {
@@ -480,6 +483,26 @@
   "fields":[{"name":"sdCurrent"}]
 },
 {
+  "name":"sun.awt.shell.ShellFolderColumnInfo",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","int","int","boolean"] }]
+},
+{
+  "name":"sun.awt.shell.Win32ShellFolder2",
+  "fields":[
+    {"name":"FDATE"}, 
+    {"name":"FNAME"}, 
+    {"name":"FSIZE"}, 
+    {"name":"FTYPE"}, 
+    {"name":"displayName"}, 
+    {"name":"folderType"}, 
+    {"name":"pIShellIcon"}
+  ],
+  "methods":[
+    {"name":"setIShellFolder","parameterTypes":["long"] }, 
+    {"name":"setRelativePIDL","parameterTypes":["long"] }
+  ]
+},
+{
   "name":"sun.awt.windows.WComponentPeer",
   "fields":[
     {"name":"hwnd"}, 
@@ -578,18 +601,12 @@
   "methods":[{"name":"getGlyphMetrics","parameterTypes":["int"] }]
 },
 {
-  "name":"sun.font.FontUtilities",
-  "methods":[{"name":"debugFonts","parameterTypes":[] }]
-},
-{
   "name":"sun.font.FreetypeFontScaler",
   "methods":[{"name":"invalidateScaler","parameterTypes":[] }]
 },
 {
   "name":"sun.font.GlyphList",
   "fields":[
-    {"name":"gposx"}, 
-    {"name":"gposy"}, 
     {"name":"images"}, 
     {"name":"lcdRGBOrder"}, 
     {"name":"lcdSubPixPos"}, 
