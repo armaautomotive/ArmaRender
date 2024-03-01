@@ -70,12 +70,7 @@
 {
   "name":"armarender.LayoutWindow",
   "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"accountSettingsCommand","parameterTypes":[] }, 
-    {"name":"helpAbout","parameterTypes":[] }, 
-    {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, 
-    {"name":"updateMenus","parameterTypes":[] }
-  ]
+  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"updateMenus","parameterTypes":[] }]
 },
 {
   "name":"armarender.LayoutWindow$1",
@@ -112,12 +107,7 @@
 {
   "name":"armarender.ViewerCanvas",
   "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"processMouseDragged","parameterTypes":["buoy.event.WidgetMouseEvent"] }, 
-    {"name":"processMousePressed","parameterTypes":["buoy.event.WidgetMouseEvent"] }, 
-    {"name":"processMouseReleased","parameterTypes":["buoy.event.WidgetMouseEvent"] }, 
-    {"name":"showPopupIfNeeded","parameterTypes":["buoy.event.WidgetMouseEvent"] }
-  ]
+  "methods":[{"name":"processMouseDragged","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"processMousePressed","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"processMouseReleased","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"showPopupIfNeeded","parameterTypes":["buoy.event.WidgetMouseEvent"] }]
 },
 {
   "name":"armarender.animation.Score",
@@ -190,14 +180,7 @@
 {
   "name":"armarender.ui.ToolPalette",
   "queryAllDeclaredMethods":true,
-  "methods":[
-    {"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, 
-    {"name":"mouseEntered","parameterTypes":["buoy.event.MouseEnteredEvent"] }, 
-    {"name":"mouseExited","parameterTypes":[] }, 
-    {"name":"mouseMoved","parameterTypes":["buoy.event.MouseMovedEvent"] }, 
-    {"name":"mousePressed","parameterTypes":["buoy.event.MousePressedEvent"] }, 
-    {"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }
-  ]
+  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"mouseEntered","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"mouseExited","parameterTypes":[] }, {"name":"mouseMoved","parameterTypes":["buoy.event.MouseMovedEvent"] }, {"name":"mousePressed","parameterTypes":["buoy.event.MousePressedEvent"] }, {"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }]
 },
 {
   "name":"armarender.ui.TreeList",
@@ -359,76 +342,11 @@
 },
 {
   "name":"java.awt.SystemColor",
-  "fields":[
-    {"name":"activeCaption"}, 
-    {"name":"activeCaptionBorder"}, 
-    {"name":"activeCaptionText"}, 
-    {"name":"control"}, 
-    {"name":"controlDkShadow"}, 
-    {"name":"controlHighlight"}, 
-    {"name":"controlLtHighlight"}, 
-    {"name":"controlShadow"}, 
-    {"name":"controlText"}, 
-    {"name":"desktop"}, 
-    {"name":"inactiveCaption"}, 
-    {"name":"inactiveCaptionBorder"}, 
-    {"name":"inactiveCaptionText"}, 
-    {"name":"info"}, 
-    {"name":"infoText"}, 
-    {"name":"menu"}, 
-    {"name":"menuText"}, 
-    {"name":"scrollbar"}, 
-    {"name":"text"}, 
-    {"name":"textHighlight"}, 
-    {"name":"textHighlightText"}, 
-    {"name":"textInactiveText"}, 
-    {"name":"textText"}, 
-    {"name":"window"}, 
-    {"name":"windowBorder"}, 
-    {"name":"windowText"}
-  ]
+  "fields":[{"name":"activeCaption"}, {"name":"activeCaptionBorder"}, {"name":"activeCaptionText"}, {"name":"control"}, {"name":"controlDkShadow"}, {"name":"controlHighlight"}, {"name":"controlLtHighlight"}, {"name":"controlShadow"}, {"name":"controlText"}, {"name":"desktop"}, {"name":"inactiveCaption"}, {"name":"inactiveCaptionBorder"}, {"name":"inactiveCaptionText"}, {"name":"info"}, {"name":"infoText"}, {"name":"menu"}, {"name":"menuPressedItemB"}, {"name":"menuPressedItemF"}, {"name":"menuText"}, {"name":"scrollbar"}, {"name":"text"}, {"name":"textHighlight"}, {"name":"textHighlightText"}, {"name":"textInactiveText"}, {"name":"textText"}, {"name":"window"}, {"name":"windowBorder"}, {"name":"windowText"}]
 },
 {
   "name":"java.awt.event.KeyEvent",
-  "fields":[
-    {"name":"VK_A"}, 
-    {"name":"VK_BACK_SLASH"}, 
-    {"name":"VK_BACK_SPACE"}, 
-    {"name":"VK_C"}, 
-    {"name":"VK_CONTEXT_MENU"}, 
-    {"name":"VK_COPY"}, 
-    {"name":"VK_CUT"}, 
-    {"name":"VK_DELETE"}, 
-    {"name":"VK_DOWN"}, 
-    {"name":"VK_END"}, 
-    {"name":"VK_ENTER"}, 
-    {"name":"VK_ESCAPE"}, 
-    {"name":"VK_F10"}, 
-    {"name":"VK_F2"}, 
-    {"name":"VK_F4"}, 
-    {"name":"VK_F5"}, 
-    {"name":"VK_F6"}, 
-    {"name":"VK_F8"}, 
-    {"name":"VK_H"}, 
-    {"name":"VK_HOME"}, 
-    {"name":"VK_INSERT"}, 
-    {"name":"VK_KP_DOWN"}, 
-    {"name":"VK_KP_LEFT"}, 
-    {"name":"VK_KP_RIGHT"}, 
-    {"name":"VK_KP_UP"}, 
-    {"name":"VK_LEFT"}, 
-    {"name":"VK_O"}, 
-    {"name":"VK_PAGE_DOWN"}, 
-    {"name":"VK_PAGE_UP"}, 
-    {"name":"VK_PASTE"}, 
-    {"name":"VK_RIGHT"}, 
-    {"name":"VK_SLASH"}, 
-    {"name":"VK_SPACE"}, 
-    {"name":"VK_TAB"}, 
-    {"name":"VK_UP"}, 
-    {"name":"VK_V"}, 
-    {"name":"VK_X"}
-  ]
+  "fields":[{"name":"VK_A"}, {"name":"VK_BACK_SLASH"}, {"name":"VK_BACK_SPACE"}, {"name":"VK_C"}, {"name":"VK_CONTEXT_MENU"}, {"name":"VK_COPY"}, {"name":"VK_CUT"}, {"name":"VK_DELETE"}, {"name":"VK_DOWN"}, {"name":"VK_END"}, {"name":"VK_ENTER"}, {"name":"VK_ESCAPE"}, {"name":"VK_F10"}, {"name":"VK_F2"}, {"name":"VK_F4"}, {"name":"VK_F5"}, {"name":"VK_F6"}, {"name":"VK_F8"}, {"name":"VK_H"}, {"name":"VK_HOME"}, {"name":"VK_INSERT"}, {"name":"VK_KP_DOWN"}, {"name":"VK_KP_LEFT"}, {"name":"VK_KP_RIGHT"}, {"name":"VK_KP_UP"}, {"name":"VK_LEFT"}, {"name":"VK_O"}, {"name":"VK_PAGE_DOWN"}, {"name":"VK_PAGE_UP"}, {"name":"VK_PASTE"}, {"name":"VK_RIGHT"}, {"name":"VK_SLASH"}, {"name":"VK_SPACE"}, {"name":"VK_TAB"}, {"name":"VK_UP"}, {"name":"VK_V"}, {"name":"VK_X"}]
 },
 {
   "name":"java.security.MessageDigestSpi"
@@ -437,15 +355,15 @@
   "name":"java.security.SecureRandomParameters"
 },
 {
+  "name":"java.util.concurrent.atomic.AtomicBoolean",
+  "fields":[{"name":"value"}]
+},
+{
   "name":"javax.imageio.spi.ImageReaderSpi"
 },
 {
   "name":"javax.imageio.spi.ImageReaderWriterSpi",
-  "methods":[
-    {"name":"getFileSuffixes","parameterTypes":[] }, 
-    {"name":"getFormatNames","parameterTypes":[] }, 
-    {"name":"getMIMETypes","parameterTypes":[] }
-  ]
+  "methods":[{"name":"getFileSuffixes","parameterTypes":[] }, {"name":"getFormatNames","parameterTypes":[] }, {"name":"getMIMETypes","parameterTypes":[] }]
 },
 {
   "name":"javax.imageio.spi.ImageWriterSpi"
@@ -469,10 +387,7 @@
 },
 {
   "name":"javax.swing.plaf.basic.BasicOptionPaneUI",
-  "methods":[
-    {"name":"createUI","parameterTypes":["javax.swing.JComponent"] }, 
-    {"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }
-  ]
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }, {"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
 },
 {
   "name":"javax.swing.plaf.basic.BasicPanelUI",

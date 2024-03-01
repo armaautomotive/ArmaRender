@@ -41,7 +41,7 @@
   }, {
     "pattern":"\\Qarc_48.png\\E"
   }, {
-    "pattern":"\\Qarmarender/armarender.class\\E"
+    "pattern":"\\Qarmarender/ArmaRender.class\\E"
   }, {
     "pattern":"\\Qarmarender/Icons/ads.png\\E"
   }, {
@@ -54,6 +54,8 @@
     "pattern":"\\Qarmarender/Icons/dialKnob.png\\E"
   }, {
     "pattern":"\\Qarmarender/Icons/favicon-32x32.png\\E"
+  }, {
+    "pattern":"\\Qarmarender/armarender.class\\E"
   }, {
     "pattern":"\\Qarmarender/armarender/Icons/iconNotFound.png\\E"
   }, {
@@ -435,7 +437,7 @@
   }]},
   "bundles":[{
     "name":"armarender",
-    "locales":["", "en", "und"]
+    "locales":["en", "und"]
   }, {
     "name":"com.sun.java.swing.plaf.windows.resources.windows",
     "classNames":["com.sun.java.swing.plaf.windows.resources.windows"]
