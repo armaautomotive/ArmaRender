@@ -205,6 +205,13 @@ public class ArmaRender
     PluginRegistry.registerPlugin(new OutlineFilter());
     PluginRegistry.registerPlugin(new NoiseReductionFilter());
     PluginRegistry.registerPlugin(new DepthOfFieldFilter());
+    
+    
+    
+    // Import code from libs (for GraalVM)
+    PluginRegistry.registerPlugin(new armarender.translators.OBJTranslator());
+
+    
     PluginRegistry.registerResource("TranslateBundle", "armarender", ArmaRender.class.getClassLoader(), "armarender", null);
     PluginRegistry.registerResource("UITheme", "default", ArmaRender.class.getClassLoader(), "armarender/Icons/defaultTheme.xml", null);
     PluginRegistry.scanPlugins();
