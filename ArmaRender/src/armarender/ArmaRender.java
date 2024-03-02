@@ -223,6 +223,8 @@ public class ArmaRender
     PluginRegistry.registerPlugin(new armarender.tools.TextTool());
     PluginRegistry.registerPlugin(new armarender.tools.TubeTool());
 
+    PluginRegistry.registerPlugin(new armarender.raster.Raster());
+    PluginRegistry.registerPlugin(new armarender.raytracer.RaytracerRenderer());
     
     PluginRegistry.registerResource("TranslateBundle", "armarender", ArmaRender.class.getClassLoader(), "armarender", null);
     PluginRegistry.registerResource("UITheme", "default", ArmaRender.class.getClassLoader(), "armarender/Icons/defaultTheme.xml", null);

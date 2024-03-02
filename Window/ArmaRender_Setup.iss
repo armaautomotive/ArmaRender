@@ -41,7 +41,19 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "C:\Arma\ArmaRender\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Arma\ArmaRender\Window\VC_redist.x64.exe"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "C:\Arma\ArmaRender\Window\VC_redist.x64.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\awt.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\fontmanager.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\freetype.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\java.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\javaaccessbridge.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\javajpeg.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\jawt.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\jsound.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\jvm.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Arma\ArmaRender\lcms.dll"; DestDir: "{app}"; Flags: ignoreversion
+
+
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

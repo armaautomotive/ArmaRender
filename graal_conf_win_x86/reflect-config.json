@@ -68,11 +68,20 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "name":"armarender.Account",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
+  "name":"armarender.Account$1$1",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
   "name":"armarender.ArmaRender"
 },
 {
   "name":"armarender.CrashSimulation",
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }]
 },
 {
   "name":"armarender.CrashSimulation$2",
@@ -90,7 +99,7 @@
 {
   "name":"armarender.LayoutWindow",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"editObjectCommand","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"modellingToolCommand","parameterTypes":["buoy.event.CommandEvent"] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"mouseExitedEvent","parameterTypes":["buoy.event.MouseExitedEvent"] }, {"name":"renderCommand","parameterTypes":[] }, {"name":"rotateSceneCommand","parameterTypes":[] }, {"name":"runCrashSimulation","parameterTypes":[] }, {"name":"updateMenus","parameterTypes":[] }]
+  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"actionPerformed","parameterTypes":["buoy.event.CommandEvent"] }, {"name":"addFolderCommand","parameterTypes":[] }, {"name":"autoAlignTransformCommand","parameterTypes":[] }, {"name":"autoSkin","parameterTypes":[] }, {"name":"conformCurveToCurvesCommand","parameterTypes":[] }, {"name":"conformMeshToCurvesCommand","parameterTypes":[] }, {"name":"editObjectCommand","parameterTypes":[] }, {"name":"findObjectCommand","parameterTypes":[] }, {"name":"getObjectInfo","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"intersectionFolderCommand","parameterTypes":[] }, {"name":"modellingToolCommand","parameterTypes":["buoy.event.CommandEvent"] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"mouseExitedEvent","parameterTypes":["buoy.event.MouseExitedEvent"] }, {"name":"objectLayoutCommand","parameterTypes":[] }, {"name":"renameObjectCommand","parameterTypes":[] }, {"name":"renderCommand","parameterTypes":[] }, {"name":"resizeMeshCommand","parameterTypes":[] }, {"name":"rotateSceneCommand","parameterTypes":[] }, {"name":"runCrashSimulation","parameterTypes":[] }, {"name":"saveCommand","parameterTypes":[] }, {"name":"selectAllCommand","parameterTypes":[] }, {"name":"selectAllCurvesCommand","parameterTypes":[] }, {"name":"subtractFolderCommand","parameterTypes":[] }, {"name":"transformObjectCommand","parameterTypes":[] }, {"name":"treeSelectionChanged","parameterTypes":[] }, {"name":"treeSelectionPickerChanged","parameterTypes":[] }, {"name":"unionFolderCommand","parameterTypes":[] }, {"name":"updateMenus","parameterTypes":[] }]
 },
 {
   "name":"armarender.LayoutWindow$1",
@@ -139,11 +148,20 @@
 {
   "name":"armarender.ObjectPropertiesPanel",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"coordinatesChanged","parameterTypes":["buoy.event.ValueChangedEvent"] }, {"name":"rebuildContents","parameterTypes":[] }]
+  "methods":[{"name":"coordinatesChanged","parameterTypes":["buoy.event.ValueChangedEvent"] }, {"name":"nameChanged","parameterTypes":["buoy.event.WidgetEvent"] }, {"name":"rebuildContents","parameterTypes":[] }]
 },
 {
   "name":"armarender.ObjectViewer",
   "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.PhysicalMaterial",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doCancel","parameterTypes":[] }]
+},
+{
+  "name":"armarender.PhysicalMaterial$FileTreeRenderer",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
 },
 {
   "name":"armarender.RecentFiles$1",
@@ -159,6 +177,10 @@
   "methods":[{"name":"doCancel","parameterTypes":[] }, {"name":"paintCanvas","parameterTypes":["buoy.event.RepaintEvent"] }]
 },
 {
+  "name":"armarender.ResizeSplineMesh",
+  "queryAllDeclaredMethods":true
+},
+{
   "name":"armarender.RotateMeshTool",
   "queryAllDeclaredMethods":true
 },
@@ -169,7 +191,7 @@
 {
   "name":"armarender.SceneViewer",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }]
+  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"processMouseScrolled","parameterTypes":["buoy.event.MouseScrolledEvent"] }]
 },
 {
   "name":"armarender.SceneViewer$ProgressBar",
@@ -193,7 +215,20 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"armarender.TextViewer",
+  "methods":[{"name":"coalesceEvents","parameterTypes":["java.awt.AWTEvent","java.awt.AWTEvent"] }]
+},
+{
   "name":"armarender.ThickenMeshTool",
+  "queryAllDeclaredMethods":true
+},
+{
+  "name":"armarender.TransformDialog",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }]
+},
+{
+  "name":"armarender.TransformDialog$1",
   "queryAllDeclaredMethods":true
 },
 {
@@ -202,9 +237,18 @@
   "methods":[{"name":"processMouseDragged","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"processMousePressed","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"processMouseReleased","parameterTypes":["buoy.event.WidgetMouseEvent"] }, {"name":"showPopupIfNeeded","parameterTypes":["buoy.event.WidgetMouseEvent"] }]
 },
 {
+  "name":"armarender.animation.PositionTrack",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":["armarender.object.ObjectInfo"] }]
+},
+{
+  "name":"armarender.animation.RotationTrack",
+  "methods":[{"name":"<init>","parameterTypes":["armarender.object.ObjectInfo"] }]
+},
+{
   "name":"armarender.animation.Score",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"scrollbarChanged","parameterTypes":["buoy.event.ValueChangedEvent"] }]
+  "methods":[{"name":"rebuildList","parameterTypes":[] }, {"name":"scrollbarChanged","parameterTypes":["buoy.event.ValueChangedEvent"] }]
 },
 {
   "name":"armarender.animation.TimeAxis",
@@ -221,6 +265,26 @@
 {
   "name":"armarender.material.UniformMaterial",
   "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.object.Cube",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.Scene"] }]
+},
+{
+  "name":"armarender.object.Curve",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.Scene"] }]
+},
+{
+  "name":"armarender.object.DirectionalLight",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.Scene"] }]
+},
+{
+  "name":"armarender.object.SceneCamera",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.Scene"] }]
+},
+{
+  "name":"armarender.object.SplineMesh",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.Scene"] }]
 },
 {
   "name":"armarender.raster.Raster",
@@ -270,8 +334,12 @@
   "methods":[{"name":"getTypeName","parameterTypes":[] }]
 },
 {
+  "name":"armarender.texture.UniformMapping",
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.object.Object3D","armarender.texture.Texture"] }]
+},
+{
   "name":"armarender.texture.UniformTexture",
-  "methods":[{"name":"getTypeName","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":["java.io.DataInputStream","armarender.Scene"] }, {"name":"getTypeName","parameterTypes":[] }]
 },
 {
   "name":"armarender.tools.ArrayDialog",
@@ -367,7 +435,7 @@
 {
   "name":"armarender.ui.TreeList",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }]
+  "methods":[{"name":"mouseClicked","parameterTypes":["buoy.event.MouseClickedEvent"] }, {"name":"mouseDragged","parameterTypes":["buoy.event.MouseDraggedEvent"] }, {"name":"mousePressed","parameterTypes":["buoy.event.MousePressedEvent"] }, {"name":"mouseReleased","parameterTypes":["buoy.event.MouseReleasedEvent"] }, {"name":"paint","parameterTypes":["buoy.event.RepaintEvent"] }]
 },
 {
   "name":"armarender.ui.ValueSelector",
@@ -569,6 +637,10 @@
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
 },
 {
+  "name":"com.sun.java.swing.plaf.windows.WindowsTextAreaUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
   "name":"com.sun.java.swing.plaf.windows.WindowsTextFieldUI",
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
 },
@@ -578,6 +650,10 @@
 },
 {
   "name":"com.sun.java.swing.plaf.windows.WindowsToolBarUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsTreeUI",
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
 },
 {
@@ -593,7 +669,11 @@
 },
 {
   "name":"java.awt.event.KeyEvent",
-  "fields":[{"name":"VK_A"}, {"name":"VK_BACK_SLASH"}, {"name":"VK_BACK_SPACE"}, {"name":"VK_C"}, {"name":"VK_CONTEXT_MENU"}, {"name":"VK_COPY"}, {"name":"VK_CUT"}, {"name":"VK_DELETE"}, {"name":"VK_DOWN"}, {"name":"VK_END"}, {"name":"VK_ENTER"}, {"name":"VK_ESCAPE"}, {"name":"VK_F10"}, {"name":"VK_F2"}, {"name":"VK_F4"}, {"name":"VK_F5"}, {"name":"VK_F6"}, {"name":"VK_F8"}, {"name":"VK_H"}, {"name":"VK_HOME"}, {"name":"VK_INSERT"}, {"name":"VK_KP_DOWN"}, {"name":"VK_KP_LEFT"}, {"name":"VK_KP_RIGHT"}, {"name":"VK_KP_UP"}, {"name":"VK_LEFT"}, {"name":"VK_O"}, {"name":"VK_PAGE_DOWN"}, {"name":"VK_PAGE_UP"}, {"name":"VK_PASTE"}, {"name":"VK_RIGHT"}, {"name":"VK_SLASH"}, {"name":"VK_SPACE"}, {"name":"VK_TAB"}, {"name":"VK_UP"}, {"name":"VK_V"}, {"name":"VK_X"}]
+  "fields":[{"name":"VK_A"}, {"name":"VK_ADD"}, {"name":"VK_BACK_SLASH"}, {"name":"VK_BACK_SPACE"}, {"name":"VK_C"}, {"name":"VK_CONTEXT_MENU"}, {"name":"VK_COPY"}, {"name":"VK_CUT"}, {"name":"VK_DELETE"}, {"name":"VK_DOWN"}, {"name":"VK_END"}, {"name":"VK_ENTER"}, {"name":"VK_ESCAPE"}, {"name":"VK_F10"}, {"name":"VK_F2"}, {"name":"VK_F4"}, {"name":"VK_F5"}, {"name":"VK_F6"}, {"name":"VK_F8"}, {"name":"VK_H"}, {"name":"VK_HOME"}, {"name":"VK_INSERT"}, {"name":"VK_KP_DOWN"}, {"name":"VK_KP_LEFT"}, {"name":"VK_KP_RIGHT"}, {"name":"VK_KP_UP"}, {"name":"VK_LEFT"}, {"name":"VK_O"}, {"name":"VK_PAGE_DOWN"}, {"name":"VK_PAGE_UP"}, {"name":"VK_PASTE"}, {"name":"VK_RIGHT"}, {"name":"VK_SLASH"}, {"name":"VK_SPACE"}, {"name":"VK_SUBTRACT"}, {"name":"VK_T"}, {"name":"VK_TAB"}, {"name":"VK_UP"}, {"name":"VK_V"}, {"name":"VK_X"}]
+},
+{
+  "name":"java.lang.Thread",
+  "fields":[{"name":"threadLocalRandomProbe"}]
 },
 {
   "name":"java.security.MessageDigestSpi"
@@ -604,6 +684,10 @@
 {
   "name":"java.util.concurrent.atomic.AtomicBoolean",
   "fields":[{"name":"value"}]
+},
+{
+  "name":"java.util.concurrent.atomic.Striped64",
+  "fields":[{"name":"base"}, {"name":"cellsBusy"}]
 },
 {
   "name":"javax.imageio.spi.ImageReaderSpi"
@@ -655,6 +739,10 @@
 {
   "name":"javax.swing.plaf.basic.BasicSeparatorUI",
   "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]
+},
+{
+  "name":"javax.swing.plaf.basic.BasicSplitPaneUI",
+  "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]
 },
 {
   "name":"javax.swing.plaf.basic.BasicToolTipUI",
