@@ -210,6 +210,18 @@ public class ArmaRender
     
     // Import code from libs (for GraalVM)
     PluginRegistry.registerPlugin(new armarender.translators.OBJTranslator());
+    PluginRegistry.registerPlugin(new armarender.translators.STLTranslator());
+    PluginRegistry.registerPlugin(new armarender.translators.POVTranslator());
+    PluginRegistry.registerPlugin(new armarender.translators.VRMLTranslator());
+    PluginRegistry.registerPlugin(new armarender.translators.GCodeTranslator());
+
+    PluginRegistry.registerPlugin(new armarender.tools.ArrayTool());
+    PluginRegistry.registerPlugin(new armarender.tools.CSGTool());
+    PluginRegistry.registerPlugin(new armarender.tools.ExtrudeTool());
+    PluginRegistry.registerPlugin(new armarender.tools.LatheTool());
+    PluginRegistry.registerPlugin(new armarender.tools.SkinTool());
+    PluginRegistry.registerPlugin(new armarender.tools.TextTool());
+    PluginRegistry.registerPlugin(new armarender.tools.TubeTool());
 
     
     PluginRegistry.registerResource("TranslateBundle", "armarender", ArmaRender.class.getClassLoader(), "armarender", null);

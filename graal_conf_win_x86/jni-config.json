@@ -250,6 +250,10 @@
   "methods":[{"name":"<init>","parameterTypes":["java.awt.Window","int","java.awt.Window","int","int","long"] }]
 },
 {
+  "name":"sun.awt.UngrabEvent",
+  "methods":[{"name":"<init>","parameterTypes":["java.awt.Component"] }]
+},
+{
   "name":"sun.awt.Win32GraphicsConfig",
   "fields":[{"name":"visual"}]
 },

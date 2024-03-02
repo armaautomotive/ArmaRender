@@ -1,5 +1,8 @@
 [
 {
+  "name":"[Ljava.awt.desktop.SystemSleepListener;"
+},
+{
   "name":"[Ljava.awt.event.MouseMotionListener;"
 },
 {
@@ -87,7 +90,7 @@
 {
   "name":"armarender.LayoutWindow",
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"editObjectCommand","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"renderCommand","parameterTypes":[] }, {"name":"runCrashSimulation","parameterTypes":[] }, {"name":"updateMenus","parameterTypes":[] }]
+  "methods":[{"name":"accountSettingsCommand","parameterTypes":[] }, {"name":"editObjectCommand","parameterTypes":[] }, {"name":"helpAbout","parameterTypes":[] }, {"name":"modellingToolCommand","parameterTypes":["buoy.event.CommandEvent"] }, {"name":"mouseEnteredEvent","parameterTypes":["buoy.event.MouseEnteredEvent"] }, {"name":"mouseExitedEvent","parameterTypes":["buoy.event.MouseExitedEvent"] }, {"name":"renderCommand","parameterTypes":[] }, {"name":"rotateSceneCommand","parameterTypes":[] }, {"name":"runCrashSimulation","parameterTypes":[] }, {"name":"updateMenus","parameterTypes":[] }]
 },
 {
   "name":"armarender.LayoutWindow$1",
@@ -269,6 +272,11 @@
 {
   "name":"armarender.texture.UniformTexture",
   "methods":[{"name":"getTypeName","parameterTypes":[] }]
+},
+{
+  "name":"armarender.tools.ArrayDialog",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"doOk","parameterTypes":[] }]
 },
 {
   "name":"armarender.tools.ArrayTool",
