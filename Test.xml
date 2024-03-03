@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<project name="Test" default="dist" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="Test" />
+  <property name="build" value="Test" />
+  <property name="lib" value="lib" />
+  <property name="dist" value="." />
+  
+  
+  <!--  <property name="build.compiler" value="classic" /> -->
+
+  <!-- set of all library jars -->
+  <fileset id="libraries" dir="${lib}" includes="*.jar" />
+
+  <!-- set of all subproject build files -->
+  <fileset id="subproject.files" dir="." includes="*.xml" excludes="${ant.project.name}.xml" />
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+  </target>
+
+  <target name="compile" depends="init">
+    <!-- generate a classpath from the "libraries" fileset -->
+    <pathconvert property="classpath" refid="libraries" />
+
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" classpath="${classpath}" debug="on" target="1.9" source="1.9" includeantruntime="false" />
+  </target>
+
+  <target name="core" depends="compile">
+    <!-- generate a Manifest classpath from the "libraries" fileset-->
+    <pathconvert pathsep=" " dirsep="/" property="libraries" refid="libraries">
+      <map from="${basedir}/" to="" />
+    </pathconvert>
+
+    <!-- jar all the required files -->
+    <jar destfile="${dist}/Test.jar">
+      <fileset dir="${build}"/>
+      <fileset dir="${src}" includes="**/*.xml, **/*.properties, **/*.png, **/*.jpg, **/*.gif, **/*.wav, **/*.html, **/*.js" />
+      <manifest>
+        <attribute name="Main-Class" value="Test" />
+        <attribute name="Class-Path" value="${libraries} jmf.jar"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="dist" depends="core" >
+    <!--
+    <subant target="" >
+      <fileset refid="subproject.files" />
+    </subant>
+    -->
+  </target>
+</project>
