@@ -33,7 +33,7 @@ WizardStyle=modern
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkablealone
 
 [Files]
 Source: "..\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
@@ -48,7 +48,8 @@ Source: "..\javajpeg.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\jawt.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\jsound.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\jvm.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\lcms.dll"; DestDir: "{app}"; Flags: ignoreversion 
+Source: "..\lcms.dll"; DestDir: "{app}"; Flags: ignoreversion   
+Source: "favicon.ico"; DestDir: "{app}"; Flags: ignoreversion 
 
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -60,8 +61,8 @@ Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; Value
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}" ; IconFilename: {app}\favicon.ico
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: {app}\favicon.ico
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
