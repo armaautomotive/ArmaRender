@@ -349,6 +349,10 @@ public class SceneViewer extends ViewerCanvas
         if((endTime - startTime) > 500){
             System.out.println("Time: " + (endTime - startTime) );
         }
+	// FPS Frame rate.
+        if((endTime - startTime) > 0){
+            fps = 1000 / (endTime - startTime);
+        }
     }
 
     // Hilight the selection.

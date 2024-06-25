@@ -53,6 +53,16 @@ public abstract class ViewerCanvas extends CustomWidget
   protected int position = 0;
     
   public Vec3 viewTarget = null;
+
+	private boolean endpointSelected = false;
+    private boolean midpointSelected = false;
+    
+    private boolean editorSelectionPresent = false;
+    private BoundingBox editorSelectionBounds;
+
+	int textPosX = 10;
+    int textPosY = 0;
+    public double fps;
     
     /*
     static
@@ -1221,6 +1231,12 @@ public abstract class ViewerCanvas extends CustomWidget
     drawer.drawImage(image, x, y);
   }
 
+
+	public void setFontSize(int size){
+        drawer.setFontSize(size);
+    }
+
+
   /**
    * Render an image onto the canvas.  The image is drawn as a planar rectangle in 3D space,
    * which you specify by its four corners in clockwise order, starting from the top left.
@@ -1314,5 +1330,72 @@ public abstract class ViewerCanvas extends CustomWidget
     public int getPosition(){
         return position;
     }
+
+
+
+	public void setTextPosX(int textPosX){
+        this.textPosX = textPosX;
+    }
+    
+    public int getTextPosX(){
+        return textPosX;
+    }
+    
+    public void setTextPosY(int textPosY){
+        this.textPosY = textPosY;
+    }
+    
+    public int getTextPosY(){
+        return textPosY;
+    }
+    
+    public void bumpTextPosY(){
+        textPosY += 20;
+    }
+    
+    public void bumpTextPosY(int pix){
+        textPosY += pix;
+    }
+    
+    public void resetTextPosXY(){
+        textPosX = 10;
+        textPosY = 0;
+    }
+    
+    
+    public void setEndpointSelected(boolean v){
+        endpointSelected = v;
+        repaint();
+    }
+    public boolean isEnpointSelected(){
+        return endpointSelected;
+    }
+    
+
+    public void setMidpointSelected(boolean v){
+        midpointSelected = v;
+        repaint();
+    }
+    public boolean isMidpointSelected(){
+        return midpointSelected;
+    }
+
+
+	public void drawAuxilaryOverlay(){
+        
+      // Draw FPS
+        //if( window != null && window instanceof ADSWindow && ((ADSWindow)window).H_KEY_TOGGLE == true && fps > 0 ){
+            int x = getTextPosX();
+            int y = getTextPosY();
+            y += 20;
+            
+            setFontSize(11);
+            
+            String text = "FPS " + ((int)fps);
+            Color fpsColor = new Color(180, 180, 180);
+            drawString(text, x,  y, fpsColor);
+        //}
+    }
+
     
 }

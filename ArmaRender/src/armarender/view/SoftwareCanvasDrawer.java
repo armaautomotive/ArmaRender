@@ -112,6 +112,9 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     prepareToRender();                                      // does initalization, background gradient, template image, etc.
     view.updateImage();                                     // Draws a grid if enabled.
     view.getCurrentTool().drawOverlay(view);
+
+	view.drawAuxilaryOverlay();
+
     ev.getGraphics().drawImage(theImage, 0, 0, null);       // BufferedImage
   }
 
@@ -3263,6 +3266,22 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
     imageGraphics.setColor(color);
     imageGraphics.drawString(text, x, y);
   }
+
+
+	 /**
+     * setFontSize
+     * Description: 
+     */
+    public void setFontSize(int size){
+        // Monospaced
+        
+        //imageGraphics.setRenderingHint(
+        //        RenderingHints.KEY_TEXT_ANTIALIASING,
+        //        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        
+        imageGraphics.setFont(new Font("Arial", Font.PLAIN, size)); // Arial  Helvetica
+    }
+
     
   /**
    * drawString

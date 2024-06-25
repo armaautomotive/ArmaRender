@@ -119,6 +119,9 @@ public interface CanvasDrawer
 
   public void drawString(String text, int x, int y, Color color);
 
+	public void setFontSize(int size);
+
+
   /** Draw an image onto the canvas. */
 
   public void drawImage(Image image, int x, int y);
