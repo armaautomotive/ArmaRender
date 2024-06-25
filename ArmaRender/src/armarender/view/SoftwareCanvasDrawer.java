@@ -22,6 +22,11 @@ import java.lang.ref.*;
 import armarender.object.*; // JDT for drawing dimensionobjects.
 import java.awt.geom.Rectangle2D;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+
 // temp
 //import java.io.*; // for getScale
 
@@ -48,6 +53,9 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
   public double sceneScale = 1.0; // JDT
   public int backgroundGradient = 2;
 
+	int cores = 1;
+    ExecutorService threadPool;
+
   public SoftwareCanvasDrawer(ViewerCanvas view)
   {
     this.view = view;
@@ -60,6 +68,11 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
         reuseVec2[i] = new Vec2();
     }
     //sceneScale = getScale(); // TODO: use getScale from common class.
+
+
+	cores = Runtime.getRuntime().availableProcessors();
+        threadPool = Executors.newFixedThreadPool(cores);
+
   }
     
   public void setScale(double scale){
@@ -108,7 +121,25 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
 
   public void paint(RepaintEvent ev)
   {
-    bounds = view.getBounds();                              // ViewerCanvas
+	bounds = view.getBounds();                              // ViewerCanvas 
+
+	if(cores > 1){
+		// TODO: multithread  a tile based view.
+		// 1) Split the view.getBounds into regions.
+		int regionAStart = 0;
+		int regionAWidth = bounds.x / 2;
+		int regionBStart = (bounds.x / 2) + 1;
+		int regionBWidth = bounds.x / 2;
+
+		// 2) Use view camera information to segment scene into a smaller region 
+		// Might need to see prepareToRender()
+
+		// 3) composite all the regional images into one full size to display to the user.
+		// TODO...
+	}
+
+
+    
     prepareToRender();                                      // does initalization, background gradient, template image, etc.
     view.updateImage();                                     // Draws a grid if enabled.
     view.getCurrentTool().drawOverlay(view);
