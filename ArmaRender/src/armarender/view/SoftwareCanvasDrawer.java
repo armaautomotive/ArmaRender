@@ -40,9 +40,16 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
 	protected BufferedImage theImageRegionA; // experimental Left 
 	protected BufferedImage theImageRegionB; // experimental Right
 
-
   protected Graphics2D imageGraphics;
+
+	protected Graphics2D imageGraphicsRegionA;
+	protected Graphics2D imageGraphicsRegionB;
+
   protected int pixel[], zbuffer[], tzbuffer[];         // pixel[] is the dataset in theImage.
+
+	protected int pixelRegionA[], zbufferRegionA[], tzbufferRegionA[];
+	protected int pixelRegionB[], zbufferRegionB[], tzbufferRegionB[];
+
   protected boolean hideBackfaces;
   protected int templatePixel[];
   protected Rectangle bounds;
@@ -139,6 +146,8 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
 
 		// 2) Use view camera information to segment scene into a smaller region 
 		// 
+		// if (view.boundCamera != null)
+		//      view.boundCamera.getCoords().copyCoords(theCamera.getCameraCoordinates());
 
 
 		// 3) composite all the regional images into one full size to display to the user.
@@ -177,6 +186,30 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       imageGraphics = theImage.createGraphics();
       imageGraphics.setFont(view.getComponent().getFont());
     }
+
+	if(theImageRegionA == null || theImageRegionA.getWidth(null) != bounds.width / 2 || theImageRegionA.getHeight(null) != bounds.height / 2){
+		theImageRegionA = new BufferedImage(bounds.width/2, bounds.height, BufferedImage.TYPE_INT_ARGB_PRE);
+		pixelRegionA = ((DataBufferInt) ((BufferedImage) theImageRegionA).getRaster().getDataBuffer()).getData();
+		zbufferRegionA = new int [ (bounds.width/2) * bounds.height ];
+		tzbufferRegionA = new int [ (bounds.width/2) * bounds.height ];
+		if (imageGraphicsRegionA != null)
+      			imageGraphicsRegionA.dispose();
+      		imageGraphicsRegionA = theImageRegionA.createGraphics();
+      		imageGraphicsRegionA.setFont(view.getComponent().getFont());
+	}
+
+	if(theImageRegionB == null || theImageRegionB.getWidth(null) != bounds.width / 2 || theImageRegionB.getHeight(null) != bounds.height / 2){
+		theImageRegionB = new BufferedImage(bounds.width/2, bounds.height, BufferedImage.TYPE_INT_ARGB_PRE);
+		pixelRegionB = ((DataBufferInt) ((BufferedImage) theImageRegionB).getRaster().getDataBuffer()).getData();
+		zbufferRegionB = new int [ (bounds.width/2) * bounds.height ];
+		tzbufferRegionB = new int [ (bounds.width/2) * bounds.height ];
+		if (imageGraphicsRegionB != null)
+      			imageGraphicsRegionB.dispose();
+      		imageGraphicsRegionB = theImageRegionB.createGraphics();
+      		imageGraphicsRegionB.setFont(view.getComponent().getFont());
+	}
+
+
       
     int rgb = ViewerCanvas.backgroundColor.getRGB();
     for (int i = 0; i < pixel.length; i++)
@@ -185,6 +218,22 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
       zbuffer[i] = Integer.MAX_VALUE;
       tzbuffer[i] = Integer.MAX_VALUE;
     }
+
+	for (int i = 0; i < pixelRegionA.length; i++)
+    {
+      pixelRegionA[i] = rgb;
+      zbufferRegionA[i] = Integer.MAX_VALUE;
+      tzbufferRegionA[i] = Integer.MAX_VALUE;
+    }
+
+	for (int i = 0; i < pixelRegionB.length; i++)
+    {
+      pixelRegionB[i] = rgb;
+      zbufferRegionB[i] = Integer.MAX_VALUE;
+      tzbufferRegionB[i] = Integer.MAX_VALUE;
+    }
+
+	
       
     if(backgroundGradient == 1){ // Background gradient light blue (Inspired by Solidworks)
       for (int i = 0; i < pixel.length; i++)

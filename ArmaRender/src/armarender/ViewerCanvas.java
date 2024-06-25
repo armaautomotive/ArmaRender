@@ -347,6 +347,15 @@ public abstract class ViewerCanvas extends CustomWidget
     return theCamera;
   }
 
+
+	// Later add info about tiles width, height, count etc.
+	public Camera getScreenRegionCamera(int region){
+
+		return theCamera;
+
+	}
+
+
   /**
    * Get the Scene being displayed in this canvas.  The default implementation returns null.
    * Subclasses may override it to return an appropriate Scene.

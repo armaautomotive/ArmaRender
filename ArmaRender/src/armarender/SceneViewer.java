@@ -333,14 +333,21 @@ public class SceneViewer extends ViewerCanvas
         }
         */
          
+	// Multi thread. Do we need a pool and a worker for each screen tile here to renter the objects into each version of the camera angled in a different region?
         
-        // Existing render iteration. (Transparent objects render incorrectly.)
+
+
+        // Existing render iteration. 
         for (int i = 0; i < theScene.getNumObjects(); i++)
         {
           ObjectInfo obj = theScene.getObject(i);
           if (obj == boundCamera || !obj.isVisible() || obj.isHiddenByParent()) //
             continue;
-            theCamera.setObjectTransform(obj.getCoords().fromLocal());
+
+		// Note: Mult threaded implementation will need a new 'Camera getCamera( int tile )' for each tile region. 
+		// getScreenRegionCamera(  )
+
+            theCamera.setObjectTransform(obj.getCoords().fromLocal()); // Don't really like camera as global state, should be passed into renderObject.
             obj.getObject().renderObject(obj, this, viewdir);
         }
         
