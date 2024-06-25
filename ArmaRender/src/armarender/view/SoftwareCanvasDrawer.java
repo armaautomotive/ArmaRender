@@ -36,6 +36,11 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
 {
   protected ViewerCanvas view;
   protected BufferedImage theImage;
+
+	protected BufferedImage theImageRegionA; // experimental Left 
+	protected BufferedImage theImageRegionB; // experimental Right
+
+
   protected Graphics2D imageGraphics;
   protected int pixel[], zbuffer[], tzbuffer[];         // pixel[] is the dataset in theImage.
   protected boolean hideBackfaces;
@@ -122,17 +127,19 @@ public class SoftwareCanvasDrawer implements CanvasDrawer
   public void paint(RepaintEvent ev)
   {
 	bounds = view.getBounds();                              // ViewerCanvas 
-
+	
 	if(cores > 1){
 		// TODO: multithread  a tile based view.
 		// 1) Split the view.getBounds into regions.
 		int regionAStart = 0;
-		int regionAWidth = bounds.x / 2;
+		int regionAWidth = bounds.width / 2;
 		int regionBStart = (bounds.x / 2) + 1;
-		int regionBWidth = bounds.x / 2;
+		int regionBWidth = bounds.width / 2;
+		//System.out.println("" +regionAWidth + " " + bounds.width );
 
 		// 2) Use view camera information to segment scene into a smaller region 
-		// Might need to see prepareToRender()
+		// 
+
 
 		// 3) composite all the regional images into one full size to display to the user.
 		// TODO...
