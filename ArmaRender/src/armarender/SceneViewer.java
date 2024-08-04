@@ -333,8 +333,7 @@ public class SceneViewer extends ViewerCanvas
         }
         */
          
-	// Multi thread. Do we need a pool and a worker for each screen tile here to renter the objects into each version of the camera angled in a different region?
-        
+	        
 
 
         // Existing render iteration. 
