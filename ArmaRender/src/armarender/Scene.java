@@ -89,8 +89,8 @@ public class Scene
 
   ComputationalFluidDynamics cfd;
   public PointJoinObject createPointJoin;
-  //Mill mill;
-  //Mill2 mill2;
+  Mill mill;
+  Mill2 mill2;
     
     public static final int fileVersion = 15; //
     
@@ -3042,7 +3042,7 @@ public class Scene
      * Description: export mill gcode. find path.
      */
     public void export3dCode(LayoutWindow window){
-       /*
+       
         mill = new Mill();
         mill.setObjects(objects);
         mill.setScene(this);
@@ -3053,14 +3053,14 @@ public class Scene
             //mill.exportGCode();
             mill.start();
         }
-        */
+        
         //if(mill.isRunning() == false){
         //    mill.start();
         //}
     }
     
     public void export3dCode2(LayoutWindow window){
-        /*
+        
         mill2 = new Mill2();
         mill2.setObjects(objects);
         mill2.setScene(this);
@@ -3071,7 +3071,7 @@ public class Scene
             //mill.exportGCode();
             mill2.start();
         }
-        */
+        
         //if(mill.isRunning() == false){
         //    mill.start();
         //}
