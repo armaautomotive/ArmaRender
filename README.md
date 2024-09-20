@@ -73,7 +73,7 @@ Main Window - LayoutWindow.java - Includes the menu item for the tools.
 
 
 5 Axis 
-- FiveAxis.java
+- FiveAxis.java - Roughing pass, Not fully implemented.
 - FiveAxisFinishing.java - experimental code 
 
 
