@@ -318,6 +318,36 @@ public class SceneViewer extends ViewerCanvas {
       Vec3 cameraLocation = theCamera.getCameraCoordinates().getOrigin();
       Vec3 viewdir = theCamera.getViewToWorld().timesDirection(Vec3.vz());
 
+      
+        long startTime = System.currentTimeMillis();
+        
+        //
+        // Order set of scene objects by distance to the camera.
+        // We only need to do this because some objects rendered as transparent polygons don't respect the canvas drawer zbuffer.
+        // Works but it's slow. best solution might be to implement zbuffer in transparent poly drawer.
+        // 70 ms to 300-400ms
+        //
+        /*
+        TreeMap<Double, ObjectInfo> sortedObjectsMap = new TreeMap<Double, ObjectInfo>();
+        for(int i = 0; i < theScene.getNumObjects(); i++){
+            ObjectInfo obj = theScene.getObject(i);
+            if (obj == boundCamera || !obj.isVisible() || obj.isHiddenByParent())
+              continue;
+            double dist = cameraLocation.distance(obj.getTranslatedBounds().getCenter());
+            sortedObjectsMap.put(-dist, obj);
+        }
+        Iterator it = sortedObjectsMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            double dist = (Double)pairs.getKey();
+            ObjectInfo obj = (ObjectInfo)pairs.getValue();
+            theCamera.setObjectTransform(obj.getCoords().fromLocal());
+            obj.getObject().renderObject(obj, this, viewdir);
+        }
+        */
+         
+	        
+
       long startTime = System.currentTimeMillis();
 
       //
