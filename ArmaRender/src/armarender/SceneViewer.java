@@ -348,7 +348,7 @@ public class SceneViewer extends ViewerCanvas {
          
 	        
 
-      long startTime = System.currentTimeMillis();
+       startTime = System.currentTimeMillis();
 
       //
       // Order set of scene objects by distance to the camera.
