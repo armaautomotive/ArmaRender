@@ -555,7 +555,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       
     // createSolidsMenu(); // JDT depricated
 
-    //createLayoutMenu(); // JDT Layout modifications
+    createLayoutMenu(); // JDT Layout modifications
     createFEAMenu(); // JDT
     //createCFDMenu(); // JDT
       
@@ -2028,7 +2028,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       camModelingViewMenuItem.setName("cam_setModelingView");   // Name is used by event handler for ID
       camModelingViewMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camModelingViewMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camModelingViewMenuItem);
+      //layoutMenu.add(camModelingViewMenuItem);
       
 	  //layoutMenu.add(layoutLayView = Translate.menu("Layout View"));
 	  //layoutMenu.add(Translate.menuItem("Layout View", this, "setLayoutView"));
@@ -2036,26 +2036,26 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       camLayoutViewMenuItem.setName("cam_setLayoutView");   // Name is used by event handler for ID
       camLayoutViewMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camLayoutViewMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camLayoutViewMenuItem);
+      //layoutMenu.add(camLayoutViewMenuItem);
       
       // Auto Layout Plate
       BMenuItem camAutoLayoutPlateMenuItem = Translate.menuItem("Auto Layout Plate", this, "autoLayoutPlate");
       camAutoLayoutPlateMenuItem.setName("cam_autoLayoutPlate");   // Name is used by event handler for ID
       camAutoLayoutPlateMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camAutoLayoutPlateMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camAutoLayoutPlateMenuItem);
+      //layoutMenu.add(camAutoLayoutPlateMenuItem);
       
       //layoutMenu.addSeparator();
-      layoutMenu.add(Translate.menuItem("Reset Object Layout", this, "resetLayoutView"));
+      //layoutMenu.add(Translate.menuItem("Reset Object Layout", this, "resetLayoutView"));
       
       //layoutMenu.add(Translate.menuItem("Tube Layout View", this, "setTubeLayoutView"));
       //layoutMenu.add(Translate.menuItem("DEBUG", this, "debug"));
       
-	  layoutMenu.addSeparator();
-	  layoutMenu.add(Translate.menuItem("Enable Poly", this, "setGCodeEnablePoly"));
-	  layoutMenu.add(Translate.menuItem("Disable Poly", this, "setGCodeDisablePoly"));
-      layoutMenu.addSeparator();
-	  layoutMenu.add(Translate.menuItem("Set Selected Poly Order", this, "setGCodePolyOrder"));
+	  //layoutMenu.addSeparator();
+	  //layoutMenu.add(Translate.menuItem("Enable Poly", this, "setGCodeEnablePoly"));
+	  //layoutMenu.add(Translate.menuItem("Disable Poly", this, "setGCodeDisablePoly"));
+      //layoutMenu.addSeparator();
+	  //layoutMenu.add(Translate.menuItem("Set Selected Poly Order", this, "setGCodePolyOrder"));
       
       
       //layoutMenu.add(Translate.menuItem("Set Order by Size", this, "setGCodePolyOrdersBySize"));
@@ -2063,18 +2063,18 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       camOrderBySizeMenuItem.setName("cam_setGCodePolyOrdersBySize");   // Name is used by event handler for ID
       camOrderBySizeMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camOrderBySizeMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camOrderBySizeMenuItem);
+      //layoutMenu.add(camOrderBySizeMenuItem);
       
       
-	  layoutMenu.add(Translate.menuItem("Set Selected Poly Depth", this, "setGCodePolyDepth"));
-      layoutMenu.add(Translate.menuItem("Set Selected Point Offset", this, "setGCodePointOffset"));
-      layoutMenu.add(Translate.menuItem("Reverse Selected Order", this, "setGCodeReverseOrder"));
-	  layoutMenu.addSeparator();
+	  //layoutMenu.add(Translate.menuItem("Set Selected Poly Depth", this, "setGCodePolyDepth"));
+      //layoutMenu.add(Translate.menuItem("Set Selected Point Offset", this, "setGCodePointOffset"));
+      //layoutMenu.add(Translate.menuItem("Reverse Selected Order", this, "setGCodeReverseOrder"));
+	  //layoutMenu.addSeparator();
 	  layoutMenu.add(Translate.menuItem("Set Scale", this, "setGCodeExportScale"));
 	  layoutMenu.addSeparator();
 	  // exportGCode
-	  layoutMenu.add(Translate.menuItem("Export Poly Table GCode (Children Grouped)", this, "exportGroupGCode"));
-      layoutMenu.add(Translate.menuItem("Export Poly Table GCode (All)", this, "exportAllGCode"));
+	  //layoutMenu.add(Translate.menuItem("Export Poly Table GCode (Children Grouped)", this, "exportGroupGCode"));
+      //layoutMenu.add(Translate.menuItem("Export Poly Table GCode (All)", this, "exportAllGCode"));
       
       
       //BMenuItem camExportTubeGCodeMenuItem = Translate.menuItem("Export Tube Notch (X) GCode", this, "exportTubeGCode");
@@ -2092,7 +2092,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       camExportArcTubeNotchGCodeMenuItem.setName("cam_exportArcTubeNotchGCode");   // Name is used by event handler for ID
       camExportArcTubeNotchGCodeMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camExportArcTubeNotchGCodeMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camExportArcTubeNotchGCodeMenuItem);
+      //layoutMenu.add(camExportArcTubeNotchGCodeMenuItem);
       
       //BMenuItem camExportArcTubeNotchGCodeMenuItem2 = Translate.menuItem("Export Arc Tube Notch GCode 2", this, "exportArcTubeNotchGCode2");
       //camExportArcTubeNotchGCodeMenuItem2.setName("cam_exportArcTubeGCode");   // Name is used by event handler for ID
@@ -2107,7 +2107,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       camExportArcTubeBendGCodeMenuItem.setName("cam_exportArcTubeBendGCode");   // Name is used by event handler for ID
       camExportArcTubeBendGCodeMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camExportArcTubeBendGCodeMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camExportArcTubeBendGCodeMenuItem);
+      //layoutMenu.add(camExportArcTubeBendGCodeMenuItem);
       
       
       //
@@ -2115,48 +2115,66 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
       camExportArcTubeNotchPDFMenuItem.setName("cam_exportArcTubeNotchPDF");   // Name is used by event handler for ID
       camExportArcTubeNotchPDFMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camExportArcTubeNotchPDFMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camExportArcTubeNotchPDFMenuItem);
+      //layoutMenu.add(camExportArcTubeNotchPDFMenuItem);
       
       
       BMenuItem camExportArcTubeBendPDFMenuItem = Translate.menuItem("Export Arc Tube Bend PDF", this, "exportArcTubeBendPDF");
       camExportArcTubeBendPDFMenuItem.setName("cam_exportArcTubeBendPDF");   // Name is used by event handler for ID
       camExportArcTubeBendPDFMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camExportArcTubeBendPDFMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camExportArcTubeBendPDFMenuItem);
+      //layoutMenu.add(camExportArcTubeBendPDFMenuItem);
       
       // Plate PDF
       BMenuItem camExportPlatePDFMenuItem = Translate.menuItem("Export Plate PDF", this, "exportPlatePDF");
       camExportPlatePDFMenuItem.setName("cam_exportPlatePDF");   // Name is used by event handler for ID
       camExportPlatePDFMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
       camExportPlatePDFMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camExportPlatePDFMenuItem);
+      //layoutMenu.add(camExportPlatePDFMenuItem);
       
-      //layoutMenu.add(Translate.menuItem("Export 3 Axis (Top Down) Mesh GCode", this, "export3dGCode"));
-      BMenuItem camMillGCodeMenuItem = Translate.menuItem("Export 3 Axis (Top Down) Mesh GCode", this, "export3dGCode");
-      camMillGCodeMenuItem.setName("cam_export3dGCode"); // Name is used by event handler for ID
-      camMillGCodeMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
-      camMillGCodeMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
-      layoutMenu.add(camMillGCodeMenuItem);
+
+     
       
       
       
       layoutMenu.add(Translate.menuItem("Export 3 Axis Voids (Top Down) Mesh GCode", this, "export3dGCode2"));
-      layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
-      layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
+      //layoutMenu.add(Translate.menuItem("Export DXF", this, "exportLayoutDXF"));
+      //layoutMenu.add(Translate.menuItem("Export OBJ", this, "exportOBJ"));
       
       layoutMenu.addSeparator();
       
       // Nesting Tube
+
+
+	//layoutMenu.add(Translate.menuItem("Export 3 Axis (Top Down) Mesh GCode", this, "export3dGCode"));
+      BMenuItem camMillGCodeMenuItem = Translate.menuItem("Export 3-Axis (Top Down, Layered) GCode", this, "export3dGCode"); // Sliced
+      camMillGCodeMenuItem.setName("cam_export3dGCode"); // Name is used by event handler for ID
+      camMillGCodeMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
+      camMillGCodeMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
+      //layoutMenu.add(camMillGCodeMenuItem);
+      layoutMenu.add(camMillGCodeMenuItem);
+      
+      
+      //layoutMenu.add(Translate.menuItem("Export 3 Axis Voids (Top Down) Mesh GCode", this, "export3dGCode2"));
+      layoutMenu.add(Translate.menuItem("Export 3-Axis Voids (Top Down, Layered) GCode", this, "export3dGCode2"));
+      
+      // TODO:
+      // add Roughing
+      
+      layoutMenu.add(Translate.menuItem("Export 5-Axis Roughing (Top Down) GCode", this, "printFiveAxisRoughingGCode")); // printFiveAxisGCode
+      
+      layoutMenu.add(Translate.menuItem("Export 5-Axis Finishing (Top Down) GCode", this, "printFiveAxisFinishingGCode")); // printFiveAxisGCode
+      
+
       
       
       layoutMenu.addSeparator();
-      layoutMenu.add(Translate.menuItem("3D Print GCode", this, "print3DGCode"));
+      //layoutMenu.add(Translate.menuItem("3D Print GCode", this, "print3DGCode"));
       
       
       
-      BMenu fiveAxisMenu;
-      layoutMenu.add(fiveAxisMenu = Translate.menu("fiveAxisMenu"));
-      fiveAxisMenu.add(Translate.menuItem("5 Axis 3D GCode", this, "printFiveAxisGCode")); // printFiveAxisGCode
+      //BMenu fiveAxisMenu;
+      //layoutMenu.add(fiveAxisMenu = Translate.menu("fiveAxisMenu"));
+      //fiveAxisMenu.add(Translate.menuItem("5 Axis 3D GCode", this, "printFiveAxisGCode")); // printFiveAxisGCode
       
       
       //layoutMenu.add(Translate.menuItem("Export GCode Mesh", this, "exportGCodeMesh"));
@@ -6802,4 +6820,63 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void soundTest(){
         Sound.playSound("success.wav");
     }
+
+
+/**
+     * printFiveAxisGCode
+     *
+     * Description: Load Prompt and generate router toolpath based on scene.
+     */
+    public void printFiveAxisRoughingGCode(){
+        hideInfographic();
+        
+        //System.out.println("Five Axis. ");
+        FiveAxisRoughing fiveAxis = new FiveAxisRoughing();
+        fiveAxis.setObjects(theScene.getObjects());
+        fiveAxis.setScene(theScene);
+        fiveAxis.setLayoutWindow(this);
+       
+        // Dialog
+        if(fiveAxis.getUserInput()){
+            //fiveAxis.exportGCode();
+            fiveAxis.start();
+        }
+    }
+    
+    /**
+     * printFiveAxisGCode
+     *
+     * Description: Load Prompt and generate router toolpath based on scene.
+     */
+    public void printFiveAxisFinishingGCode(){
+        hideInfographic();
+        
+        //System.out.println("Five Axis. ");
+        FiveAxisFinishing fiveAxis = new FiveAxisFinishing();
+        fiveAxis.setObjects(theScene.getObjects());
+        fiveAxis.setScene(theScene);
+        fiveAxis.setLayoutWindow(this);
+       
+        // Dialog
+        if(fiveAxis.getUserInput()){
+            //fiveAxis.exportGCode();
+            fiveAxis.start();
+        }
+    }
+
+// faster - experimental
+    public void addObjects(Vector<ObjectInfo> infos, UndoRecord undo){
+        theScene.addObjects(infos, undo);
+        //for(int i = 0; i < infos.size(); i++){
+        //    ObjectInfo info = infos.elementAt(i);
+            //itemTree.addElement(new ObjectTreeElement(info, itemTree)); // performance is bad
+        //}
+        for (int i = 0; i < theView.length ; i++)
+          theView[i].rebuildCameraList();
+        theScore.rebuildList();
+        
+        rebuildItemList(); // updates the object tree once after all the objects are added.
+        // itemTree.repaint();
+    }
+
 }
