@@ -5298,4 +5298,16 @@ public class Scene
         return layoutWindowObject;
     }
      */
+
+// Faster way to add list of objects. - experimental
+    public void addObjects(Vector <ObjectInfo> infos, UndoRecord undo)
+    {
+        for(int i = 0; i < infos.size(); i++){
+            ObjectInfo info = infos.elementAt(i);
+            addObject(info, objects.size(), undo);
+        }
+        updateSelectionInfo();
+    }
+    
+
 }

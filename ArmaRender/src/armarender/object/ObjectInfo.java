@@ -1161,5 +1161,28 @@ public class ObjectInfo implements Comparable<ObjectInfo>
           }
           return a.compareTo(b);
       }
+
+
+	/**
+     * getDecendantChildren
+     * Description: Returns all of the children under this info.
+     */
+    public Vector<ObjectInfo> getDecendantChildren(ObjectInfo info){
+        Vector<ObjectInfo> results = new Vector<ObjectInfo>();
+        for(int i = 0; i < info.getChildren().length; i++){
+            ObjectInfo child = info.getChildren()[i];
+            results.addElement(child);
+            Vector<ObjectInfo> decendants = getDecendantChildren(child);
+            for(int d = 0; d < decendants.size(); d++){
+                ObjectInfo decendant = decendants.elementAt(d);
+                if(results.contains(decendant) == false){
+                    results.addElement(decendant);
+                }
+            }
+            //results.addAll();
+        }
+        return results;
+    }
+
     
 }
