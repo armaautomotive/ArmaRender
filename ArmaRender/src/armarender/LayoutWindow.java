@@ -74,6 +74,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
   BMenu feaMenu; // JDT
   BMenu cfdMenu; // JDT
     BMenu helpMenu;
+    BMenu examplesMenu;
   BMenu addTrackMenu, positionTrackMenu, rotationTrackMenu, distortionMenu;
   BMenu layoutModelView, layoutLayView, gCodeScaleMenu, exportGCode, exportLayoutDXF, exportObj, layoutHide, exportGCodeMesh; // JDT
   BMenuItem fileMenuItem[], editMenuItem[], objectMenuItem[], toolsMenuItem[];
@@ -560,6 +561,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     //createCFDMenu(); // JDT
       
       createHelpMenu();
+      createExamplesMenu();
 
     preferences = Preferences.userNodeForPackage(getClass()).node("LayoutWindow");
     loadPreferences();
@@ -6820,7 +6822,25 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void soundTest(){
         Sound.playSound("success.wav");
     }
-
+    
+    private void createExamplesMenu(){
+        examplesMenu = Translate.menu("Examples");
+        menubar.add(examplesMenu);
+        
+        BMenuItem examplesRunMenuItem = Translate.menuItem("Examples Run", this, "runExamplesCommand");
+        //examplesRunMenuItem.setName(null); // Name is used by event handler for ID
+        examplesRunMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
+        examplesRunMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
+        examplesMenu.add(examplesRunMenuItem);
+        
+    }
+    
+    
+    public void runExamplesCommand(){
+        Examples ex = new Examples();
+        
+        ex.demo(this);
+    }
 
 /**
      * printFiveAxisGCode

@@ -14,7 +14,7 @@ Git: May be installed on OSX. Or GitHub.com for Windows.
 Project Checkout:
 
 pull the project from: https://github.com/armaautomotive/ArmaRender
-
+> git clone https://github.com/armaautomotive/ArmaRender.git
 
 
 Run the project 
@@ -26,6 +26,11 @@ Windows:
 
 Mac/Linux:
 
+grant permissions
+> chmod 755 build.sh
+> chmod 755 sun.sh
+
+Run
 > ./buid.sh
 > ./run.sh
 
@@ -63,7 +68,7 @@ View exported GCode: /ArmaRender/mill_test/mill5axis/finishing_0.gcode
 Code 
 
 The following is source that will be relevant for the Milling 5-Axis project.
-
+See folder: ArmaRender/src/armarender/
 
 Main Window - LayoutWindow.java - Includes the menu item for the tools.
 
@@ -94,6 +99,10 @@ object/Object3D.java - geometry associated with an object info.
 object/SplineMesh.java - interpolating mesh used in demo. Note the data is pulled from the TriangleMesh this object is converted to.
 object/TriangleMesh.java - Simple vert, edge and face geometry data we are interested in. Most objects can be converted to TriangleMesh.
 
+
+See examples:
+
+Examples.java
 
 
 More to come.
