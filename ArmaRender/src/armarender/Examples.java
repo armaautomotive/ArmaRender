@@ -197,6 +197,10 @@ public class Examples {
         //
         double c = 0; // rotation, 0-360.
         double b = 45; // angle 45 degrees.
+        
+        
+        Vector<Vec3> regionSurfacePoints = new Vector<Vec3>(); // accumulated surface points
+        Vector<Vec3> debugMappingGrid = new Vector<Vec3>();
         Vec3 toolVector = new Vec3(0, 1, 0); //
         Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
         Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
@@ -221,6 +225,8 @@ public class Examples {
             System.out.println("sceneSize " + sceneSize);
             Vec3 sceneCenter = sceneBounds.getCenter();
             
+            Vec3 raySubtract = new Vec3(toolVector.times( sceneSize * 2) );
+            
             
             // construct a grid and iterate each coordinate and translate it to the toolVector
         
@@ -229,11 +235,144 @@ public class Examples {
             Vec3 regionScan = new Vec3(sceneCenter);
             regionScan.add( toolVector.times(sceneSize) );
             
-            addLineToScene(window, sceneCenter, regionScan );
-            //window.re
+            // DEBUG Show
+            addLineToScene(window, regionScan,  regionScan.minus(raySubtract) ); // debug show ray cast line
+            
+            int width = 80;
+            int height = 80;
+            
+            // Loop through grid
+            for(int x = 0; x < width; x++){
+                for(int y = 0; y < height; y++){
+                    
+                    // xy offset to coords, Translate based on 'toolVector'
+                    
+                    Vec3 samplePoint = new Vec3(regionScan);
+                    
+                    Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2 , (double)(y-(height/2)) * 0.2, (double)(y-(height/2)) * 0.2 ); // First try
+                    
+                    
+                    // Get Cross Product of toolVector
+                    
+                    
+                    
+                    
+                    samplePoint.add( currGridPoint ); // shift
+                    
+                    debugMappingGrid.addElement(currGridPoint);
+                    
+                    
+                    //samplePoint.add(new Vec3(0.01, 0.01, 0.01));
+                    //Vec3 samplePointVector = new Vec3(samplePoint); // Two points represent a vector (direction)
+                    //samplePointVector.add(toolVector);
+                    Vec3 samplePointB = samplePoint.minus(raySubtract); // Second point in ray cast
+                    // Find collision location
+                    //addLineToScene(window, samplePoint, samplePoint.minus(raySubtract) );
+                    
+                    //Vec3 samplePointCollision = Intersect2.getIntersection(samplePoint, regionScan.minus(samplePoint), Vec3 a, Vec3 b, Vec3 c)
+                    
+                    Vec3 intersectPoint = null;
+                    for(int i = 0; i < sceneObjects.size(); i++){
+                        ObjectInfo currInfo = sceneObjects.elementAt(i);
+                        Object3D currObj = currInfo.getObject();
+                        //System.out.println("Checking for intersect in: " + currInfo.getName());
+                        
+                        //
+                        // Is the object a TriangleMesh?
+                        //
+                        TriangleMesh triangleMesh = null;
+                        if(currObj instanceof TriangleMesh){
+                            triangleMesh = (TriangleMesh)currObj;
+                        } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                            triangleMesh = currObj.convertToTriangleMesh(0.1);
+                        }
+                        if(triangleMesh != null){
+                            CoordinateSystem cs;
+                            cs = layout.getCoords(currInfo);
+                            
+                            // Convert object coordinates to world (absolute) coordinates.
+                            // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
+                            Mat4 mat4 = cs.duplicate().fromLocal();
+                            
+                            MeshVertex[] verts = triangleMesh.getVertices();
+                            Vector<Vec3> worldVerts = new Vector<Vec3>();
+                            for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                                Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                                mat4.transform(vert);
+                                worldVerts.addElement(vert); // add the translated vert to our list.
+                                //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                            }
+                            
+                            TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                            TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                            
+                            for(int f = 0; f < faces.length; f++ ){
+                                TriangleMesh.Face face = faces[f];
+                                Vec3 faceA = worldVerts.elementAt(face.v1);
+                                Vec3 faceB = worldVerts.elementAt(face.v2);
+                                Vec3 faceC = worldVerts.elementAt(face.v3);
+                                
+                                //System.out.println("faceA " + faceA);
+                                
+                                //boolean intersect = Intersect2.intersects( samplePoint, regionScan.minus(samplePoint), faceA, faceB, faceC);
+                                //System.out.println("intersect " + intersect);
+                                
+                                
+                                // regionScan.minus(raySubtract)
+                                
+                                
+                                
+                                /*
+                                Vector<Vec3> points = new Vector<Vec3>();
+                                points.addElement(samplePoint);
+                                points.addElement(samplePointB);
+                                points.addElement(faceA);
+                                points.addElement(faceB);
+                                points.addElement(faceC);
+                                points.addElement(faceA);
+                                //addLineToScene(window, points);
+                                 */
+                                
+                                Vec3 samplePointCollision = Intersect2.getIntersection(samplePoint, samplePointB, faceA, faceB, faceC );
+                                if(samplePointCollision != null){ // found intersection.
+                                    //System.out.println(" *** ");
+                                    if(intersectPoint != null){   // existing intersection exists, check if the new one is closer
+                                        double existingDist = regionScan.distance(intersectPoint);
+                                        double currrentDist = regionScan.distance(samplePointCollision);
+                                        if(currrentDist < existingDist){
+                                            intersectPoint = samplePointCollision;
+                                        }
+                                    } else {
+                                        intersectPoint = samplePointCollision;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(intersectPoint != null){
+                        //System.out.println(" Colision " + intersectPoint );
+                        regionSurfacePoints.addElement(intersectPoint);
+                        //addLineToScene(window, intersectPoint,  intersectPoint.plus(new Vec3(0,1,0)) );
+                    }
+                
+                } // Y
+            } // X
         
+            // TODO
+            // Draw line showing mapped surface
+            if( regionSurfacePoints.size() > 1 ){
+                addLineToScene(window, regionSurfacePoints);
+            }
+            if(debugMappingGrid.size() > 1){
+                addLineToScene(window, debugMappingGrid);
+            }
         
         } // bounds
+        
+        
+        // More demos
+        
+        
         
     } // end demo function
     
@@ -245,25 +384,44 @@ public class Examples {
      * Description: Add a line to the scene. Good for debugging 3d scene corrdinates.
      */
     public void addLineToScene(LayoutWindow window, Vec3 start, Vec3 end){
-        
         float[] s_ = new float[2];
         for(int i = 0; i < 2; i++){
             s_[i] = 0;
         }
-            
         Vec3 [] vertex = new Vec3[2];
         vertex[0] = start;
         vertex[1] = end;
         Curve theCurve = new Curve(vertex, s_, 0, false);
-                                    
         CoordinateSystem coords = new CoordinateSystem();
-                                    
         ObjectInfo info = new ObjectInfo(theCurve, coords, "Line ");
         UndoRecord undo = new UndoRecord(window, false);
         //existingSelectedInfo.addChild(info, 0);
         //            info.setParent(existingSelectedInfo);
         ((LayoutWindow)window).addObject(info, undo);
-        
+    }
+    
+    
+    /**
+     * addLineToScene
+     *
+     */
+    public void addLineToScene(LayoutWindow window, Vector<Vec3> points){
+        float[] s_ = new float[points.size()];
+        for(int i = 0; i < points.size(); i++){
+            s_[i] = 0;
+        }
+        Vec3 [] vertex = new Vec3[points.size()];
+        for(int i = 0; i < points.size(); i++){
+            
+            vertex[i] = points.elementAt(i);
+        }
+        Curve theCurve = new Curve(vertex, s_, 0, false);
+        CoordinateSystem coords = new CoordinateSystem();
+        ObjectInfo info = new ObjectInfo(theCurve, coords, "Line ");
+        UndoRecord undo = new UndoRecord(window, false);
+        //existingSelectedInfo.addChild(info, 0);
+        //            info.setParent(existingSelectedInfo);
+        ((LayoutWindow)window).addObject(info, undo);
     }
     
 }
