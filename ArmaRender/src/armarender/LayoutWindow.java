@@ -1920,12 +1920,15 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
             label.setVerticalTextPosition(JLabel.TOP);
             infoGraphicDialog.add(label);
             
-            
+            if(getClass().getResource("/armarender/infographic/"+nameID+".png") != null){
             ImageIcon illustrationImage = new ImageIcon(getClass().getResource("/armarender/infographic/"+nameID+".png"));
+            if(illustrationImage != null){
             JLabel illustrationLabel = new JLabel(illustrationImage);
             //illustrationLabel.setVerticalAlignment(JLabel.TOP);
             //illustrationLabel.setVerticalTextPosition(JLabel.TOP);
             infoGraphicDialog.add(illustrationLabel);
+            }
+            }
             
             //JTextField descriptionField = new JTextField(20);
             //descriptionField.setText("Description.");
