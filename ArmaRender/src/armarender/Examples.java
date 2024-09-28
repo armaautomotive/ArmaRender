@@ -74,9 +74,11 @@ public class Examples {
         }
         
         
-        
+        //
         // Add a cube to the scene.
-        
+        // This object could be used to represent a collision region or represent the machine .
+        //
+        // TODO
         
         
         //
@@ -187,6 +189,51 @@ public class Examples {
     
         
         
+        //
+        // Calculate a working / cutting region based on:
+        // A) the objects in the scene representing the shape to create.
+        // B) The projection vector or direction of the B/C axis pointing the drill in a direction
+        // *** WORK IN PROGRESS ***
+        //
+        double c = 0; // rotation, 0-360.
+        double b = 45; // angle 45 degrees.
+        Vec3 toolVector = new Vec3(0, 1, 0); //
+        Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
+        Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
+        zRotationMat.transform(toolVector); // Apply the B axis transform.
+        yRotationMat.transform(toolVector); // Apply the C axis rotation
+        toolVector.normalize(); // Normalize to scale the vector to a length of 1.
+        System.out.println("toolVector " + toolVector);
+        // Calculate the bounds of the scene objects,
+        // for each object, get bounds.
+        BoundingBox sceneBounds = null ; //new BoundingBox(); // Vec3 p1, Vec3 p2
+        for(int i = 0; i < sceneObjects.size(); i++){
+            ObjectInfo currInfo = sceneObjects.elementAt(i);
+            BoundingBox currBounds = currInfo.getTranslatedBounds();
+            if(sceneBounds == null){
+                sceneBounds = currBounds;
+            } else {
+                sceneBounds.extend(currBounds);
+            }
+        }
+        if(sceneBounds != null){
+            double sceneSize = Math.max(sceneBounds.maxx - sceneBounds.minx, Math.max(sceneBounds.maxy - sceneBounds.miny, sceneBounds.maxz - sceneBounds.minz));
+            System.out.println("sceneSize " + sceneSize);
+            Vec3 sceneCenter = sceneBounds.getCenter();
+            
+            
+            // construct a grid and iterate each coordinate and translate it to the toolVector
+        
+            // Translate to point in space to project region mapping.
+            
+            Vec3 regionScan = new Vec3(sceneCenter);
+            regionScan.add( toolVector.times(sceneSize) );
+            
+            addLineToScene(window, sceneCenter, regionScan );
+            //window.re
+        
+        
+        } // bounds
         
     } // end demo function
     
@@ -197,7 +244,25 @@ public class Examples {
      * addLineToScene
      * Description: Add a line to the scene. Good for debugging 3d scene corrdinates.
      */
-    public void addLineToScene(Scene scene, Vec3 a, Vec3 b){
+    public void addLineToScene(LayoutWindow window, Vec3 start, Vec3 end){
+        
+        float[] s_ = new float[2];
+        for(int i = 0; i < 2; i++){
+            s_[i] = 0;
+        }
+            
+        Vec3 [] vertex = new Vec3[2];
+        vertex[0] = start;
+        vertex[1] = end;
+        Curve theCurve = new Curve(vertex, s_, 0, false);
+                                    
+        CoordinateSystem coords = new CoordinateSystem();
+                                    
+        ObjectInfo info = new ObjectInfo(theCurve, coords, "Line ");
+        UndoRecord undo = new UndoRecord(window, false);
+        //existingSelectedInfo.addChild(info, 0);
+        //            info.setParent(existingSelectedInfo);
+        ((LayoutWindow)window).addObject(info, undo);
         
     }
     
