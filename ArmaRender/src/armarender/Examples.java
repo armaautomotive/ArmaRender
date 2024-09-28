@@ -82,7 +82,11 @@ public class Examples {
         //
         // Detect if a selected object is colliding with other objects in the scene.
         // Note: This is only one possible implementation of collision detection.
-        // For a section, ...
+        // For a section, capture the locations of the edges, then scan through the objects in the scene,
+        // and check if the edges intersect with any of the faces.
+        // Collitions on multiple objects constructed to represent the router, collete and machine could be used to detect collisions with
+        // The mould part.
+        //
         boolean selectionCollides = false;
         int sel[] = window.getSelectedIndices();
         Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>(); // TriangleMesh.Edge
@@ -104,9 +108,7 @@ public class Examples {
                     }
                     if(selectedTM != null){
                         selectedObjects.addElement(selectedInfo);   // Save for exclusion later.
-                        
                         MeshVertex[] verts = selectedTM.getVertices();
-                        
                         Vector<Vec3> worldVerts = new Vector<Vec3>();
                         for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
                             Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
@@ -114,7 +116,6 @@ public class Examples {
                             worldVerts.addElement(vert); // add the translated vert to our list.
                             //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
                         }
-                        
                         TriangleMesh.Edge[] edges = selectedTM.getEdges();
                         for(int e = 0; e < edges.length; e++){
                             TriangleMesh.Edge edge = edges[e];
@@ -126,22 +127,19 @@ public class Examples {
                     }
                 }
             } // for each selection
-            
             if(selectedEdgePoints.size() > 0){
-                System.out.println(" edges " + selectedEdgePoints.size() );
-                
+                //System.out.println(" edges " + selectedEdgePoints.size() );
                 // Scan through objects in the scene to see if there is a collistion.
-                
                 for(int i = 0; i < sceneObjects.size(); i++){
                     ObjectInfo currInfo = sceneObjects.elementAt(i);
                     if( selectedObjects.contains(currInfo) ){          // Don't compare with self
                         continue;
                     }
-                    System.out.println("   Compare with  scene object: " + currInfo.getName() );
+                    //System.out.println("   Compare with  scene object: " + currInfo.getName() );
                     Object3D currObj = currInfo.getObject();
                     
                     //
-                    // Is the object a TriangleMesh?
+                    // Is the object a TriangleMesh or can it be converted?
                     //
                     TriangleMesh triangleMesh = null;
                     if(currObj instanceof TriangleMesh){
@@ -156,7 +154,6 @@ public class Examples {
                         // Convert object coordinates to world (absolute) coordinates.
                         // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
                         Mat4 mat4 = c.duplicate().fromLocal();
-                        
                         MeshVertex[] verts = triangleMesh.getVertices();
                         Vector<Vec3> worldVerts = new Vector<Vec3>();
                         for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
@@ -165,44 +162,33 @@ public class Examples {
                             worldVerts.addElement(vert); // add the translated vert to our list.
                             //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
                         }
-                        
                         TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
                         TriangleMesh.Face[] faces = triangleMesh.getFaces();
-                        
                         for(int f = 0; f < faces.length; f++ ){
                             TriangleMesh.Face face = faces[f];
                             Vec3 faceA = worldVerts.elementAt(face.v1);
                             Vec3 faceB = worldVerts.elementAt(face.v2);
                             Vec3 faceC = worldVerts.elementAt(face.v3);
-                            
                             for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
                                 EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
                                 if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
                                     selectionCollides = true;
-                                    System.out.println("Collision  object: " + currInfo.getName()   );
+                                    System.out.println("Collision  object: " + currInfo.getName());
                                 }
-                            
                             }
-                            
-                            // selectionCollides
-                            
                         }
                     }
                 } // for each object in scene
-                
-                
-                
             }
-            
             System.out.println("Selection collides: " + selectionCollides ); // Print result
-            
         } else {
             System.out.println("No objects selected to check for collisions.");
         }
     
         
         
-    }
+        
+    } // end demo function
     
     
     

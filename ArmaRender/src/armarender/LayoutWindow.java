@@ -6832,8 +6832,8 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         
         BMenuItem examplesRunMenuItem = Translate.menuItem("Examples Run", this, "runExamplesCommand");
         //examplesRunMenuItem.setName(null); // Name is used by event handler for ID
-        examplesRunMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
-        examplesRunMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
+        //examplesRunMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
+        //examplesRunMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
         examplesMenu.add(examplesRunMenuItem);
         
     }
