@@ -199,9 +199,15 @@ public class Examples {
                 //
                 double c = 15; // rotation, 0-360.
                 double b = 45; // angle 45 degrees.
+                // Note: This concept could be used by running the following code example 4 times with the
+                // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
+                // This way each of the sides are covered by at leas one pass.
                 
-                Vector<Vec3> regionSurfacePoints = new Vector<Vec3>(); // accumulated surface points
-                Vector<Vec3> debugMappingGrid = new Vector<Vec3>();
+                Vector<Vec3> debugMappingGrid = new Vector<Vec3>(); // pattern of cutting to be projected onto the scene.
+                Vector<Vec3> regionSurfacePoints = new Vector<Vec3>(); // accumulated surface points projected
+                Vector<Vec3> generatedCuttingPath = new Vector<Vec3>(); // GCode cutting path
+                
+                ObjectInfo surfaceMapInfo = null; // Object represents surface map.
                 Vec3 toolVector = new Vec3(0, 1, 0); //
                 Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
                 Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
@@ -341,10 +347,9 @@ public class Examples {
                     // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
                     regionSurfacePoints = fillGapsInPointPath(regionSurfacePoints);
                     
-                    
                     // Draw line showing mapped surface
                     if(regionSurfacePoints.size() > 1){
-                        addLineToScene(window, regionSurfacePoints, "Surface Map", true);
+                        surfaceMapInfo = addLineToScene(window, regionSurfacePoints, "Surface Map", true);
                     }
                 } // bounds
                 
@@ -359,28 +364,44 @@ public class Examples {
                 Curve currCurve = (Curve)avatarCutterLine.getObject();
                 
                 ObjectInfo cubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times(2) ), 0.75 ); // Cube represents a part of the machine
+                cubeInfo.setPhysicalMaterialId(500); // This is an identifier used to ensure the objects representing the router are not included in collision detection.
                 
                 String gCodeExport = "";
                 for(int i = 0; i < regionSurfacePoints.size(); i++){
-                    
                     Vec3 surfacePoint = regionSurfacePoints.elementAt(i);
                     
                     //  calculate where the cutter would be to when fit to the current region surface point.
                     Vector<Vec3> updatedPoints = new Vector<Vec3>();
                     updatedPoints.addElement(surfacePoint);
-                    updatedPoints.addElement(surfacePoint.plus(toolVector.times(4))  );
-                    
+                    updatedPoints.addElement(surfacePoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
                     
                     // set location of cube
                     CoordinateSystem drillTipAvatarCS = cubeInfo.getModelingCoords();
-                    drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(1.25)));
+                    drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
                     cubeInfo.clearCachedMeshes();
                     
                     // Check to see if the avatar cutter collides with any object in the scene.
                     
-                    // TODO
+                    // Collision detection
+                    // NOTE: Discovered a new concept: !!!
+                    // The generatedCuttingPath can still collide with the scene. Perhaps keep filtering the
+                    // generatedCuttingPath pulling out more points that collide until there are no more collisions?
+                    // It appear the path along a side still collides.
+                    // The reason this doesn't work, is because when you detect a collision and pull the cutter away, the path it leaves
+                    // still collides, It needs to move over of find a previous point to pull
                     boolean collides = cubeCollidesWithScene( cubeInfo, sceneObjects );
-                    
+                    if(collides){
+                        //System.out.println("  BAM " );
+                        // This point will collide so:
+                        // 1) We can't add the point to the GCode file, and
+                        // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
+                        Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(3)));
+                        generatedCuttingPath.addElement(retractPoint);
+                        try { Thread.sleep(18); } catch(Exception e){} // Wait to show collision
+                        // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
+                    } else {
+                        generatedCuttingPath.addElement(surfacePoint); // No collision, This point can be safely cut on the machine / GCode.
+                    }
                     
                     // Update the avatar object to show to the user where it is in space.
                     currCurve.setVertexPositions(vectorToArray(updatedPoints));
@@ -388,15 +409,153 @@ public class Examples {
                     
                     // Update the scene
                     window.updateImage();
-                    try { Thread.sleep(18); } catch(Exception e){} // Wait
+                    try { Thread.sleep(4); } catch(Exception e){} // Wait
+                }
+                    
+                generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // Fill in gaps in the retration and reentry made
+                
+                
+                //
+                // Repeat until all collisions resolved. NOT WORKING.
+                //
+                boolean running = true;
+                while(running){
+                    int collisionCount = 0;
+                    System.out.println(" *** ");
+                    
+                    Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
+                    
+                    for(int i = 0; i < generatedCuttingPath.size(); i++){
+                        Vec3 currPoint = generatedCuttingPath.elementAt(i);
+                        
+                        //  calculate where the cutter would be to when fit to the current region surface point.
+                        Vector<Vec3> updatedPoints = new Vector<Vec3>();
+                        updatedPoints.addElement(currPoint);
+                        updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
+                        
+                        // set location of cube
+                        CoordinateSystem drillTipAvatarCS = cubeInfo.getModelingCoords();
+                        drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
+                        cubeInfo.clearCachedMeshes();
+                        
+                        // Check to see if the avatar cutter collides with any object in the scene.
+                        
+                        // Collision detection
+                        // NOTE: Discovered a new concept: !!!
+                        // The generatedCuttingPath can still collide with the scene. Perhaps keep filtering the
+                        // generatedCuttingPath pulling out more points that collide until there are no more collisions?
+                        // It appear the path along a side still collides.
+                        boolean collides = cubeCollidesWithScene( cubeInfo, sceneObjects );
+                        if(collides){
+                            System.out.println("  Collide remove point " );
+                            // This point will collide so:
+                            // 1) We can't add the point to the GCode file, and
+                            // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
+                            //Vec3 retractPoint = new Vec3(currPoint.plus(toolVector.times(3)));
+                            //updatedCuttingPath.addElement(retractPoint);
+                            
+                            // Remove prev
+                            //updatedCuttingPath.remove( updatedCuttingPath.size() - 1 );
+                            generatedCuttingPath.remove( i + 1  );
+                            generatedCuttingPath.remove( i   );
+                            generatedCuttingPath.remove( i -1  );
+                            
+                            try { Thread.sleep(30); } catch(Exception e){} // Wait to show collision
+                            // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
+                            collisionCount++;
+                        } else {
+                            updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
+                        }
+                        
+                        // Update the avatar object to show to the user where it is in space.
+                        currCurve.setVertexPositions(vectorToArray(updatedPoints));
+                        avatarCutterLine.clearCachedMeshes();
+                        
+                        // Update the scene
+                        window.updateImage();
+                        try { Thread.sleep(1); } catch(Exception e){} // Wait
+                    }
+                    
+                    generatedCuttingPath = updatedCuttingPath ;
+                    
+                    System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
+                    if(collisionCount == 0){
+                        running = false; // we are done.
+                    }
                 }
                 
-                try { Thread.sleep(2000); } catch(Exception e){}
-                // TODO: Remove avatar curve and cube
+                
+                //
+                // TODO: check the tool tip geometry for collision with scene.
+                // Modify the tool path to accomodate.
+                //
+                // TODO: Implement this.
+                
+                
+                if(surfaceMapInfo != null){
+                    surfaceMapInfo.setVisible(false); // Hide surface map because we want to show the GCode cut path now.
+                }
+                
+                // If we have a GCode tool path add it to the scene.
+                if(generatedCuttingPath.size() > 1){
+                    addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
+                }
+                
+                
+                // Now simulate the generated tool path to be written to a file.
+                try { Thread.sleep(500); } catch(Exception e){}
+                System.out.println("Simulating Tool Path.");
                    
+                //
+                // Now simulate cutting of the new GCode which should result in no collisions.
+                //
+                /*
+                Cube cubeObj = (Cube)cubeInfo.getObject(); // Shrink Cube slightly (assume actual machine is smaller than representation)
+                cubeObj.setSize( cubeObj.getX()*0.5, cubeObj.getY()*0.5, cubeObj.getZ()*0.5 );
+                cubeInfo.setObject(cubeObj);
+                cubeInfo.clearCachedMeshes();
+                */
+                generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
+                for(int i = 0; i < generatedCuttingPath.size(); i++){
+                    Vec3 surfacePoint = generatedCuttingPath.elementAt(i);
+                    
+                    //  calculate where the cutter would be to when fit to the current region surface point.
+                    Vector<Vec3> updatedPoints = new Vector<Vec3>();
+                    updatedPoints.addElement(surfacePoint);
+                    updatedPoints.addElement(surfacePoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
+                    
+                    
+                    // set location of cube
+                    CoordinateSystem drillTipAvatarCS = cubeInfo.getModelingCoords();
+                    drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
+                    cubeInfo.clearCachedMeshes();
+                    
+                    // Check to see if the avatar cutter collides with any object in the scene.
+                    
+                    // TODO
+                    boolean collides = cubeCollidesWithScene( cubeInfo, sceneObjects );
+                    if(collides){
+                        
+                        System.out.println("ERROR: GCode collision. ");
+                        
+                        try { Thread.sleep(18); } catch(Exception e){} // Wait to show collision, This shouldn't happen
+                    } else {
+                        //generatedCuttingPath.addElement(surfacePoint); // No collision, This point can be safely cut on the machine / GCode.
+                    }
+                    
+                    // Update the avatar object to show to the user where it is in space.
+                    currCurve.setVertexPositions(vectorToArray(updatedPoints));
+                    avatarCutterLine.clearCachedMeshes();
+                    
+                    // Update the scene
+                    window.updateImage();
+                    try { Thread.sleep(6); } catch(Exception e){} // Wait
+                } // end simulate GCode toolpoath
                 
                 
-                // More demos
+                
+                
+                // More demos to come
                 
                 
                 window.updateImage(); // Update scene
@@ -480,6 +639,7 @@ public class Examples {
      */
     public Vector<Vec3> fillGapsInPointPath(Vector<Vec3> regionSurfacePoints){
         double minSpan = 999999; // TODO fix this.
+        double avgSpan = 0;
         for(int i = 1; i < regionSurfacePoints.size(); i++){
             Vec3 a = regionSurfacePoints.elementAt(i-1);
             Vec3 b = regionSurfacePoints.elementAt(i);
@@ -487,12 +647,16 @@ public class Examples {
             if(distance < minSpan){
                 minSpan = distance;
             }
+            avgSpan += distance;
+        }
+        if(regionSurfacePoints.size() > 1){
+            avgSpan = avgSpan / regionSurfacePoints.size();
         }
         for(int i = 1; i < regionSurfacePoints.size(); i++){
             Vec3 a = regionSurfacePoints.elementAt(i-1);
             Vec3 b = regionSurfacePoints.elementAt(i);
             double distance = a.distance(b);
-            while(distance > minSpan){
+            while(distance > avgSpan * 1.5){ // minSpan
                 Vec3 insertMid = a.midPoint(b);
                 regionSurfacePoints.add( i, insertMid );
                 a = regionSurfacePoints.elementAt(i-1);
@@ -504,6 +668,9 @@ public class Examples {
     }
     
     
+    /**
+     * vectorToArray
+     */
     public Vec3[] vectorToArray(Vector<Vec3> points){
         Vec3[] array = new Vec3[points.size()];
         for(int i = 0; i < points.size(); i++){
@@ -515,12 +682,103 @@ public class Examples {
     
     /**
      * cubeCollidesWithScene
-     *
+     * Description: Detect if a given object collides with the scene.
+     * Note: This function needs to be updated to support multiple objects representing the machine cutter.
      */
-    public boolean cubeCollidesWithScene( ObjectInfo cubeInfo, Vector<Vec3> sceneObjects ){
+    public boolean cubeCollidesWithScene( ObjectInfo detectInfo, Vector<ObjectInfo> sceneObjects ){
         // WORK IN PROGRESS
+        boolean collides = false;
+        LayoutModeling layout = new LayoutModeling();
         
-        return false;
+        Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>();
+        Vector<ObjectInfo> selectedObjects = new Vector<ObjectInfo>(); // TEMP this won't work with multiple objects
+        
+        CoordinateSystem c;
+        c = layout.getCoords(detectInfo);
+        Mat4 mat4 = c.duplicate().fromLocal();
+        
+        Object3D selectedObj = detectInfo.getObject();
+        TriangleMesh selectedTM = null;
+        if(selectedObj instanceof TriangleMesh){
+            selectedTM = (TriangleMesh)selectedObj;
+        } else if(selectedObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+            selectedTM = selectedObj.convertToTriangleMesh(0.1);
+        }
+        if(selectedTM != null){
+            selectedObjects.addElement(detectInfo);   // Save for exclusion later.
+            MeshVertex[] verts = selectedTM.getVertices();
+            Vector<Vec3> worldVerts = new Vector<Vec3>();
+            for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                mat4.transform(vert);
+                worldVerts.addElement(vert); // add the translated vert to our list.
+                //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+            }
+            TriangleMesh.Edge[] edges = selectedTM.getEdges();
+            for(int e = 0; e < edges.length; e++){
+                TriangleMesh.Edge edge = edges[e];
+                Vec3 a = worldVerts.elementAt( edge.v1 );
+                Vec3 b = worldVerts.elementAt( edge.v2 );
+                EdgePoints ep = new EdgePoints(a, b);
+                selectedEdgePoints.addElement(ep);
+            }
+        }
+        
+        if(selectedEdgePoints.size() > 0){
+            //System.out.println(" edges " + selectedEdgePoints.size() );
+            // Scan through objects in the scene to see if there is a collistion.
+            for(int i = 0; i < sceneObjects.size(); i++){
+                ObjectInfo currInfo = sceneObjects.elementAt(i);
+                if( selectedObjects.contains(currInfo) ){          // Don't compare with self
+                    continue;
+                }
+                //System.out.println("   Compare with  scene object: " + currInfo.getName() );
+                Object3D currObj = currInfo.getObject();
+                
+                //
+                // Is the object a TriangleMesh or can it be converted?
+                //
+                TriangleMesh triangleMesh = null;
+                if(currObj instanceof TriangleMesh){
+                    triangleMesh = (TriangleMesh)currObj;
+                } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                    triangleMesh = currObj.convertToTriangleMesh(0.1);
+                }
+                if(triangleMesh != null){
+                    CoordinateSystem cc;
+                    cc = layout.getCoords(currInfo);
+                    
+                    // Convert object coordinates to world (absolute) coordinates.
+                    // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
+                    mat4 = cc.duplicate().fromLocal();
+                    MeshVertex[] verts = triangleMesh.getVertices();
+                    Vector<Vec3> worldVerts = new Vector<Vec3>();
+                    for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                        Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                        mat4.transform(vert);
+                        worldVerts.addElement(vert); // add the translated vert to our list.
+                        //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                    }
+                    TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                    TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                    for(int f = 0; f < faces.length; f++ ){
+                        TriangleMesh.Face face = faces[f];
+                        Vec3 faceA = worldVerts.elementAt(face.v1);
+                        Vec3 faceB = worldVerts.elementAt(face.v2);
+                        Vec3 faceC = worldVerts.elementAt(face.v3);
+                        for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
+                            EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
+                            if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
+                                collides = true;
+                                //System.out.println("Collision  object: " + currInfo.getName());
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } // for each object in scene
+        }
+        return collides;
     }
 }
 

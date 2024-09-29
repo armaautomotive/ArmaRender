@@ -305,4 +305,14 @@ public class Cube extends Object3D
       return;
     key.set(xField.getValue(), yField.getValue(), zField.getValue());
   }
+    
+    public double getX(){
+        return halfx * 2;
+    }
+    public double getY(){
+        return halfy * 2;
+    }
+    public double getZ(){
+        return halfz * 2;
+    }
 }
