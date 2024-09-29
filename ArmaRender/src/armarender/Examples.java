@@ -358,6 +358,7 @@ public class Examples {
                 //
                 // Simulate cutting toolpath using regionSurfacePoints calculated from a particular B/C angle.
                 //
+                System.out.println("Scanning surface points using B/C Tool angle. ");
                 Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
                 Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
                 ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter", true );
@@ -421,9 +422,10 @@ public class Examples {
                 boolean running = true;
                 while(running){
                     int collisionCount = 0;
-                    System.out.println(" *** ");
+                    System.out.println("Modifying tool path to remove collisions.");
                     
                     Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
+                    
                     
                     for(int i = 0; i < generatedCuttingPath.size(); i++){
                         Vec3 currPoint = generatedCuttingPath.elementAt(i);
@@ -447,6 +449,7 @@ public class Examples {
                         // It appear the path along a side still collides.
                         boolean collides = cubeCollidesWithScene( cubeInfo, sceneObjects );
                         if(collides){
+                            collisionCount++;
                             System.out.println("  Collide remove point " );
                             // This point will collide so:
                             // 1) We can't add the point to the GCode file, and
@@ -454,17 +457,52 @@ public class Examples {
                             //Vec3 retractPoint = new Vec3(currPoint.plus(toolVector.times(3)));
                             //updatedCuttingPath.addElement(retractPoint);
                             
-                            // Remove prev
+                            // Remove adjacent point.
                             //updatedCuttingPath.remove( updatedCuttingPath.size() - 1 );
-                            generatedCuttingPath.remove( i + 1  );
-                            generatedCuttingPath.remove( i   );
-                            generatedCuttingPath.remove( i -1  );
+                            //generatedCuttingPath.remove( i + 1  );
+                            //generatedCuttingPath.remove( i   );
+                            //generatedCuttingPath.remove( i - 1  );
                             
-                            try { Thread.sleep(30); } catch(Exception e){} // Wait to show collision
+                            // New strategy idea,
+                            // create a void region that is a long channel angled along toolVector, and remove all generatedCuttingPath
+                            // points that fall in that zone.
+                            
+                            // Add pull out point
+                            Vec3 retractPoint = new Vec3(currPoint);
+                            retractPoint.add(toolVector.times(1.25));
+                            
+                            
+                            
+                            Vec3 voidRegionStart = new Vec3(currPoint.plus(toolVector.times( 100 ) ));
+                            Vec3 voidRegionEnd = new Vec3(currPoint.minus(toolVector.times( 100 ) ));
+                            int removedCount = 0;
+                            for(int p = generatedCuttingPath.size() -1; p >= 0; p--){
+                                Vec3 currP = generatedCuttingPath.elementAt(p);
+                                
+                                Vec3 closestPoint = Intersect2.closestPointToLineSegment( voidRegionStart, voidRegionEnd, currP);
+                                double dist = closestPoint.distance(  currP );
+                                //System.out.println("  dist " + dist );
+                                double getAvgSpan = getAverageSpan(generatedCuttingPath);
+                                //System.out.println("  dist " + dist + " getAvgSpan " + getAvgSpan );
+                                if(dist < getAvgSpan / 2){
+                                    //generatedCuttingPath.remove(p);
+                                    
+                                    generatedCuttingPath.setElementAt( retractPoint , p);
+                                    
+                                    removedCount++;
+                                }
+                            }
+                            
+                            //generatedCuttingPath.add( i - 1 , retractPoint); // Add retract point. Very important
+                               
+                            //updatedCuttingPath.addElement(retractPoint);
+                            
+                            
+                            //try { Thread.sleep(30); } catch(Exception e){} // Wait to show collision
                             // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
-                            collisionCount++;
+                            
                         } else {
-                            updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
+                            //updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                         }
                         
                         // Update the avatar object to show to the user where it is in space.
@@ -476,7 +514,7 @@ public class Examples {
                         try { Thread.sleep(1); } catch(Exception e){} // Wait
                     }
                     
-                    generatedCuttingPath = updatedCuttingPath ;
+                    //generatedCuttingPath = updatedCuttingPath ;
                     
                     System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
                     if(collisionCount == 0){
@@ -515,6 +553,7 @@ public class Examples {
                 cubeInfo.setObject(cubeObj);
                 cubeInfo.clearCachedMeshes();
                 */
+                int collisions = 0;
                 generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
                 for(int i = 0; i < generatedCuttingPath.size(); i++){
                     Vec3 surfacePoint = generatedCuttingPath.elementAt(i);
@@ -535,7 +574,7 @@ public class Examples {
                     // TODO
                     boolean collides = cubeCollidesWithScene( cubeInfo, sceneObjects );
                     if(collides){
-                        
+                        collisions++;
                         System.out.println("ERROR: GCode collision. ");
                         
                         try { Thread.sleep(18); } catch(Exception e){} // Wait to show collision, This shouldn't happen
@@ -665,6 +704,24 @@ public class Examples {
             }
         }
         return regionSurfacePoints;
+    }
+    
+    
+    public double getAverageSpan(Vector<Vec3> regionSurfacePoints){
+        double avgSpan = 0;
+        for(int i = 1; i < regionSurfacePoints.size(); i++){
+            Vec3 a = regionSurfacePoints.elementAt(i-1);
+            Vec3 b = regionSurfacePoints.elementAt(i);
+            double distance = a.distance(b);
+            //if(distance < minSpan){
+            //    minSpan = distance;
+            //}
+            avgSpan += distance;
+        }
+        if(regionSurfacePoints.size() > 1){
+            avgSpan = avgSpan / regionSurfacePoints.size();
+        }
+        return avgSpan;
     }
     
     
