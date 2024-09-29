@@ -208,6 +208,8 @@ public class Examples {
                 Vector<Vec3> generatedCuttingPath = new Vector<Vec3>(); // GCode cutting path
                 
                 ObjectInfo surfaceMapInfo = null; // Object represents surface map.
+                ObjectInfo toolPath = null;
+                
                 Vec3 toolVector = new Vec3(0, 1, 0); //
                 Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
                 Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
@@ -398,7 +400,7 @@ public class Examples {
                         // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
                         Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(3)));
                         generatedCuttingPath.addElement(retractPoint);
-                        try { Thread.sleep(18); } catch(Exception e){} // Wait to show collision
+                        try { Thread.sleep(10); } catch(Exception e){} // Wait to show collision
                         // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
                     } else {
                         generatedCuttingPath.addElement(surfacePoint); // No collision, This point can be safely cut on the machine / GCode.
@@ -410,23 +412,32 @@ public class Examples {
                     
                     // Update the scene
                     window.updateImage();
-                    try { Thread.sleep(4); } catch(Exception e){} // Wait
+                    try { Thread.sleep(2); } catch(Exception e){} // Wait
                 }
                     
                 generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // Fill in gaps in the retration and reentry made
                 
                 
+                if(surfaceMapInfo != null){
+                    surfaceMapInfo.setVisible(false); // Hide surface map because we want to show the GCode cut path now.
+                }
+                
+                
+                // If we have a GCode tool path add it to the scene.
+                if(generatedCuttingPath.size() > 1){
+                    toolPath = addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
+                }
+                
+                
+                
                 //
-                // Repeat until all collisions resolved. NOT WORKING.
+                // Repeat until all collisions resolved. 
                 //
                 boolean running = true;
                 while(running){
                     int collisionCount = 0;
                     System.out.println("Modifying tool path to remove collisions.");
-                    
-                    Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
-                    
-                    
+                    //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
                     for(int i = 0; i < generatedCuttingPath.size(); i++){
                         Vec3 currPoint = generatedCuttingPath.elementAt(i);
                         
@@ -450,7 +461,7 @@ public class Examples {
                         boolean collides = cubeCollidesWithScene( cubeInfo, sceneObjects );
                         if(collides){
                             collisionCount++;
-                            System.out.println("  Collide remove point " );
+                            //System.out.println("  Collide point " );
                             // This point will collide so:
                             // 1) We can't add the point to the GCode file, and
                             // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
@@ -469,13 +480,11 @@ public class Examples {
                             
                             // Add pull out point
                             Vec3 retractPoint = new Vec3(currPoint);
-                            retractPoint.add(toolVector.times(1.25));
-                            
-                            
+                            retractPoint.add(toolVector.times(4.0));
                             
                             Vec3 voidRegionStart = new Vec3(currPoint.plus(toolVector.times( 100 ) ));
                             Vec3 voidRegionEnd = new Vec3(currPoint.minus(toolVector.times( 100 ) ));
-                            int removedCount = 0;
+                            //int removedCount = 0;
                             for(int p = generatedCuttingPath.size() -1; p >= 0; p--){
                                 Vec3 currP = generatedCuttingPath.elementAt(p);
                                 
@@ -487,15 +496,27 @@ public class Examples {
                                 if(dist < getAvgSpan / 2){
                                     //generatedCuttingPath.remove(p);
                                     
-                                    generatedCuttingPath.setElementAt( retractPoint , p);
+                                    generatedCuttingPath.setElementAt(retractPoint, p); //
                                     
-                                    removedCount++;
+                                   
+                                     
+                                    //addLineToScene(window, retractPoint, retractPoint.plus(new Vec3(0,1,0)), "Collide", true );
+                                    //removedCount++;
                                 }
                             }
                             
-                            //generatedCuttingPath.add( i - 1 , retractPoint); // Add retract point. Very important
-                               
-                            //updatedCuttingPath.addElement(retractPoint);
+                            //
+                            // Fill in gaps created by changes
+                            //
+                            generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // Fill in gaps created by moving points.
+                            generatedCuttingPath = removeDuplicatePoints(generatedCuttingPath); // Remove duplicates if we move multiple points to the same location.
+                            //System.out.println("generatedCuttingPath size " + generatedCuttingPath.size()  );
+                            
+                            
+                            // Update
+                            Curve tpCurve = (Curve)toolPath.getObject();
+                            tpCurve.setVertexPositions(vectorToArray( generatedCuttingPath ));
+                            toolPath.clearCachedMeshes();
                             
                             
                             //try { Thread.sleep(30); } catch(Exception e){} // Wait to show collision
@@ -506,17 +527,15 @@ public class Examples {
                         }
                         
                         // Update the avatar object to show to the user where it is in space.
-                        currCurve.setVertexPositions(vectorToArray(updatedPoints));
+                        currCurve.setVertexPositions(vectorToArray(updatedPoints)); // represents cutter
                         avatarCutterLine.clearCachedMeshes();
                         
                         // Update the scene
                         window.updateImage();
                         try { Thread.sleep(1); } catch(Exception e){} // Wait
-                    }
+                    } // end loop generatedCuttingPath
                     
-                    //generatedCuttingPath = updatedCuttingPath ;
-                    
-                    System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
+                    //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
                     if(collisionCount == 0){
                         running = false; // we are done.
                     }
@@ -530,31 +549,32 @@ public class Examples {
                 // TODO: Implement this.
                 
                 
-                if(surfaceMapInfo != null){
-                    surfaceMapInfo.setVisible(false); // Hide surface map because we want to show the GCode cut path now.
-                }
+                
                 
                 // If we have a GCode tool path add it to the scene.
-                if(generatedCuttingPath.size() > 1){
-                    addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
-                }
+                //if(generatedCuttingPath.size() > 1){
+                //    addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
+                //}
                 
                 
                 // Now simulate the generated tool path to be written to a file.
                 try { Thread.sleep(500); } catch(Exception e){}
                 System.out.println("Simulating Tool Path.");
-                   
+                  
+                
+                // Shrink
+                
+                Cube cubeObj = (Cube)cubeInfo.getObject(); // Shrink Cube slightly (assume actual machine is smaller than representation)
+                cubeObj.setSize( cubeObj.getX()*0.75, cubeObj.getY()*0.75, cubeObj.getZ()*0.75 );
+                cubeInfo.setObject(cubeObj);
+                cubeInfo.clearCachedMeshes();
+                
+                
                 //
                 // Now simulate cutting of the new GCode which should result in no collisions.
                 //
-                /*
-                Cube cubeObj = (Cube)cubeInfo.getObject(); // Shrink Cube slightly (assume actual machine is smaller than representation)
-                cubeObj.setSize( cubeObj.getX()*0.5, cubeObj.getY()*0.5, cubeObj.getZ()*0.5 );
-                cubeInfo.setObject(cubeObj);
-                cubeInfo.clearCachedMeshes();
-                */
                 int collisions = 0;
-                generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
+                //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
                 for(int i = 0; i < generatedCuttingPath.size(); i++){
                     Vec3 surfacePoint = generatedCuttingPath.elementAt(i);
                     
@@ -590,7 +610,7 @@ public class Examples {
                     window.updateImage();
                     try { Thread.sleep(6); } catch(Exception e){} // Wait
                 } // end simulate GCode toolpoath
-                
+                System.out.println("Collsisions: " + collisions);
                 
                 
                 
@@ -722,6 +742,23 @@ public class Examples {
             avgSpan = avgSpan / regionSurfacePoints.size();
         }
         return avgSpan;
+    }
+    
+    /**
+     * removeDuplicatePoints
+     * Description:
+     */
+    public Vector<Vec3> removeDuplicatePoints(Vector<Vec3> points){
+        double avgSpan = getAverageSpan(points);
+        for(int i = points.size() - 1; i > 0 ; i--){
+            Vec3 a = points.elementAt(i-1);
+            Vec3 b = points.elementAt(i);
+            double distance = a.distance(b);
+            if(distance < avgSpan / 100){
+                points.removeElementAt(i);
+            }
+        }
+        return points;
     }
     
     
