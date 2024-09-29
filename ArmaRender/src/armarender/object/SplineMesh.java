@@ -599,7 +599,7 @@ public class SplineMesh extends Object3D implements Mesh
   /** Subdivide a spline mesh to a desired tolerance. */
     public static SplineMesh subdivideMesh(SplineMesh mesh, double tol)
     {
-        System.out.println("subdivideMesh no info");
+        //System.out.println("subdivideMesh no info");
         return subdivideMesh(mesh, tol, null);
     }
     
@@ -803,7 +803,7 @@ public class SplineMesh extends Object3D implements Mesh
 
   private static Object [] approxOneAxis(MeshVertex v[][], float s[], double param[][][], boolean closed, double tol, ObjectInfo info)
   {
-      System.out.println("approxOneAxis");
+      //System.out.println("approxOneAxis");
       LayoutModeling layout = new LayoutModeling();
     boolean refine[], newrefine[];
     float news[];

@@ -248,6 +248,10 @@ public class Examples {
                     //Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2 , (double)(y-(height/2)) * 0.2, (double)(y-(height/2)) * 0.2 ); // First try
                     Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2, 0, (double)(y-(height/2)) * 0.2 );
                     
+                    if(x % 2 == 0){ // Alternate scan direction on Y pass every other X. This is more effecient as it cuts the travel distance in half.
+                        currGridPoint = new Vec3( (double)(x-(width/2)) * 0.20, 0, (double)((height-y-1) - (height/2)) * 0.2 ); // reversed
+                    }
+                    
                     zRotationMat.transform(currGridPoint); // Apply the B axis transform.
                     yRotationMat.transform(currGridPoint); // Apply the C axis rotation
                     
@@ -318,12 +322,26 @@ public class Examples {
                     }
                 } // Y
             } // X
+            
+            if(debugMappingGrid.size() > 1){
+                addLineToScene(window, debugMappingGrid, "Projection Grid", false);
+            }
+            
+            // Add entry and exit paths from start position.
+            // Note if this entry or exit collide they would beed to be rerouted.
+            double maxMachineHeight = 0; // TODO calculate entry and exit points based on the capacity of the machine.
+            Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
+            Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
+            regionSurfacePoints.add(0, new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z)); // insert entry
+            regionSurfacePoints.add(regionSurfacePoints.size(), new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z));
+            
+            // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
+            regionSurfacePoints = fillGapsInPointPath(regionSurfacePoints);
+            
+            
             // Draw line showing mapped surface
             if(regionSurfacePoints.size() > 1){
                 addLineToScene(window, regionSurfacePoints, "Surface Map", true);
-            }
-            if(debugMappingGrid.size() > 1){
-                addLineToScene(window, debugMappingGrid, "Projection Grid", false);
             }
         } // bounds
         
@@ -332,6 +350,7 @@ public class Examples {
         //
         // Simulate cutting toolpath using regionSurfacePoints calculated from a particular B/C angle.
         //
+        
         String gCodeExport = "";
         for(int i = 1; i < regionSurfacePoints.size(); i++){
             Vec3 surfacePointA = regionSurfacePoints.elementAt(i-1);
@@ -400,5 +419,36 @@ public class Examples {
         ((LayoutWindow)window).addObject(info, undo);
     }
     
+    
+    /**
+     * fillGapsInPointPath
+     * Description: Evaluate point list, insert mid points in areas where there are gaps.
+     * Used to ensure all paths traveled are processed for collisions.
+     * Note: This is demonstration code. It does not check for infinite loop conditions.
+     */
+    public Vector<Vec3> fillGapsInPointPath(Vector<Vec3> regionSurfacePoints){
+        double minSpan = 999999; // TODO fix this.
+        for(int i = 1; i < regionSurfacePoints.size(); i++){
+            Vec3 a = regionSurfacePoints.elementAt(i-1);
+            Vec3 b = regionSurfacePoints.elementAt(i);
+            double distance = a.distance(b);
+            if(distance < minSpan){
+                minSpan = distance;
+            }
+        }
+        for(int i = 1; i < regionSurfacePoints.size(); i++){
+            Vec3 a = regionSurfacePoints.elementAt(i-1);
+            Vec3 b = regionSurfacePoints.elementAt(i);
+            double distance = a.distance(b);
+            while(distance > minSpan){
+                Vec3 insertMid = a.midPoint(b);
+                regionSurfacePoints.add( i, insertMid );
+                a = regionSurfacePoints.elementAt(i-1);
+                b = regionSurfacePoints.elementAt(i);
+                distance = a.distance(b);
+            }
+        }
+        return regionSurfacePoints;
+    }
 }
 
