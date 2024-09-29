@@ -199,6 +199,20 @@ public class Examples {
                 //
                 double c = 15; // rotation, 0-360.
                 double b = 45; // angle 45 degrees.
+                {   // test each of the approach directions. 
+                    //c = 0;
+                    //c = 90;
+                    //c = 180;
+                    c = 270;
+                }
+                
+                
+                // Router Size information.
+                double routerHousingPosition = 1.25;
+                double routerHousingSize = 0.75;
+                double bitTipPosition = 0.12;
+                double bitTipSize = 0.08;
+                
                 // Note: This concept could be used by running the following code example 4 times with the
                 // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
                 // This way each of the sides are covered by at leas one pass.
@@ -338,20 +352,22 @@ public class Examples {
                         addLineToScene(window, debugMappingGrid, "Projection Grid", false);
                     }
                     
-                    // Add entry and exit paths from start position.
-                    // Note if this entry or exit collide they would beed to be rerouted.
-                    double maxMachineHeight = 0; // TODO calculate entry and exit points based on the capacity of the machine.
-                    Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
-                    Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
-                    regionSurfacePoints.add(0, new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z)); // insert entry
-                    regionSurfacePoints.add(regionSurfacePoints.size(), new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z));
-                    
-                    // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
-                    regionSurfacePoints = fillGapsInPointPath(regionSurfacePoints);
-                    
-                    // Draw line showing mapped surface
-                    if(regionSurfacePoints.size() > 1){
-                        surfaceMapInfo = addLineToScene(window, regionSurfacePoints, "Surface Map", true);
+                    if(regionSurfacePoints.size() > 0){
+                        // Add entry and exit paths from start position.
+                        // Note if this entry or exit collide they would beed to be rerouted.
+                        double maxMachineHeight = 0; // TODO calculate entry and exit points based on the capacity of the machine.
+                        Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
+                        Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
+                        regionSurfacePoints.add(0, new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z)); // insert entry
+                        regionSurfacePoints.add(regionSurfacePoints.size(), new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z));
+                        
+                        // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
+                        regionSurfacePoints = fillGapsInPointPath(regionSurfacePoints);
+                        
+                        // Draw line showing mapped surface
+                        if(regionSurfacePoints.size() > 1){
+                            surfaceMapInfo = addLineToScene(window, regionSurfacePoints, "Surface Map", true);
+                        }
                     }
                 } // bounds
                 
@@ -366,10 +382,10 @@ public class Examples {
                 ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter", true );
                 Curve currCurve = (Curve)avatarCutterLine.getObject();
                 
-                ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times(2) ), 0.75, "Router Housing" ); // Cube represents a part of the machine
+                ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times(2) ), routerHousingSize, "Router Housing" ); // Cube represents a part of the machine
                 drillBodyCubeInfo.setPhysicalMaterialId(500); // This is an identifier used to ensure the objects representing the router are not included in collision detection.
                 
-                ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.2 ) ), 0.08, "Bit Tip" ); // Cube represents tip of bit
+                ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.2 ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
                 toolPitCubeInfo.setPhysicalMaterialId(500);
         
                 
@@ -383,11 +399,11 @@ public class Examples {
                     
                     // set location of cube
                     CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
-                    drillHousingAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
+                    drillHousingAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
                     drillBodyCubeInfo.clearCachedMeshes();
                     
                     CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
-                    drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(0.09))); // position along length of B/C
+                    drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(bitTipPosition))); // position along length of B/C
                     toolPitCubeInfo.clearCachedMeshes();
                     
                     // Check to see if the avatar cutter collides with any object in the scene.
@@ -454,16 +470,13 @@ public class Examples {
                         updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
                         
                         // set location of cube
-                        //CoordinateSystem drillTipAvatarCS = cubeInfo.getModelingCoords();
-                        //drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
-                        //cubeInfo.clearCachedMeshes();
                         
                         CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
-                        drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
+                        drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
                         drillBodyCubeInfo.clearCachedMeshes();
                         
                         CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
-                        drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(0.09))); // position along length of B/C
+                        drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(bitTipPosition))); // position along length of B/C
                         toolPitCubeInfo.clearCachedMeshes();
                         
                         // Check to see if the avatar cutter collides with any object in the scene.
@@ -486,7 +499,7 @@ public class Examples {
                             
                             // Add pull out point
                             Vec3 retractPoint = new Vec3(currPoint);
-                            retractPoint.add(toolVector.times(4.0));
+                            retractPoint.add(toolVector.times(3.0));
                             
                             // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
                             
@@ -590,15 +603,13 @@ public class Examples {
                     
                     
                     // set location of cube
-                    //CoordinateSystem drillTipAvatarCS = cubeInfo.getModelingCoords();
-                    //drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
-                    //cubeInfo.clearCachedMeshes();
+                    
                     CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
-                    drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(1.25))); // In practice the length of this avatar would be scaled to result in the correct length.
+                    drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
                     drillBodyCubeInfo.clearCachedMeshes();
                     
                     CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
-                    drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(0.09))); //
+                    drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(bitTipPosition))); //
                     toolPitCubeInfo.clearCachedMeshes();
                     
                     
