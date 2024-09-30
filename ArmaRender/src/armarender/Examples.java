@@ -12,9 +12,12 @@ public class Examples {
         
     }
     
+    // Container for information representing the router machine geometry.
     public class RouterElementContainer {
         public ObjectInfo element;
-        public double location;
+        public double location; // Location along axis of B/C cut tip to pivot.
+        public boolean affixedToB = true;
+        public boolean affixedToC = true;
         public RouterElementContainer(ObjectInfo info, double location){
             this.element = info;
             this.location = location;
@@ -277,6 +280,7 @@ public class Examples {
                     int height = 80;
                     
                     // Loop through grid
+                    // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
                     for(int x = 0; x < width; x++){
                         for(int y = 0; y < height; y++){
                             // xy offset to coords, Translate based on 'toolVector'
@@ -395,32 +399,45 @@ public class Examples {
                 ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter", true );
                 Curve currCurve = (Curve)avatarCutterLine.getObject();
                 
+                
+                // Router Z height base
+                ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.75, "Router Base" );
+                //routerZBaseCubeInfo.setPhysicalMaterialId(500);
+                setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
+                routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4) );
+                
                 //
                 // Add motor housing
                 //
                 // This includes multiple objects that represent the router machine.
                 // Use to detect collisions.
-                //ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, "Router Housing" ); // Cube represents a part of the machine
-                ObjectInfo drillBodyCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing" );
-                drillBodyCubeInfo.setPhysicalMaterialId(500); // This is an identifier used to ensure the objects representing the router are not included in collision detection.
-                // Set orientation
-                setObjectBCOrientation(drillBodyCubeInfo, c,  b);
-                routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, routerHousingPosition) );
+                ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base" ); // Cube represents a part of the machine
+                setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
+                routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2 ) );
+                
+                ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back ENd" ); // Cube represents a part of the machine
+                setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
+                routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0 ) );
+                
+                ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing" );
+                setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
+                routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition) );
                 
                 // add Collet
                 ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet" );
-                drillColletInfo.setPhysicalMaterialId(500);
+                //drillColletInfo.setPhysicalMaterialId(500);
                 setObjectBCOrientation(drillColletInfo, c,  b);
                 routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5) );
                 
                 // Add tool tip
                 //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
                 ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip" );
-                toolPitCubeInfo.setPhysicalMaterialId(500);
+                //toolPitCubeInfo.setPhysicalMaterialId(500);
                 setObjectBCOrientation(toolPitCubeInfo, c,  b);
                 routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition)  );
                 
-                
+                // TODO: Add a sphere to represent the ball nose type bits.
+                // Collision will be handled by the geometry.
              
                 
                 // Scan surface mesh to create tool path.
@@ -459,7 +476,7 @@ public class Examples {
                         RouterElementContainer rec = routerElements.elementAt(re);
                         ObjectInfo routerElement = rec.element;
                         // rec.location
-                        if( cubeCollidesWithScene( routerElement, sceneObjects )  ){
+                        if( objectCollidesWithScene( routerElement, sceneObjects, routerElements ) ){
                             collides = true;
                             retractDistance = rec.location;
                         }
@@ -544,7 +561,7 @@ public class Examples {
                             RouterElementContainer rec = routerElements.elementAt(re);
                             ObjectInfo routerElement = rec.element;
                             // rec.location
-                            if( cubeCollidesWithScene( routerElement, sceneObjects )  ){
+                            if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
                                 collides = true;
                                 retractDistance = rec.location;
                             }
@@ -688,7 +705,7 @@ public class Examples {
                         RouterElementContainer rec = routerElements.elementAt(re);
                         ObjectInfo routerElement = rec.element;
                         // rec.location
-                        if( cubeCollidesWithScene( routerElement, sceneObjects )  ){
+                        if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
                             collides = true;
                             //retractDistance = rec.location;
                         }
@@ -900,12 +917,14 @@ public class Examples {
     
     
     /**
-     * cubeCollidesWithScene
+     * objectCollidesWithScene
      * Description: Detect if a given object collides with the scene.
      * Note: This function needs to be updated to support multiple objects representing the machine cutter.
+     * @param: ObjectInfo info - object which is part of the machine used to test collisions with objects in the scene.
+     * @param: Vector<ObjectInfo> - all objects in the scene. Also includes the machine objects which need to be excluded from collision detection.
+     * TODO: passing in a list of geometry for the router would be better than tagging with an attribute?
      */
-    public boolean cubeCollidesWithScene( ObjectInfo detectInfo, Vector<ObjectInfo> sceneObjects ){
-        // WORK IN PROGRESS
+    public boolean objectCollidesWithScene( ObjectInfo detectInfo, Vector<ObjectInfo> sceneObjects, Vector<RouterElementContainer> routerElements ){
         boolean collides = false;
         LayoutModeling layout = new LayoutModeling();
         
@@ -949,6 +968,12 @@ public class Examples {
             for(int i = 0; i < sceneObjects.size(); i++){
                 ObjectInfo currInfo = sceneObjects.elementAt(i);
                 if( selectedObjects.contains(currInfo) ){          // Don't compare with self
+                    continue;
+                }
+                //if(currInfo.getPhysicalMaterialId() == 500){ // We designate these object types to be non colliding. i.e. we don't care if the
+                //    continue;
+                //}
+                if( routerElements.contains(currInfo) ){ // Don't check if this router object is colliding with another router object.
                     continue;
                 }
                 //System.out.println("   Compare with  scene object: " + currInfo.getName() );
