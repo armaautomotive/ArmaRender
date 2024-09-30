@@ -801,6 +801,23 @@ public class Examples {
     
     
     /**
+     * addSphereToScene
+     * Description: Add a Sphere object to the scene and return a reference.
+     * @param: WIndow - access to scene where the object will be added.
+     * @param: Vec3 location - location in space object is to be placed.
+     * @param: double size - initally - xyz width.
+     * @param: String name - name to display in object tree.
+     */
+    public ObjectInfo addSphereToScene(LayoutWindow window, Vec3 location, double size, String name){
+        Sphere sphere = new Sphere(size/2, size/2, size/2);
+        CoordinateSystem coords = new CoordinateSystem();
+        ObjectInfo info = new ObjectInfo(sphere, coords, name);
+        UndoRecord undo = new UndoRecord(window, false);
+        ((LayoutWindow)window).addObject(info, undo);
+        return info;
+    }
+    
+    /**
      * fillGapsInPointPath
      * Description: Evaluate point list, insert mid points in areas where there are gaps.
      * Used to ensure all paths traveled are processed for collisions.
