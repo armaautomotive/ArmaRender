@@ -421,10 +421,9 @@ public class Examples {
                 routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition)  );
                 
                 
-                //window.updateImage();
-                //try { Thread.sleep(16000); } catch(Exception e){} // Wait
+             
                 
-                
+                // Scan surface mesh to create tool path.
                 for(int i = 0; i < regionSurfacePoints.size(); i++){
                     Vec3 surfacePoint = regionSurfacePoints.elementAt(i);
                     
@@ -432,17 +431,6 @@ public class Examples {
                     Vector<Vec3> updatedPoints = new Vector<Vec3>();
                     updatedPoints.addElement(surfacePoint);
                     updatedPoints.addElement(surfacePoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
-                    
-                    // set location of cube
-                    /*
-                    CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
-                    drillHousingAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
-                    drillBodyCubeInfo.clearCachedMeshes();
-                    
-                    CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
-                    drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(bitTipPosition))); // position along length of B/C
-                    toolPitCubeInfo.clearCachedMeshes();
-                    */
                     
                     // Update router location
                     for(int re = 0; re < routerElements.size(); re++){
@@ -517,16 +505,6 @@ public class Examples {
                         updatedPoints.addElement(currPoint);
                         updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
                         
-                        // set location of cube
-                        /*
-                        CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
-                        drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
-                        drillBodyCubeInfo.clearCachedMeshes();
-                        
-                        CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
-                        drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(bitTipPosition))); // position along length of B/C
-                        toolPitCubeInfo.clearCachedMeshes();
-                        */
                         
                         // Update router location
                         for(int re = 0; re < routerElements.size(); re++){
@@ -660,17 +638,7 @@ public class Examples {
                     updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
                     
                     
-                    // set location of cube
-                    /*
-                    CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
-                    drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
-                    drillBodyCubeInfo.clearCachedMeshes();
-                    
-                    CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
-                    drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(bitTipPosition))); //
-                    toolPitCubeInfo.clearCachedMeshes();
-                    */
-                    
+                    // Update router location.
                     for(int re = 0; re < routerElements.size(); re++){
                         RouterElementContainer rec = routerElements.elementAt(re);
                         ObjectInfo routerElement = rec.element;
