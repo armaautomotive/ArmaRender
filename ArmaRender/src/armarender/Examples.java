@@ -87,13 +87,7 @@ public class Examples {
                         
                     }
                 }
-                
-                
-                //
-                // Add a cube to the scene.
-                // This object could be used to represent a collision region or represent the machine .
-                //
-                // TODO
+              
                 
                 
                 //
@@ -217,7 +211,6 @@ public class Examples {
                     //c = 180;
                     //c = 270;
                 }
-                
                 
                 // Router Size information.
                 double routerHousingPosition = 1.25;
@@ -440,7 +433,9 @@ public class Examples {
                 // Collision will be handled by the geometry.
              
                 
+                //
                 // Scan surface mesh to create tool path.
+                //
                 for(int i = 0; i < regionSurfacePoints.size(); i++){
                     Vec3 surfacePoint = regionSurfacePoints.elementAt(i);
                     
@@ -512,16 +507,14 @@ public class Examples {
                     surfaceMapInfo.setVisible(false); // Hide surface map because we want to show the GCode cut path now.
                 }
                 
-                
                 // If we have a GCode tool path add it to the scene.
                 if(generatedCuttingPath.size() > 1){
                     toolPath = addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
                 }
                 
                 
-                
                 //
-                // Repeat until all collisions resolved.
+                // Resolve collisions. Repeat until all collisions resolved.
                 //
                 boolean running = true;
                 while(running){
@@ -535,7 +528,6 @@ public class Examples {
                         Vector<Vec3> updatedPoints = new Vector<Vec3>();
                         updatedPoints.addElement(currPoint);
                         updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
-                        
                         
                         // Update router location
                         for(int re = 0; re < routerElements.size(); re++){
@@ -611,7 +603,7 @@ public class Examples {
                             //System.out.println("generatedCuttingPath size " + generatedCuttingPath.size()  );
                             
                             
-                            // Update
+                            // Update line representing B/C to tip geometry
                             Curve tpCurve = (Curve)toolPath.getObject();
                             tpCurve.setVertexPositions(vectorToArray( generatedCuttingPath ));
                             toolPath.clearCachedMeshes();
@@ -640,32 +632,11 @@ public class Examples {
                 }
                 
                 
-                //
-                // TODO: check the tool tip geometry for collision with scene.
-                // Modify the tool path to accomodate.
-                //
-                // TODO: Implement this.
-                
-                
-                
-                
-                // If we have a GCode tool path add it to the scene.
-                //if(generatedCuttingPath.size() > 1){
-                //    addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
-                //}
-                
                 
                 // Now simulate the generated tool path to be written to a file.
                 try { Thread.sleep(500); } catch(Exception e){}
                 System.out.println("Simulating Tool Path.");
-                  
                 
-                // Shrink
-                
-                //Cube cubeObj = (Cube)cubeInfo.getObject(); // Shrink Cube slightly (assume actual machine is smaller than representation)
-                //cubeObj.setSize( cubeObj.getX()*0.75, cubeObj.getY()*0.75, cubeObj.getZ()*0.75 );
-                //cubeInfo.setObject(cubeObj);
-                //cubeInfo.clearCachedMeshes();
                 
                 
                 //
@@ -745,11 +716,8 @@ public class Examples {
                 
                 
                 window.updateImage(); // Update scene
-                
-                
             }
         }).start();
-        
     } // end demo function
     
     
