@@ -450,14 +450,28 @@ public class Examples {
                     // It appear the path along a side still collides.
                     // The reason this doesn't work, is because when you detect a collision and pull the cutter away, the path it leaves
                     // still collides, It needs to move over of find a previous point to pull
-                    boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
-                    boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
-                    if(housingCollides || tipCollides){ // TODO: different objects may be best suited to retract different amounts.
+                    //boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
+                    //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
+                    
+                    boolean collides = false;
+                    double retractDistance = retractionValue;
+                    for(int re = 0; re < routerElements.size(); re++){
+                        RouterElementContainer rec = routerElements.elementAt(re);
+                        ObjectInfo routerElement = rec.element;
+                        // rec.location
+                        if( cubeCollidesWithScene( routerElement, sceneObjects )  ){
+                            collides = true;
+                            retractDistance = rec.location;
+                        }
+                    }
+                    
+                    if(collides){
+                    //if(housingCollides || tipCollides){ // TODO: different objects may be best suited to retract different amounts.
                         
                         // This point will collide so:
                         // 1) We can't add the point to the GCode file, and
                         // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
-                        Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(retractionValue))); // was 3
+                        Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(retractDistance))); // was 3
                         generatedCuttingPath.addElement(retractPoint);
                         try { Thread.sleep(10); } catch(Exception e){} // Wait to show collision
                         // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
@@ -521,9 +535,23 @@ public class Examples {
                         // The generatedCuttingPath can still collide with the scene. Perhaps keep filtering the
                         // generatedCuttingPath pulling out more points that collide until there are no more collisions?
                         // It appear the path along a side still collides.
-                        boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
-                        boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
-                        if(housingCollides || tipCollides){
+                        //boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
+                        //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
+                        
+                        boolean collides = false;
+                        double retractDistance = retractionValue;
+                        for(int re = 0; re < routerElements.size(); re++){
+                            RouterElementContainer rec = routerElements.elementAt(re);
+                            ObjectInfo routerElement = rec.element;
+                            // rec.location
+                            if( cubeCollidesWithScene( routerElement, sceneObjects )  ){
+                                collides = true;
+                                retractDistance = rec.location;
+                            }
+                        }
+                        
+                        if(collides){
+                        //if(housingCollides || tipCollides){
                             collisionCount++;
                             //System.out.println("  Collide point " );
                             // This point will collide so:
@@ -535,7 +563,7 @@ public class Examples {
                             
                             // Add pull out point
                             Vec3 retractPoint = new Vec3(currPoint);
-                            retractPoint.add(toolVector.times(retractionValue)); // was 3
+                            retractPoint.add(toolVector.times(retractDistance)); // was 3  retractDistance  retractionValue
                             
                             // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
                             
@@ -651,9 +679,24 @@ public class Examples {
                     // Check to see if the avatar cutter collides with any object in the scene.
                     
                     // TODO
-                    boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
-                    boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
-                    if(housingCollides || tipCollides){
+                    //boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
+                    //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
+                    
+                    boolean collides = false;
+                    //double retractDistance = retractionValue;
+                    for(int re = 0; re < routerElements.size(); re++){
+                        RouterElementContainer rec = routerElements.elementAt(re);
+                        ObjectInfo routerElement = rec.element;
+                        // rec.location
+                        if( cubeCollidesWithScene( routerElement, sceneObjects )  ){
+                            collides = true;
+                            //retractDistance = rec.location;
+                        }
+                    }
+                    
+                    
+                    //if(housingCollides || tipCollides){
+                    if(collides){
                         collisions++;
                         System.out.println("ERROR: GCode collision. ");
                         
