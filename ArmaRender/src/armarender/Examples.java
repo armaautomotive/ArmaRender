@@ -12,6 +12,15 @@ public class Examples {
         
     }
     
+    public class RouterElementContainer {
+        public ObjectInfo element;
+        public double location;
+        public RouterElementContainer(ObjectInfo info, double location){
+            this.element = info;
+            this.location = location;
+        }
+    }
+    
     /**
      * demo
      * Description: Example of common tasks.
@@ -203,7 +212,7 @@ public class Examples {
                     //c = 0;
                     //c = 90;
                     //c = 180;
-                    c = 270;
+                    //c = 270;
                 }
                 
                 
@@ -213,6 +222,9 @@ public class Examples {
                 double bitTipPosition = 0.12;
                 double bitTipSize = 0.08;
                 
+                // Collision Properties
+                double retractionValue = 0.50; // Hhigher means more change, more pull out, Lower means smoother finish, longer processing time.
+                
                 // Note: This concept could be used by running the following code example 4 times with the
                 // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
                 // This way each of the sides are covered by at leas one pass.
@@ -220,6 +232,7 @@ public class Examples {
                 Vector<Vec3> debugMappingGrid = new Vector<Vec3>(); // pattern of cutting to be projected onto the scene.
                 Vector<Vec3> regionSurfacePoints = new Vector<Vec3>(); // accumulated surface points projected
                 Vector<Vec3> generatedCuttingPath = new Vector<Vec3>(); // GCode cutting path
+                Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
                 
                 ObjectInfo surfaceMapInfo = null; // Object represents surface map.
                 ObjectInfo toolPath = null;
@@ -382,12 +395,35 @@ public class Examples {
                 ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter", true );
                 Curve currCurve = (Curve)avatarCutterLine.getObject();
                 
-                ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times(2) ), routerHousingSize, "Router Housing" ); // Cube represents a part of the machine
+                //
+                // Add motor housing
+                //
+                // This includes multiple objects that represent the router machine.
+                // Use to detect collisions.
+                //ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, "Router Housing" ); // Cube represents a part of the machine
+                ObjectInfo drillBodyCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing" );
                 drillBodyCubeInfo.setPhysicalMaterialId(500); // This is an identifier used to ensure the objects representing the router are not included in collision detection.
+                // Set orientation
+                setObjectBCOrientation(drillBodyCubeInfo, c,  b);
+                routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, routerHousingPosition) );
                 
-                ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.2 ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
+                // add Collet
+                ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet" );
+                drillColletInfo.setPhysicalMaterialId(500);
+                setObjectBCOrientation(drillColletInfo, c,  b);
+                routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5) );
+                
+                // Add tool tip
+                //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
+                ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip" );
                 toolPitCubeInfo.setPhysicalMaterialId(500);
-        
+                setObjectBCOrientation(toolPitCubeInfo, c,  b);
+                routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition)  );
+                
+                
+                //window.updateImage();
+                //try { Thread.sleep(16000); } catch(Exception e){} // Wait
+                
                 
                 for(int i = 0; i < regionSurfacePoints.size(); i++){
                     Vec3 surfacePoint = regionSurfacePoints.elementAt(i);
@@ -398,6 +434,7 @@ public class Examples {
                     updatedPoints.addElement(surfacePoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
                     
                     // set location of cube
+                    /*
                     CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
                     drillHousingAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
                     drillBodyCubeInfo.clearCachedMeshes();
@@ -405,6 +442,17 @@ public class Examples {
                     CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
                     drillTipAvatarCS.setOrigin(surfacePoint.plus(toolVector.times(bitTipPosition))); // position along length of B/C
                     toolPitCubeInfo.clearCachedMeshes();
+                    */
+                    
+                    // Update router location
+                    for(int re = 0; re < routerElements.size(); re++){
+                        RouterElementContainer rec = routerElements.elementAt(re);
+                        ObjectInfo routerElement = rec.element;
+                        CoordinateSystem reCS = routerElement.getModelingCoords();
+                        reCS.setOrigin(surfacePoint.plus(toolVector.times(  rec.location  )));
+                        routerElement.clearCachedMeshes();
+                    }
+                    
                     
                     // Check to see if the avatar cutter collides with any object in the scene.
                     
@@ -421,7 +469,7 @@ public class Examples {
                         // This point will collide so:
                         // 1) We can't add the point to the GCode file, and
                         // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
-                        Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(3)));
+                        Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(retractionValue))); // was 3
                         generatedCuttingPath.addElement(retractPoint);
                         try { Thread.sleep(10); } catch(Exception e){} // Wait to show collision
                         // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
@@ -470,7 +518,7 @@ public class Examples {
                         updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
                         
                         // set location of cube
-                        
+                        /*
                         CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
                         drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
                         drillBodyCubeInfo.clearCachedMeshes();
@@ -478,6 +526,16 @@ public class Examples {
                         CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
                         drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(bitTipPosition))); // position along length of B/C
                         toolPitCubeInfo.clearCachedMeshes();
+                        */
+                        
+                        // Update router location
+                        for(int re = 0; re < routerElements.size(); re++){
+                            RouterElementContainer rec = routerElements.elementAt(re);
+                            ObjectInfo routerElement = rec.element;
+                            CoordinateSystem reCS = routerElement.getModelingCoords();
+                            reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location  )));
+                            routerElement.clearCachedMeshes();
+                        }
                         
                         // Check to see if the avatar cutter collides with any object in the scene.
                         
@@ -499,7 +557,7 @@ public class Examples {
                             
                             // Add pull out point
                             Vec3 retractPoint = new Vec3(currPoint);
-                            retractPoint.add(toolVector.times(3.0));
+                            retractPoint.add(toolVector.times(retractionValue)); // was 3
                             
                             // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
                             
@@ -603,7 +661,7 @@ public class Examples {
                     
                     
                     // set location of cube
-                    
+                    /*
                     CoordinateSystem drillHousingAvatarCS = drillBodyCubeInfo.getModelingCoords();
                     drillHousingAvatarCS.setOrigin(currPoint.plus(toolVector.times(routerHousingPosition))); // In practice the length of this avatar would be scaled to result in the correct length.
                     drillBodyCubeInfo.clearCachedMeshes();
@@ -611,6 +669,15 @@ public class Examples {
                     CoordinateSystem drillTipAvatarCS = toolPitCubeInfo.getModelingCoords();
                     drillTipAvatarCS.setOrigin(currPoint.plus(toolVector.times(bitTipPosition))); //
                     toolPitCubeInfo.clearCachedMeshes();
+                    */
+                    
+                    for(int re = 0; re < routerElements.size(); re++){
+                        RouterElementContainer rec = routerElements.elementAt(re);
+                        ObjectInfo routerElement = rec.element;
+                        CoordinateSystem reCS = routerElement.getModelingCoords();
+                        reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location  )));
+                        routerElement.clearCachedMeshes();
+                    }
                     
                     
                     // Check to see if the avatar cutter collides with any object in the scene.
@@ -717,6 +784,21 @@ public class Examples {
         UndoRecord undo = new UndoRecord(window, false);
         //existingSelectedInfo.addChild(info, 0);
         //            info.setParent(existingSelectedInfo);
+        ((LayoutWindow)window).addObject(info, undo);
+        return info;
+    }
+    
+    
+    /**
+     * addCylinderToScene
+     * Description:
+     */
+    public ObjectInfo addCylinderToScene(LayoutWindow window, Vec3 location, double width, double height, String name){
+        Cylinder cylinder = new Cylinder(height, width/2, width/2, 1.0);
+        CoordinateSystem coords = new CoordinateSystem();
+        ObjectInfo info = new ObjectInfo(cylinder, coords, name);
+        
+        UndoRecord undo = new UndoRecord(window, false);
         ((LayoutWindow)window).addObject(info, undo);
         return info;
     }
@@ -905,6 +987,19 @@ public class Examples {
             } // for each object in scene
         }
         return collides;
+    }
+    
+    
+    public void setObjectBCOrientation(ObjectInfo info, double c, double b){
+        CoordinateSystem bcCS;
+        bcCS = info.getCoords();
+        CoordinateSystem zeroCS = new CoordinateSystem(new Vec3(), Vec3.vz(), Vec3.vy());
+        Mat4 mat4 = zeroCS.fromLocal();
+        mat4 = mat4.zrotation( Math.toRadians(b) );
+        bcCS.transformAxes(mat4);
+        mat4 = mat4.yrotation( Math.toRadians(c) );
+        bcCS.transformAxes(mat4);
+        info.setCoords(bcCS);
     }
 }
 
