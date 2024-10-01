@@ -23,10 +23,12 @@ public class Examples {
         public RouterElementContainer(ObjectInfo info, double location, double size){
             this.element = info;
             this.location = location;
+            this.size = size;
         }
         public RouterElementContainer(ObjectInfo info, double location, double size, boolean enabled){
             this.element = info;
             this.location = location;
+            this.size = size;
             this.enabled = enabled;
         }
     }
@@ -674,12 +676,12 @@ public class Examples {
         routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
         
         // Add tool tip ball nose
-        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.01 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
         toolBallNoseInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(toolBallNoseInfo, c,  b);
-        routerElements.addElement( new  RouterElementContainer( toolBallNoseInfo, 0.01, bitTipSize, false)  ); // Disabled collisions because BUGGY
-        
-        
+        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable
+        routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
+        //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
        
         
         //
@@ -716,6 +718,10 @@ public class Examples {
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
                 updatedPoints.addElement(currPoint);
                 updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
+                
+                // Update the avatar object to show to the user where it is in space.
+                currCurve.setVertexPositions(vectorToArray(updatedPoints)); // represents cutter
+                avatarCutterLine.clearCachedMeshes();
                 
                 // Update router location
                 for(int re = 0; re < routerElements.size(); re++){
@@ -825,10 +831,6 @@ public class Examples {
                     //updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 }
                 
-                // Update the avatar object to show to the user where it is in space.
-                currCurve.setVertexPositions(vectorToArray(updatedPoints)); // represents cutter
-                avatarCutterLine.clearCachedMeshes();
-                
                 // Update the scene
                 window.updateImage();
                 try { Thread.sleep(1); } catch(Exception e){} // Wait
@@ -861,7 +863,9 @@ public class Examples {
             Vector<Vec3> updatedPoints = new Vector<Vec3>();
             updatedPoints.addElement(currPoint);
             updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
-            
+            // Update the avatar object to show to the user where it is in space.
+            currCurve.setVertexPositions(vectorToArray(updatedPoints));
+            avatarCutterLine.clearCachedMeshes();
             
             // Update router location.
             for(int re = 0; re < routerElements.size(); re++){
@@ -880,17 +884,14 @@ public class Examples {
             //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
             
             boolean collides = false;
-            //double retractDistance = retractionValue;
             for(int re = 0; re < routerElements.size(); re++){
                 RouterElementContainer rec = routerElements.elementAt(re);
                 if(rec.enabled == false){
                     continue;
                 }
                 ObjectInfo routerElement = rec.element;
-                // rec.location
                 if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
                     collides = true;
-                    //retractDistance = rec.location;
                 }
             }
             
@@ -900,7 +901,7 @@ public class Examples {
                 collisions++;
                 System.out.println("ERROR: GCode collision. ");
                 
-                try { Thread.sleep(18); } catch(Exception e){} // Wait to show collision, This shouldn't happen
+                try { Thread.sleep(12); } catch(Exception e){} // Wait to show collision, This shouldn't happen
             } else {
                 //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 
@@ -910,13 +911,11 @@ public class Examples {
                 gCodeExport += "x" + xyzPoint.x + " y"+xyzPoint.y +" z"+xyzPoint.z+" b"+b+" c"+c+" f50;\n";
             }
             
-            // Update the avatar object to show to the user where it is in space.
-            currCurve.setVertexPositions(vectorToArray(updatedPoints));
-            avatarCutterLine.clearCachedMeshes();
+            
             
             // Update the scene
             window.updateImage();
-            try { Thread.sleep(6); } catch(Exception e){} // Wait
+            try { Thread.sleep(5); } catch(Exception e){} // Wait
         } // end simulate GCode toolpoath
         System.out.println("Collsisions: " + collisions);
         
