@@ -35,9 +35,15 @@ public class Examples {
     
     public class SurfacePointContainer {
         public Vec3 point;
+        public Vec3 normal;
         public int passNumber = 0;
         SurfacePointContainer(Vec3 point, int pasNumber){
             this.point = point;
+            this.passNumber = passNumber;
+        }
+        SurfacePointContainer(Vec3 point, Vec3 normal, int pasNumber){
+            this.point = point;
+            this.normal = normal;
             this.passNumber = passNumber;
         }
     }
@@ -434,7 +440,7 @@ public class Examples {
         // This way each of the sides are covered by at leas one pass.
         
         Vector<Vec3> debugMappingGrid = new Vector<Vec3>(); // pattern of cutting to be projected onto the scene.
-        Vector<Vec3> regionSurfacePoints = new Vector<Vec3>(); // accumulated surface points projected
+        Vector<SurfacePointContainer> regionSurfacePoints = new Vector<SurfacePointContainer>(); // accumulated surface points projected
         Vector<Vec3> generatedCuttingPath = new Vector<Vec3>(); // GCode cutting path
         Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
         
@@ -506,6 +512,7 @@ public class Examples {
                     Vec3 samplePointB = samplePoint.minus(raySubtract); // Second point in ray cast
                     // Find collision location
                     Vec3 intersectPoint = null;
+                    Vec3 intersectNormal = null; // experimental
                     for(int i = 0; i < sceneObjects.size(); i++){
                         ObjectInfo currInfo = sceneObjects.elementAt(i);
                         Object3D currObj = currInfo.getObject();
@@ -547,6 +554,13 @@ public class Examples {
                                 Vec3 faceA = worldVerts.elementAt(face.v1);
                                 Vec3 faceB = worldVerts.elementAt(face.v2);
                                 Vec3 faceC = worldVerts.elementAt(face.v3);
+                                
+                                Vec3 normal = faceB.minus(faceA).cross(faceC.minus(faceA));
+                                double length = normal.length();
+                                if (length > 0.0){
+                                    normal.scale(1.0/length);
+                                }
+                                
                                 Vec3 samplePointCollision = Intersect2.getIntersection(samplePoint, samplePointB, faceA, faceB, faceC );
                                 if(samplePointCollision != null){ // found intersection.
                                     //System.out.println(" *** ");
@@ -555,9 +569,11 @@ public class Examples {
                                         double currrentDist = regionScan.distance(samplePointCollision);
                                         if(currrentDist < existingDist){
                                             intersectPoint = samplePointCollision;
+                                            intersectNormal = normal;
                                         }
                                     } else {
                                         intersectPoint = samplePointCollision;
+                                        intersectNormal = normal;
                                     }
                                 }
                             }
@@ -586,8 +602,11 @@ public class Examples {
                             }
                         }
                         if(skipPointAsDuplicate == false){
-                            regionSurfacePoints.addElement(intersectPoint); // local
-                            SurfacePointContainer spc = new SurfacePointContainer(intersectPoint, passNumber);
+                            
+                            SurfacePointContainer spc = new SurfacePointContainer(intersectPoint, intersectNormal, passNumber);
+                            
+                            regionSurfacePoints.addElement(spc); // local intersectPoint
+                            
                             scanedSurfacePoints.addElement(spc); // external
                         }
                         //addLineToScene(window, intersectPoint,  intersectPoint.plus(new Vec3(0,1,0)) );
@@ -601,20 +620,28 @@ public class Examples {
             }
             
             if(regionSurfacePoints.size() > 0){
+                SurfacePointContainer firstSpc = regionSurfacePoints.elementAt(0);
+                SurfacePointContainer lastSpc = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
+                
                 // Add entry and exit paths from start position.
                 // Note if this entry or exit collide they would beed to be rerouted.
                 double maxMachineHeight = 0; // TODO calculate entry and exit points based on the capacity of the machine.
-                Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
-                Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
-                regionSurfacePoints.add(0, new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z)); // insert entry
-                regionSurfacePoints.add(regionSurfacePoints.size(), new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z));
+                Vec3 firstRegionSurfacePoint = firstSpc.point;
+                Vec3 lastRegionSurfacePoint = lastSpc.point;
+                
+                
+                SurfacePointContainer insertFirstSpc = new SurfacePointContainer( new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z), 0 );
+                SurfacePointContainer insertLastSpc = new SurfacePointContainer(  new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z) , 0);
+                
+                regionSurfacePoints.add(0, insertFirstSpc); // insert entry
+                regionSurfacePoints.add(regionSurfacePoints.size(), insertLastSpc );
                 
                 // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
-                regionSurfacePoints = fillGapsInPointPath(regionSurfacePoints);
+                regionSurfacePoints = fillGapsInPointPathSPC(regionSurfacePoints);
                 
                 // Draw line showing mapped surface
                 if(regionSurfacePoints.size() > 1){
-                    surfaceMapInfo = addLineToScene(window, regionSurfacePoints, "Surface Map (" + b + "-" + c + ")", true);
+                    surfaceMapInfo = addLineToSceneSPC(window, regionSurfacePoints, "Surface Map (" + b + "-" + c + ")", true);
                     surfaceMapInfo.setPhysicalMaterialId(500);
                 }
             }
@@ -628,8 +655,8 @@ public class Examples {
         // Simulate cutting toolpath using regionSurfacePoints calculated from a particular B/C angle.
         //
         System.out.println("Scanning surface points using B/C Tool angle. ");
-        Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
-        Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
+        Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0).point;
+        Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1).point;
         ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter (" + b + "-" + c + ")", true );
         avatarCutterLine.setPhysicalMaterialId(500);
         Curve currCurve = (Curve)avatarCutterLine.getObject();
@@ -688,9 +715,18 @@ public class Examples {
         // Scan surface mesh to create tool path.
         //
         for(int i = 0; i < regionSurfacePoints.size(); i++){
-            Vec3 surfacePoint = regionSurfacePoints.elementAt(i);
+            Vec3 surfacePoint = regionSurfacePoints.elementAt(i).point;
             generatedCuttingPath.addElement(surfacePoint);
         }
+        
+        
+        //
+        // Retract tool based on drill bit tip and angle delta between BC and the surface.
+        // This should be more effecient than using the drill tip geometry to collide with the scene for retraction.
+        //
+       
+        
+        
         
         if(surfaceMapInfo != null){
             surfaceMapInfo.setVisible(false); // Hide surface map because we want to show the GCode cut path now.
@@ -763,6 +799,7 @@ public class Examples {
                     }
                     
                     // new method - performance penalty
+                    
                     if(collides){ // Only check collision distance if we know there is a collision.
                         double collideDist = objectSceneCollisionOffset( toolVector, routerElement, sceneObjects, routerElements );
                         if(collideDist > 0){
@@ -771,8 +808,11 @@ public class Examples {
                             maxCollision = collideDist;
                         }
                     }
+                     
                 }
                 retractDistance = Math.max(maxLocation, maxCollision); // Max or addition. Possible ideas.
+                
+                //retractDistance = 0.5;
                 
                 if(collides){
                 //if(housingCollides || tipCollides){
@@ -786,12 +826,15 @@ public class Examples {
                     // points that fall in that zone.
                     
                     // Add pull out point
-                    Vec3 retractPoint = new Vec3(currPoint);
-                    retractPoint.add(toolVector.times(retractDistance)); // was 3  retractDistance  retractionValue
+                    //Vec3 retractPoint = new Vec3(currPoint);
+                    //retractPoint.add(toolVector.times(retractDistance)); // was 3  retractDistance  retractionValue
                     
                     // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
                     
                     
+                    //
+                    // Pull all points in channel.
+                    //
                     Vec3 voidRegionStart = new Vec3(currPoint.plus(toolVector.times( 100 ) ));
                     Vec3 voidRegionEnd = new Vec3(currPoint.minus(toolVector.times( 100 ) ));
                     //int removedCount = 0;
@@ -805,10 +848,15 @@ public class Examples {
                         //System.out.println("  dist " + dist + " getAvgSpan " + getAvgSpan );
                         if(dist < getAvgSpan / 2){
                             
-                            generatedCuttingPath.setElementAt(retractPoint, p); //
+                            Vec3 currRetractPoint = new Vec3(currP);
+                            currRetractPoint.add(toolVector.times(retractDistance));
                             
+                            //generatedCuttingPath.setElementAt(retractPoint, p); // NO This causes points to go off course.
+                            generatedCuttingPath.setElementAt(currRetractPoint, p);
                         }
                     }
+                    
+                    
                     
                     //
                     // Fill in gaps created by changes
@@ -818,7 +866,7 @@ public class Examples {
                     //System.out.println("generatedCuttingPath size " + generatedCuttingPath.size()  );
                     
                     
-                    // Update line representing B/C to tip geometry
+                    // Update line representing toolpath
                     Curve tpCurve = (Curve)toolPath.getObject();
                     tpCurve.setVertexPositions(vectorToArray( generatedCuttingPath ));
                     toolPath.clearCachedMeshes();
@@ -972,6 +1020,7 @@ public class Examples {
      * addLineToScene
      * Description:
      */
+    
     public ObjectInfo addLineToScene(LayoutWindow window, Vector<Vec3> points, String name, boolean visible){
         float[] s_ = new float[points.size()];
         for(int i = 0; i < points.size(); i++){
@@ -981,6 +1030,27 @@ public class Examples {
         for(int i = 0; i < points.size(); i++){
             
             vertex[i] = points.elementAt(i);
+        }
+        Curve theCurve = new Curve(vertex, s_, 0, false);
+        CoordinateSystem coords = new CoordinateSystem();
+        ObjectInfo info = new ObjectInfo(theCurve, coords, name);
+        info.setVisible(visible);
+        UndoRecord undo = new UndoRecord(window, false);
+        //existingSelectedInfo.addChild(info, 0);
+        //            info.setParent(existingSelectedInfo);
+        ((LayoutWindow)window).addObject(info, undo);
+        return info;
+    }
+    
+    public ObjectInfo addLineToSceneSPC(LayoutWindow window, Vector<SurfacePointContainer> points, String name, boolean visible){
+        float[] s_ = new float[points.size()];
+        for(int i = 0; i < points.size(); i++){
+            s_[i] = 0;
+        }
+        Vec3 [] vertex = new Vec3[points.size()];
+        for(int i = 0; i < points.size(); i++){
+            SurfacePointContainer spc = points.elementAt(i);
+            vertex[i] = spc.point;
         }
         Curve theCurve = new Curve(vertex, s_, 0, false);
         CoordinateSystem coords = new CoordinateSystem();
@@ -1024,6 +1094,42 @@ public class Examples {
         UndoRecord undo = new UndoRecord(window, false);
         ((LayoutWindow)window).addObject(info, undo);
         return info;
+    }
+    
+    
+    public Vector<SurfacePointContainer> fillGapsInPointPathSPC(Vector<SurfacePointContainer> regionSurfacePoints){
+        double minSpan = 999999; // TODO fix this.
+        double avgSpan = 0;
+        for(int i = 1; i < regionSurfacePoints.size(); i++){
+            Vec3 a = regionSurfacePoints.elementAt(i-1).point;
+            Vec3 b = regionSurfacePoints.elementAt(i).point;
+            double distance = a.distance(b);
+            if(distance < minSpan){
+                minSpan = distance;
+            }
+            avgSpan += distance;
+        }
+        if(regionSurfacePoints.size() > 1){
+            avgSpan = avgSpan / regionSurfacePoints.size();
+        }
+        for(int i = 1; i < regionSurfacePoints.size(); i++){
+            
+            Vec3 a = regionSurfacePoints.elementAt(i-1).point;
+            Vec3 b = regionSurfacePoints.elementAt(i).point;
+            double distance = a.distance(b);
+            while(distance > avgSpan * 1.5){ // minSpan
+                Vec3 insertMid = a.midPoint(b);
+                
+                SurfacePointContainer insertSPC = new SurfacePointContainer(  insertMid  , regionSurfacePoints.elementAt(i-1).passNumber );
+                
+                regionSurfacePoints.add( i, insertSPC );
+                
+                a = regionSurfacePoints.elementAt(i-1).point;
+                b = regionSurfacePoints.elementAt(i).point;
+                distance = a.distance(b);
+            }
+        }
+        return regionSurfacePoints;
     }
     
     /**
