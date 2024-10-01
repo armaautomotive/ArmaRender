@@ -6836,6 +6836,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         //examplesRunMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
         examplesMenu.add(examplesRunMenuItem);
         
+        
+        
+        
+        BMenuItem examples2RunMenuItem = Translate.menuItem("Collision Dist", this, "runExamples2Command");
+        //examplesRunMenuItem.setName(null); // Name is used by event handler for ID
+        //examplesRunMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
+        //examplesRunMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
+        examplesMenu.add(examples2RunMenuItem);
+        
+        
     }
     
     
@@ -6843,6 +6853,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         Examples ex = new Examples();
         
         ex.demo(this);
+    }
+    
+    public void runExamples2Command(){
+        Examples ex = new Examples();
+        
+        ex.intersectDistanceDemo(this);
     }
 
 /**

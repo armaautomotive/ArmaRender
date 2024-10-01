@@ -223,6 +223,25 @@ public class Vec3
   
     
     /**
+     *
+     */
+    public static double getAngle(Vec3 a, Vec3 b, Vec3 c){
+        double angle = 0;
+        Vec3 tempA = new Vec3(a);
+        Vec3 tempB = new Vec3(b);
+        Vec3 tempC = new Vec3(c);
+        tempA.subtract(tempB);
+        tempC.subtract(tempB);
+        tempA.normalize();
+        tempC.normalize();
+        double aDot = tempA.dot(tempC);
+        double a1 = Math.acos(aDot);
+        angle = Math.toDegrees(a1);
+        
+        return angle;
+    }
+    
+    /**
      * getAngle
      *
      * Description: get an angle between the vectors of the current vector and b.
@@ -370,6 +389,46 @@ public class Vec3
   {
     return (v.x-x)*(v.x-x)+(v.y-y)*(v.y-y)+(v.z-z)*(v.z-z);
   }
+    
+    
+    
+    /**
+     * distanceOnAxis
+     */
+    public static double distanceOnAxis(Vec3 pointA, Vec3 pointB, Vec3 axis){
+        double distance = pointA.distance(pointB);
+        
+        /*
+        // Find the side we want to move from
+        Vec3 targetDirection = new Vec3(samplePointCollision);
+        targetDirection.add(orientation);
+        double aDist = pointA.distance( targetDirection );
+        double bDist = pointB.distance( targetDirection );
+        Vec3 collidedObjectPoint = null;
+        if(aDist < bDist){
+            collidedObjectPoint = new Vec3(pointB);
+        } else {
+            collidedObjectPoint = new Vec3(A);
+        }
+        // samplePointCollision and collidedObjectPoint
+        
+        Vec3 temp = new Vec3(collidedObjectPoint); //
+        temp.subtract(samplePointCollision );
+        
+        
+        Vec3 perpendicularOrientation = new Vec3(orientation);
+        perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
+        perpendicularOrientation.normalize();
+        double angle = Vec3.getAngle( orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+        
+        Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, Math.toRadians(angle));
+    
+        orientationMat4.transform(temp);
+        
+        distance = -temp.y;
+        */
+        return distance;
+    }
 
   /** Create a 2 component vector by removing one axis of this one.
       @param which     the axis to drop (0=X, 1=Y, 2=Z)
