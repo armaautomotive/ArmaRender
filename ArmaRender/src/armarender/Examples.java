@@ -16,9 +16,10 @@ public class Examples {
     public class RouterElementContainer {
         public ObjectInfo element;
         public double location; // Location along axis of B/C cut tip to pivot.
+        public double size;
         public boolean affixedToB = true;
         public boolean affixedToC = true;
-        public RouterElementContainer(ObjectInfo info, double location){
+        public RouterElementContainer(ObjectInfo info, double location, double size){
             this.element = info;
             this.location = location;
         }
@@ -33,15 +34,18 @@ public class Examples {
         }
     }
     
+    /**
+     * This example will move a selected object along a orientation vector by the length of detected collision.
+     * This should result in the object resting outside the collision.
+     */
     public void intersectDistanceDemo(LayoutWindow window){
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
         
-        
         Vec3 orientation = new Vec3(-.7, .7, 0);
         orientation.normalize();
-        addLineToScene(window, new Vec3(0,0,0), orientation, "Orientation", true ); // CORRECT
+        //addLineToScene(window, new Vec3(0,0,0), orientation, "Orientation", true ); // CORRECT
         
         boolean selectionCollides = false;
         int sel[] = window.getSelectedIndices();
@@ -96,6 +100,8 @@ public class Examples {
                     //System.out.println("   Compare with  scene object: " + currInfo.getName() );
                     Object3D currObj = currInfo.getObject();
                     
+                    double longestCollisionDist = 0;
+                    
                     //
                     // Is the object a TriangleMesh or can it be converted?
                     //
@@ -130,50 +136,19 @@ public class Examples {
                             for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
                                 EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
                                 
-                                
-                                
                                 Vec3 samplePointCollision = Intersect2.getIntersection(edgePoint.a, edgePoint.b, faceA, faceB, faceC );
                                 if(samplePointCollision != null && samplePointCollision.x != 0  ){
-                                    System.out.println("Collsion " + samplePointCollision);
+                                    //System.out.println("Collsion ");
                                     
                                     //addLineToScene(window, samplePointCollision,  samplePointCollision.minus( new Vec3(0,1,0) ), "Collision", true ); // OK
                                     //addLineToScene(window, samplePointCollision, samplePointCollision.plus(new Vec3(0,2,0)), "Collision", true );
                                     
-                                    
-                                    /*
-                                    // Find the side we want to move from
-                                    Vec3 targetDirection = new Vec3(samplePointCollision);
-                                    targetDirection.add(orientation);
-                                    double aDist = edgePoint.a.distance( targetDirection );
-                                    double bDist = edgePoint.b.distance( targetDirection );
-                                    Vec3 collidedObjectPoint = null;
-                                    if(aDist < bDist){
-                                        collidedObjectPoint = new Vec3(edgePoint.b);
-                                    } else {
-                                        collidedObjectPoint = new Vec3(edgePoint.a);
-                                    }
-                                    // samplePointCollision and collidedObjectPoint
-                                    
-                                    Vec3 temp = new Vec3(collidedObjectPoint); //
-                                    temp.subtract(samplePointCollision );
-                                    
-                                    
-                                    Vec3 perpendicularOrientation = new Vec3(orientation);
-                                    perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
-                                    perpendicularOrientation.normalize();
-                                    double angle = Vec3.getAngle( orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
-                                    
-                                    Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, Math.toRadians(angle));
-                                
-                                    orientationMat4.transform(temp);
-                                    
-                                    double collisionDistance = -temp.y;
-                                    */
-                                    
                                     double collisionDistance = getCollisionDistance( samplePointCollision, edgePoint.a, edgePoint.b, orientation );
                                     //double collisionDistance = Vec3.distanceOnAxis(edgePoint.a, edgePoint.b, orientation);
                                     
-                                    
+                                    if(collisionDistance > longestCollisionDist){
+                                        longestCollisionDist = collisionDistance;
+                                    }
                                     
                                     
                                     //System.out.println("collisionDistance " + collisionDistance);
@@ -184,27 +159,7 @@ public class Examples {
                                     
                                     //System.out.println(" test " +  showPointer.distance(new Vec3())  );
                                     //addLineToScene(window, collidedObjectPoint, collidedObjectPoint.plus( showPointer )  , "-TEST: " + " " + collisionDistance, true );
-                                    
-                                    for(int s = 0; s < selectedObjects.size(); s++){
-                                        ObjectInfo sInfo = selectedObjects.elementAt(s);
-
-                                        
-                                        
-                                        CoordinateSystem reCS = sInfo.getModelingCoords();
-                                        Vec3 currOrigin = reCS.getOrigin();
-                                        
-                                        
-                                        reCS.setOrigin( currOrigin.plus(  showPointer  ) );  // showPointer
-                                        sInfo.clearCachedMeshes();
-                                    }
-                                    
-                                    
-                                    //break;
-                                    i = sceneObjects.size();
-                                    ep = selectedEdgePoints.size();
-                                    f = faces.length;
                                 }
-                                
                                 //if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
                                 //    selectionCollides = true;
                                 //    System.out.println("Collision  object: " + currInfo.getName());
@@ -212,9 +167,27 @@ public class Examples {
                             }
                         }
                     }
+                    if(longestCollisionDist > 0){
+                        Vec3 showPointer = new Vec3(orientation);
+                        showPointer.normalize();
+                        showPointer = showPointer.times(longestCollisionDist);
+                        
+                        for(int s = 0; s < selectedObjects.size(); s++){
+                            ObjectInfo sInfo = selectedObjects.elementAt(s);
+
+                            CoordinateSystem reCS = sInfo.getModelingCoords();
+                            Vec3 currOrigin = reCS.getOrigin();
+                            
+                            reCS.setOrigin( currOrigin.plus(  showPointer  ) );  // showPointer
+                            sInfo.clearCachedMeshes();
+                            
+                            System.out.println("Moving object. distance: " + longestCollisionDist);
+                        }
+                        window.updateImage();
+                    }
                 } // for each object in scene
             }
-            System.out.println("Selection collides: " + selectionCollides ); // Print result
+            //System.out.println("Selection collides: " + selectionCollides ); // Print result
         } else {
             System.out.println("No objects selected to check for collisions.");
         }
@@ -415,507 +388,6 @@ public class Examples {
                 
                 String gCode1 = calculateRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, scanedSurfacePoints, 1 ); // First Pass
                 gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, scanedSurfacePoints, 2 ); // Second Pass -> Rotated N degrees
-                
-                /*
-                // Router Size information.
-                double routerHousingPosition = 1.25;
-                double routerHousingSize = 0.75;
-                double bitTipPosition = 0.12;
-                double bitTipSize = 0.08;
-                
-                // Collision Properties
-                double retractionValue = 0.50; // Hhigher means more change, more pull out, Lower means smoother finish, longer processing time.
-                
-                // Note: This concept could be used by running the following code example 4 times with the
-                // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
-                // This way each of the sides are covered by at leas one pass.
-                
-                Vector<Vec3> debugMappingGrid = new Vector<Vec3>(); // pattern of cutting to be projected onto the scene.
-                Vector<Vec3> regionSurfacePoints = new Vector<Vec3>(); // accumulated surface points projected
-                Vector<Vec3> generatedCuttingPath = new Vector<Vec3>(); // GCode cutting path
-                Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
-                
-                ObjectInfo surfaceMapInfo = null; // Object represents surface map.
-                ObjectInfo toolPath = null;
-                
-                Vec3 toolVector = new Vec3(0, 1, 0); //
-                Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
-                Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
-                zRotationMat.transform(toolVector); // Apply the B axis transform.
-                yRotationMat.transform(toolVector); // Apply the C axis rotation
-                toolVector.normalize(); // Normalize to scale the vector to a length of 1.
-                System.out.println("toolVector " + toolVector);
-                // Calculate the bounds of the scene objects,
-                // for each object, get bounds.
-                BoundingBox sceneBounds = null ; //new BoundingBox(); // Vec3 p1, Vec3 p2
-                for(int i = 0; i < sceneObjects.size(); i++){
-                    ObjectInfo currInfo = sceneObjects.elementAt(i);
-                    BoundingBox currBounds = currInfo.getTranslatedBounds();
-                    if(sceneBounds == null){
-                        sceneBounds = currBounds;
-                    } else {
-                        sceneBounds.extend(currBounds);
-                    }
-                }
-                if(sceneBounds != null){
-                    double sceneSize = Math.max(sceneBounds.maxx - sceneBounds.minx, Math.max(sceneBounds.maxy - sceneBounds.miny, sceneBounds.maxz - sceneBounds.minz));
-                    //System.out.println("sceneSize " + sceneSize);
-                    Vec3 sceneCenter = sceneBounds.getCenter();
-                    
-                    Vec3 raySubtract = new Vec3(toolVector.times( sceneSize * 2) );
-                    
-                    // construct a grid and iterate each coordinate and translate it to the toolVector
-                
-                    // Translate to point in space to project region mapping.
-                    
-                    Vec3 regionScan = new Vec3(sceneCenter);
-                    regionScan.add( toolVector.times(sceneSize) );
-                    
-                    // DEBUG Show
-                    addLineToScene(window, regionScan,  regionScan.minus(raySubtract), "B/C Axis Ray", false ); // debug show ray cast line
-                    
-                    int width = 80;
-                    int height = 80;
-                    
-                    // Loop through grid
-                    // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
-                    for(int x = 0; x < width; x++){
-                        for(int y = 0; y < height; y++){
-                            // xy offset to coords, Translate based on 'toolVector'
-                            
-                            Vec3 samplePoint = new Vec3(regionScan);
-                            
-                            //Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2 , (double)(y-(height/2)) * 0.2, (double)(y-(height/2)) * 0.2 ); // First try
-                            Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2, 0, (double)(y-(height/2)) * 0.2 );
-                            
-                            if(x % 2 == 0){ // Alternate scan direction on Y pass every other X. This is more effecient as it cuts the travel distance in half.
-                                currGridPoint = new Vec3( (double)(x-(width/2)) * 0.20, 0, (double)((height-y-1) - (height/2)) * 0.2 ); // reversed
-                            }
-                            
-                            zRotationMat.transform(currGridPoint); // Apply the B axis transform.
-                            yRotationMat.transform(currGridPoint); // Apply the C axis rotation
-                            
-                            samplePoint.add( currGridPoint ); // shift
-                            
-                            debugMappingGrid.addElement(currGridPoint);
-                            
-                            Vec3 samplePointB = samplePoint.minus(raySubtract); // Second point in ray cast
-                            // Find collision location
-                            Vec3 intersectPoint = null;
-                            for(int i = 0; i < sceneObjects.size(); i++){
-                                ObjectInfo currInfo = sceneObjects.elementAt(i);
-                                Object3D currObj = currInfo.getObject();
-                                //System.out.println("Checking for intersect in: " + currInfo.getName());
-                                
-                                //
-                                // Is the object a TriangleMesh?
-                                //
-                                TriangleMesh triangleMesh = null;
-                                if(currObj instanceof TriangleMesh){
-                                    triangleMesh = (TriangleMesh)currObj;
-                                } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
-                                    triangleMesh = currObj.convertToTriangleMesh(0.1);
-                                }
-                                if(triangleMesh != null){
-                                    CoordinateSystem cs;
-                                    cs = layout.getCoords(currInfo);
-                                    
-                                    // Convert object coordinates to world (absolute) coordinates.
-                                    // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
-                                    Mat4 mat4 = cs.duplicate().fromLocal();
-                                    
-                                    MeshVertex[] verts = triangleMesh.getVertices();
-                                    Vector<Vec3> worldVerts = new Vector<Vec3>();
-                                    for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
-                                        Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
-                                        mat4.transform(vert);
-                                        worldVerts.addElement(vert); // add the translated vert to our list.
-                                        //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
-                                    }
-                                    TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
-                                    TriangleMesh.Face[] faces = triangleMesh.getFaces();
-                                    for(int f = 0; f < faces.length; f++ ){
-                                        TriangleMesh.Face face = faces[f];
-                                        Vec3 faceA = worldVerts.elementAt(face.v1);
-                                        Vec3 faceB = worldVerts.elementAt(face.v2);
-                                        Vec3 faceC = worldVerts.elementAt(face.v3);
-                                        Vec3 samplePointCollision = Intersect2.getIntersection(samplePoint, samplePointB, faceA, faceB, faceC );
-                                        if(samplePointCollision != null){ // found intersection.
-                                            //System.out.println(" *** ");
-                                            if(intersectPoint != null){   // existing intersection exists, check if the new one is closer
-                                                double existingDist = regionScan.distance(intersectPoint);
-                                                double currrentDist = regionScan.distance(samplePointCollision);
-                                                if(currrentDist < existingDist){
-                                                    intersectPoint = samplePointCollision;
-                                                }
-                                            } else {
-                                                intersectPoint = samplePointCollision;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if(intersectPoint != null){
-                                //System.out.println(" Colision " + intersectPoint );
-                                regionSurfacePoints.addElement(intersectPoint);
-                                //addLineToScene(window, intersectPoint,  intersectPoint.plus(new Vec3(0,1,0)) );
-                            }
-                        } // Y
-                    } // X
-                    
-                    if(debugMappingGrid.size() > 1){
-                        addLineToScene(window, debugMappingGrid, "Projection Grid", false);
-                    }
-                    
-                    if(regionSurfacePoints.size() > 0){
-                        // Add entry and exit paths from start position.
-                        // Note if this entry or exit collide they would beed to be rerouted.
-                        double maxMachineHeight = 0; // TODO calculate entry and exit points based on the capacity of the machine.
-                        Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
-                        Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
-                        regionSurfacePoints.add(0, new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z)); // insert entry
-                        regionSurfacePoints.add(regionSurfacePoints.size(), new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z));
-                        
-                        // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
-                        regionSurfacePoints = fillGapsInPointPath(regionSurfacePoints);
-                        
-                        // Draw line showing mapped surface
-                        if(regionSurfacePoints.size() > 1){
-                            surfaceMapInfo = addLineToScene(window, regionSurfacePoints, "Surface Map", true);
-                        }
-                    }
-                } // bounds
-                
-                
-                
-                //
-                // Simulate cutting toolpath using regionSurfacePoints calculated from a particular B/C angle.
-                //
-                System.out.println("Scanning surface points using B/C Tool angle. ");
-                Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0);
-                Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
-                ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter", true );
-                Curve currCurve = (Curve)avatarCutterLine.getObject();
-                
-                
-                // Router Z height base
-                ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.75, "Router Base" );
-                //routerZBaseCubeInfo.setPhysicalMaterialId(500);
-                setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
-                routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4) );
-                
-                //
-                // Add motor housing
-                //
-                // This includes multiple objects that represent the router machine.
-                // Use to detect collisions.
-                ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base" ); // Cube represents a part of the machine
-                setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
-                routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2 ) );
-                
-                ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back ENd" ); // Cube represents a part of the machine
-                setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
-                routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0 ) );
-                
-                ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing" );
-                setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
-                routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition) );
-                
-                // add Collet
-                ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet" );
-                //drillColletInfo.setPhysicalMaterialId(500);
-                setObjectBCOrientation(drillColletInfo, c,  b);
-                routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5) );
-                
-                // Add tool tip
-                //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
-                ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip" );
-                //toolPitCubeInfo.setPhysicalMaterialId(500);
-                setObjectBCOrientation(toolPitCubeInfo, c,  b);
-                routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition)  );
-                
-                // TODO: Add a sphere to represent the ball nose type bits.
-                // Collision will be handled by the geometry.
-             
-                
-                //
-                // Scan surface mesh to create tool path.
-                //
-                for(int i = 0; i < regionSurfacePoints.size(); i++){
-                    Vec3 surfacePoint = regionSurfacePoints.elementAt(i);
-                    
-                    //  calculate where the cutter would be to when fit to the current region surface point.
-                    Vector<Vec3> updatedPoints = new Vector<Vec3>();
-                    updatedPoints.addElement(surfacePoint);
-                    updatedPoints.addElement(surfacePoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
-                    
-                    // Update router location
-                    for(int re = 0; re < routerElements.size(); re++){
-                        RouterElementContainer rec = routerElements.elementAt(re);
-                        ObjectInfo routerElement = rec.element;
-                        CoordinateSystem reCS = routerElement.getModelingCoords();
-                        reCS.setOrigin(surfacePoint.plus(toolVector.times(  rec.location  )));
-                        routerElement.clearCachedMeshes();
-                    }
-                    
-                    
-                    // Check to see if the avatar cutter collides with any object in the scene.
-                    
-                    // Collision detection
-                    // The generatedCuttingPath can still collide with the scene. Perhaps keep filtering the
-                    // generatedCuttingPath pulling out more points that collide until there are no more collisions?
-                    // It appear the path along a side still collides.
-                    // The reason this doesn't work, is because when you detect a collision and pull the cutter away, the path it leaves
-                    // still collides, It needs to move over of find a previous point to pull
-                    //boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
-                    //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
-                    
-                    boolean collides = false;
-                    double retractDistance = retractionValue;
-                    for(int re = 0; re < routerElements.size(); re++){
-                        RouterElementContainer rec = routerElements.elementAt(re);
-                        ObjectInfo routerElement = rec.element;
-                        // rec.location
-                        if( objectCollidesWithScene( routerElement, sceneObjects, routerElements ) ){
-                            collides = true;
-                            retractDistance = rec.location;
-                        }
-                    }
-                    
-                    if(collides){
-                    //if(housingCollides || tipCollides){ // TODO: different objects may be best suited to retract different amounts.
-                        
-                        // This point will collide so:
-                        // 1) We can't add the point to the GCode file, and
-                        // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
-                        Vec3 retractPoint = new Vec3(surfacePoint.plus(toolVector.times(retractDistance))); // was 3
-                        generatedCuttingPath.addElement(retractPoint);
-                        try { Thread.sleep(10); } catch(Exception e){} // Wait to show collision
-                        // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
-                    } else {
-                        generatedCuttingPath.addElement(surfacePoint); // No collision, This point can be safely cut on the machine / GCode.
-                    }
-                    
-                    // Update the avatar object to show to the user where it is in space.
-                    currCurve.setVertexPositions(vectorToArray(updatedPoints));
-                    avatarCutterLine.clearCachedMeshes();
-                    
-                    // Update the scene
-                    window.updateImage();
-                    try { Thread.sleep(2); } catch(Exception e){} // Wait
-                }
-                    
-                generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // Fill in gaps in the retration and reentry made
-                
-                
-                if(surfaceMapInfo != null){
-                    surfaceMapInfo.setVisible(false); // Hide surface map because we want to show the GCode cut path now.
-                }
-                
-                // If we have a GCode tool path add it to the scene.
-                if(generatedCuttingPath.size() > 1){
-                    toolPath = addLineToScene(window, generatedCuttingPath, "GCode Tool Path", true);
-                }
-                
-                
-                //
-                // Resolve collisions. Repeat until all collisions resolved.
-                //
-                boolean running = true;
-                while(running){
-                    int collisionCount = 0;
-                    System.out.println("Modifying tool path to remove collisions.");
-                    //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
-                    for(int i = 0; i < generatedCuttingPath.size(); i++){
-                        Vec3 currPoint = generatedCuttingPath.elementAt(i);
-                        
-                        //  calculate where the cutter would be to when fit to the current region surface point.
-                        Vector<Vec3> updatedPoints = new Vector<Vec3>();
-                        updatedPoints.addElement(currPoint);
-                        updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
-                        
-                        // Update router location
-                        for(int re = 0; re < routerElements.size(); re++){
-                            RouterElementContainer rec = routerElements.elementAt(re);
-                            ObjectInfo routerElement = rec.element;
-                            CoordinateSystem reCS = routerElement.getModelingCoords();
-                            reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location  )));
-                            routerElement.clearCachedMeshes();
-                        }
-                        
-                        // Check to see if the avatar cutter collides with any object in the scene.
-                        
-                        // Collision detection
-                        // The generatedCuttingPath can still collide with the scene. Perhaps keep filtering the
-                        // generatedCuttingPath pulling out more points that collide until there are no more collisions?
-                        // It appear the path along a side still collides.
-                        //boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
-                        //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
-                        
-                        boolean collides = false;
-                        double retractDistance = retractionValue;
-                        for(int re = 0; re < routerElements.size(); re++){
-                            RouterElementContainer rec = routerElements.elementAt(re);
-                            ObjectInfo routerElement = rec.element;
-                            // rec.location
-                            if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
-                                collides = true;
-                                retractDistance = rec.location;
-                            }
-                        }
-                        
-                        if(collides){
-                        //if(housingCollides || tipCollides){
-                            collisionCount++;
-                            //System.out.println("  Collide point " );
-                            // This point will collide so:
-                            // 1) We can't add the point to the GCode file, and
-                            // 2) We must pull the router out along the B/C axis because we can't be sure the next point travel will collide with the scene.
-                            
-                            // create a void region that is a long channel angled along toolVector, and remove all generatedCuttingPath
-                            // points that fall in that zone.
-                            
-                            // Add pull out point
-                            Vec3 retractPoint = new Vec3(currPoint);
-                            retractPoint.add(toolVector.times(retractDistance)); // was 3  retractDistance  retractionValue
-                            
-                            // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
-                            
-                            
-                            Vec3 voidRegionStart = new Vec3(currPoint.plus(toolVector.times( 100 ) ));
-                            Vec3 voidRegionEnd = new Vec3(currPoint.minus(toolVector.times( 100 ) ));
-                            //int removedCount = 0;
-                            for(int p = generatedCuttingPath.size() -1; p >= 0; p--){
-                                Vec3 currP = generatedCuttingPath.elementAt(p);
-                                
-                                Vec3 closestPoint = Intersect2.closestPointToLineSegment( voidRegionStart, voidRegionEnd, currP);
-                                double dist = closestPoint.distance(  currP );
-                                //System.out.println("  dist " + dist );
-                                double getAvgSpan = getAverageSpan(generatedCuttingPath);
-                                //System.out.println("  dist " + dist + " getAvgSpan " + getAvgSpan );
-                                if(dist < getAvgSpan / 2){
-                                    
-                                    generatedCuttingPath.setElementAt(retractPoint, p); //
-                                    
-                                }
-                            }
-                            
-                            //
-                            // Fill in gaps created by changes
-                            //
-                            generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // Fill in gaps created by moving points.
-                            generatedCuttingPath = removeDuplicatePoints(generatedCuttingPath); // Remove duplicates if we move multiple points to the same location.
-                            //System.out.println("generatedCuttingPath size " + generatedCuttingPath.size()  );
-                            
-                            
-                            // Update line representing B/C to tip geometry
-                            Curve tpCurve = (Curve)toolPath.getObject();
-                            tpCurve.setVertexPositions(vectorToArray( generatedCuttingPath ));
-                            toolPath.clearCachedMeshes();
-                            
-                            
-                            //try { Thread.sleep(30); } catch(Exception e){} // Wait to show collision
-                            // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
-                            
-                        } else {
-                            //updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
-                        }
-                        
-                        // Update the avatar object to show to the user where it is in space.
-                        currCurve.setVertexPositions(vectorToArray(updatedPoints)); // represents cutter
-                        avatarCutterLine.clearCachedMeshes();
-                        
-                        // Update the scene
-                        window.updateImage();
-                        try { Thread.sleep(1); } catch(Exception e){} // Wait
-                    } // end loop generatedCuttingPath
-                    
-                    //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
-                    if(collisionCount == 0){
-                        running = false; // we are done.
-                    }
-                }
-                
-                
-                
-                // Now simulate the generated tool path to be written to a file.
-                try { Thread.sleep(500); } catch(Exception e){}
-                System.out.println("Simulating Tool Path.");
-                
-                
-                
-                //
-                // Now simulate cutting of the new GCode which should result in no collisions.
-                //
-                String gCodeExport = "";
-                int collisions = 0;
-                //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
-                for(int i = 0; i < generatedCuttingPath.size(); i++){
-                    Vec3 currPoint = generatedCuttingPath.elementAt(i);
-                    
-                    //  calculate where the cutter would be to when fit to the current region surface point.
-                    Vector<Vec3> updatedPoints = new Vector<Vec3>();
-                    updatedPoints.addElement(currPoint);
-                    updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
-                    
-                    
-                    // Update router location.
-                    for(int re = 0; re < routerElements.size(); re++){
-                        RouterElementContainer rec = routerElements.elementAt(re);
-                        ObjectInfo routerElement = rec.element;
-                        CoordinateSystem reCS = routerElement.getModelingCoords();
-                        reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location  )));
-                        routerElement.clearCachedMeshes();
-                    }
-                    
-                    
-                    // Check to see if the avatar cutter collides with any object in the scene.
-                    
-                    // TODO
-                    //boolean housingCollides = cubeCollidesWithScene( drillBodyCubeInfo, sceneObjects );
-                    //boolean tipCollides = cubeCollidesWithScene( toolPitCubeInfo, sceneObjects );
-                    
-                    boolean collides = false;
-                    //double retractDistance = retractionValue;
-                    for(int re = 0; re < routerElements.size(); re++){
-                        RouterElementContainer rec = routerElements.elementAt(re);
-                        ObjectInfo routerElement = rec.element;
-                        // rec.location
-                        if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
-                            collides = true;
-                            //retractDistance = rec.location;
-                        }
-                    }
-                    
-                    
-                    //if(housingCollides || tipCollides){
-                    if(collides){
-                        collisions++;
-                        System.out.println("ERROR: GCode collision. ");
-                        
-                        try { Thread.sleep(18); } catch(Exception e){} // Wait to show collision, This shouldn't happen
-                    } else {
-                        //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
-                        
-                        // NOTE: XYZ need to be translated off of surface or cutting point.
-                        Vec3 xyzPoint = new Vec3(currPoint);
-                        xyzPoint.plus(toolVector.times(2.4)); // Note this value needs to be calculated based on the BC point to tip length.
-                        gCodeExport += "x" + xyzPoint.x + " y"+xyzPoint.y +" z"+xyzPoint.z+" b"+b+" c"+c+" f50;\n";
-                    }
-                    
-                    // Update the avatar object to show to the user where it is in space.
-                    currCurve.setVertexPositions(vectorToArray(updatedPoints));
-                    avatarCutterLine.clearCachedMeshes();
-                    
-                    // Update the scene
-                    window.updateImage();
-                    try { Thread.sleep(6); } catch(Exception e){} // Wait
-                } // end simulate GCode toolpoath
-                System.out.println("Collsisions: " + collisions);
-                
-                String shortGCodeExport = gCodeExport.substring(0, Math.min(gCodeExport.length(), 3000));
-                System.out.println("GCode: (Trimmed) " +   shortGCodeExport);
-                */
                 
                 
                 
@@ -1160,7 +632,7 @@ public class Examples {
         routerZBaseCubeInfo.setPhysicalMaterialId(500);
         //routerZBaseCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
-        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4) );
+        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.75) );
         
         //
         // Add motor housing
@@ -1170,24 +642,24 @@ public class Examples {
         ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base (" + b + "-" + c + ")" ); // Cube represents a part of the machine
         drillBodyCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2 ) );
+        routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2, 0.8 ) );
         
         ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
         drillBodyBackEndCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0 ) );
+        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0, 0.8 ) );
         
         ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing (" + b + "-" + c + ")" );
         drillBodyCilynderInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition) );
+        routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition, routerHousingSize) );
         
         // add Collet
         ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
         drillColletInfo.setPhysicalMaterialId(500);
         //drillColletInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillColletInfo, c,  b);
-        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5) );
+        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
         
         // Add tool tip
         //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
@@ -1195,7 +667,17 @@ public class Examples {
         toolPitCubeInfo.setPhysicalMaterialId(500);
         //toolPitCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(toolPitCubeInfo, c,  b);
-        routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition)  );
+        routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
+        
+        // Add tool tip ball nose
+        /*
+        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+        toolBallNoseInfo.setPhysicalMaterialId(500);
+        //toolPitCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolBallNoseInfo, c,  b);
+        routerElements.addElement( new  RouterElementContainer( toolBallNoseInfo, 0.0, bitTipSize)  );
+        */
+        
         
         // TODO: Add a sphere to represent the ball nose type bits.
         // Collision will be handled by the geometry.
@@ -1217,7 +699,7 @@ public class Examples {
                 RouterElementContainer rec = routerElements.elementAt(re);
                 ObjectInfo routerElement = rec.element;
                 CoordinateSystem reCS = routerElement.getModelingCoords();
-                reCS.setOrigin(surfacePoint.plus(toolVector.times(  rec.location  )));
+                reCS.setOrigin(surfacePoint.plus(toolVector.times(  rec.location + (rec.size / 2)  )));
                 routerElement.clearCachedMeshes();
             }
             
@@ -1235,6 +717,7 @@ public class Examples {
             
             boolean collides = false;
             double retractDistance = retractionValue;
+            retractDistance = 0;
             for(int re = 0; re < routerElements.size(); re++){
                 RouterElementContainer rec = routerElements.elementAt(re);
                 ObjectInfo routerElement = rec.element;
@@ -1245,7 +728,14 @@ public class Examples {
                 
                 if( objectCollidesWithScene( routerElement, sceneObjects, routerElements ) ){
                     collides = true;
-                    retractDistance = rec.location;
+                    retractDistance += rec.location - (rec.size / 2); // Move back along length    !!!! ISSUE
+                }
+                
+                // new method
+                double collideDist = objectSceneCollisionOffset( toolVector, routerElement, sceneObjects, routerElements );
+                if(collideDist > 0){
+                    System.out.println("Collide dist found " + collideDist);
+                    retractDistance += collideDist;
                 }
             }
             
@@ -1307,7 +797,7 @@ public class Examples {
                     RouterElementContainer rec = routerElements.elementAt(re);
                     ObjectInfo routerElement = rec.element;
                     CoordinateSystem reCS = routerElement.getModelingCoords();
-                    reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location  )));
+                    reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location + (rec.size / 2)  )));
                     routerElement.clearCachedMeshes();
                 }
                 
@@ -1322,13 +812,21 @@ public class Examples {
                 
                 boolean collides = false;
                 double retractDistance = retractionValue;
+                retractDistance = 0;
                 for(int re = 0; re < routerElements.size(); re++){
                     RouterElementContainer rec = routerElements.elementAt(re);
                     ObjectInfo routerElement = rec.element;
                     // rec.location
                     if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
                         collides = true;
-                        retractDistance = rec.location;
+                        retractDistance += (rec.location - (rec.size / 2)); // minus the size of the object?
+                    }
+                    
+                    // new method
+                    double collideDist = objectSceneCollisionOffset( toolVector, routerElement, sceneObjects, routerElements );
+                    if(collideDist > 0){
+                        System.out.println("Collide dist found " + collideDist);
+                        retractDistance += collideDist;
                     }
                 }
                 
@@ -1432,7 +930,7 @@ public class Examples {
                 RouterElementContainer rec = routerElements.elementAt(re);
                 ObjectInfo routerElement = rec.element;
                 CoordinateSystem reCS = routerElement.getModelingCoords();
-                reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location  )));
+                reCS.setOrigin(currPoint.plus(toolVector.times(  rec.location + (rec.size / 2) )));
                 routerElement.clearCachedMeshes();
             }
             
@@ -1787,8 +1285,8 @@ public class Examples {
      * Description: A more advanced version of objectCollidesWithScene but returns information to communicate the extent of the collision.
      *  I.e. how far does the object need to be moved to resolve the collision.
      */
-    public Double objectSceneCollisionOffset( Vec3 orientation,  ObjectInfo detectInfo, Vector<ObjectInfo> sceneObjects, Vector<RouterElementContainer> routerElements ){
-        Double result = null;
+    public double objectSceneCollisionOffset( Vec3 orientation, ObjectInfo detectInfo, Vector<ObjectInfo> sceneObjects, Vector<RouterElementContainer> routerElements ){
+        double result = 0;
         LayoutModeling layout = new LayoutModeling();
         
         Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>();
@@ -1850,6 +1348,8 @@ public class Examples {
                 //System.out.println("   Compare with  scene object: " + currInfo.getName() );
                 Object3D currObj = currInfo.getObject();
                 
+                double longestCollisionDist = 0;
+                
                 //
                 // Is the object a TriangleMesh or can it be converted?
                 //
@@ -1884,45 +1384,26 @@ public class Examples {
                         for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
                             EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
                             
-                            Vec3 intersectionPoint = Intersect2.getIntersection(edgePoint.a, edgePoint.b, faceA, faceB, faceC);
-                            if(intersectionPoint != null){
-                                
-                                // calculate distance from this collision point along the direction vector to the furthest point in the detectInfo object (selectedEdgePoints).
-                                
-                                for(int w = 0; w < detectWorldVerts.size(); w++){
-                                    Vec3 currDetectPoint = detectWorldVerts.elementAt(w);
-                                    
-                                    
-                                    
-                                    Vec3 temp = new Vec3(intersectionPoint);
-                                    temp.subtract(currDetectPoint);
-                                    temp.normalize();
-                                    
-                                    Vec3 perpendicularOrientation = new Vec3(orientation);
-                                    perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
-                                    double angle = Vec3.getAngle( orientation, new Vec3(0, 1, 0), temp);
-                                    Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, angle);
-                                    
-                                    
-                                    
-                                    
-                                    // intersectDistance
-                                    
-                                }
-                            }
                             
-                            //if(  Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
-                                //collides = true;
-                                //System.out.println("Collision  object: " + currInfo.getName());
-                                //return true;
-                            //}
+                            Vec3 samplePointCollision = Intersect2.getIntersection(edgePoint.a, edgePoint.b, faceA, faceB, faceC );
+                            if(samplePointCollision != null && samplePointCollision.x != 0  ){
+                                //System.out.println("Collsion ");
+                                
+                                
+                                double collisionDistance = getCollisionDistance( samplePointCollision, edgePoint.a, edgePoint.b, orientation );
+                                //double collisionDistance = Vec3.distanceOnAxis(edgePoint.a, edgePoint.b, orientation);
+                                
+                                if(collisionDistance > longestCollisionDist){
+                                    longestCollisionDist = collisionDistance;
+                                    result = longestCollisionDist;
+                                }
+                                
+                            }
                         }
                     }
                 }
             } // for each object in scene
         }
-        
-        
         return result;
     }
     
