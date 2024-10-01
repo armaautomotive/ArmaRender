@@ -744,7 +744,9 @@ public class Examples {
         // Resolve collisions. Repeat until all collisions resolved.
         //
         boolean running = true;
+        int iterationCount = 0;
         while(running){
+            iterationCount++;
             int collisionCount = 0;
             System.out.println("Modifying tool path to remove collisions.");
             //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
@@ -869,7 +871,7 @@ public class Examples {
                             
                             double axisDist = getAxisDistance(currChannelRetractPoint, currPointRetraction, toolVector);
                             if(axisDist > 0){ // too much. We pulled the channel too far.
-                                currChannelRetractPoint.add(toolVector.times( -( retractDistance / 1.5 )   )); // correct a little
+                                currChannelRetractPoint.add(toolVector.times( -( retractDistance / 1.4 ))); // correct a little
                             }
                                 
                             //generatedCuttingPath.setElementAt(retractPoint, p); // NO This causes points to go off course (BC).
@@ -879,8 +881,6 @@ public class Examples {
                         }
                     }
                     //System.out.println("movedCount " + movedCount + "   i: " + i);
-                    
-                    
                     
                     //
                     // Fill in gaps created by changes
@@ -939,7 +939,7 @@ public class Examples {
                 running = false; // we are done.
             }
         }
-        
+        System.out.println("Collisions resolved in passes: " + iterationCount);
         
         
         // Now simulate the generated tool path to be written to a file.
@@ -1010,7 +1010,6 @@ public class Examples {
             }
             
             
-            
             // Update the scene
             window.updateImage();
             try { Thread.sleep(5); } catch(Exception e){} // Wait
@@ -1020,10 +1019,7 @@ public class Examples {
         String shortGCodeExport = gCodeExport.substring(0, Math.min(gCodeExport.length(), 3000));
         System.out.println("GCode: (Trimmed) " +   shortGCodeExport);
         
-        
-        
         //scene.removeObjectInfo(avatarCutterLine); // remove line
-        
         
         return gCodeExport;
     }
