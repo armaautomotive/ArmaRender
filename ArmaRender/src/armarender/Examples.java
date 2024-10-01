@@ -396,6 +396,7 @@ public class Examples {
                 }
                 
                 double accuracy = 0.2;
+                //accuracy = 0.1;
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
@@ -469,7 +470,8 @@ public class Examples {
         }
         if(sceneBounds != null){
             double sceneSize = Math.max(sceneBounds.maxx - sceneBounds.minx, Math.max(sceneBounds.maxy - sceneBounds.miny, sceneBounds.maxz - sceneBounds.minz));
-            //System.out.println("sceneSize " + sceneSize);
+            //System.out.println("sceneSize " + sceneSize );
+            //System.out.println("accuracy " + accuracy );
             Vec3 sceneCenter = sceneBounds.getCenter();
             
             Vec3 raySubtract = new Vec3(toolVector.times( sceneSize * 2) );
@@ -485,8 +487,9 @@ public class Examples {
             ObjectInfo bcLineInfo = addLineToScene(window, regionScan,  regionScan.minus(raySubtract), "B/C Axis Ray (" + b + "-" + c + ")", false ); // debug show ray cast line
             bcLineInfo.setPhysicalMaterialId(500);
             
-            int width = 80;
-            int height = 80;
+            int width = (int)(sceneSize / accuracy);
+            int height = (int)(sceneSize / accuracy);
+            //System.out.println("width " + width );
             
             // Loop through grid
             // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
@@ -496,11 +499,13 @@ public class Examples {
                     
                     Vec3 samplePoint = new Vec3(regionScan);
                     
+                    double scaleFactor = accuracy; //  (sceneSize / accuracy) ;
+                    
                     //Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2 , (double)(y-(height/2)) * 0.2, (double)(y-(height/2)) * 0.2 ); // First try
-                    Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * accuracy, 0, (double)(y-(height/2)) * accuracy );
+                    Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * scaleFactor, 0, (double)(y-(height/2)) * scaleFactor );
                     
                     if(x % 2 == 0){ // Alternate scan direction on Y pass every other X. This is more effecient as it cuts the travel distance in half.
-                        currGridPoint = new Vec3( (double)(x-(width/2)) * accuracy, 0, (double)((height-y-1) - (height/2)) * accuracy ); // reversed
+                        currGridPoint = new Vec3( (double)(x-(width/2)) * scaleFactor, 0, (double)((height-y-1) - (height/2)) * scaleFactor ); // reversed
                     }
                     
                     zRotationMat.transform(currGridPoint); // Apply the B axis transform.
