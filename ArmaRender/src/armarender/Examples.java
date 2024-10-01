@@ -637,7 +637,7 @@ public class Examples {
                 regionSurfacePoints.add(regionSurfacePoints.size(), insertLastSpc );
                 
                 // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
-                regionSurfacePoints = fillGapsInPointPathSPC(regionSurfacePoints);
+                regionSurfacePoints = fillGapsInPointPathSPC(regionSurfacePoints, accuracy);
                 
                 // Draw line showing mapped surface
                 if(regionSurfacePoints.size() > 1){
@@ -747,6 +747,7 @@ public class Examples {
             int collisionCount = 0;
             System.out.println("Modifying tool path to remove collisions.");
             //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
+            
             for(int i = 0; i < generatedCuttingPath.size(); i++){
                 Vec3 currPoint = generatedCuttingPath.elementAt(i);
                 
@@ -799,7 +800,6 @@ public class Examples {
                     }
                     
                     // new method - performance penalty
-                    
                     if(collides){ // Only check collision distance if we know there is a collision.
                         double collideDist = objectSceneCollisionOffset( toolVector, routerElement, sceneObjects, routerElements );
                         if(collideDist > 0){
@@ -808,7 +808,6 @@ public class Examples {
                             maxCollision = collideDist;
                         }
                     }
-                     
                 }
                 retractDistance = Math.max(maxLocation, maxCollision); // Max or addition. Possible ideas.
                 
@@ -826,43 +825,65 @@ public class Examples {
                     // points that fall in that zone.
                     
                     // Add pull out point
-                    //Vec3 retractPoint = new Vec3(currPoint);
-                    //retractPoint.add(toolVector.times(retractDistance)); // was 3  retractDistance  retractionValue
-                    
+                    /*
+                     // Will be infinite loop with fill gaps. This method will never pull lower points that when subdivided never resolve
+                    Vec3 retractPoint = new Vec3(currPoint);
+                    retractPoint.add(toolVector.times(retractDistance)); // was 3  retractDistance  retractionValue
+                    generatedCuttingPath.setElementAt(retractPoint, i);
+                    */
+                     
                     // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
                     
                     
                     //
                     // Pull all points in channel.
+                    // We do this because when we call fill gaps we create new points that could collide,
+                    // We don't want to reciursivly add and remove points in an infinite loop.
                     //
+                    
+                    //Vec3 currPointRetraction = new Vec3(currPoint);
+                    //currPointRetraction.add(toolVector.times(retractDistance));
+                    
                     Vec3 voidRegionStart = new Vec3(currPoint.plus(toolVector.times( 100 ) ));
                     Vec3 voidRegionEnd = new Vec3(currPoint.minus(toolVector.times( 100 ) ));
                     //int removedCount = 0;
+                    int movedCount = 0;
                     for(int p = generatedCuttingPath.size() -1; p >= 0; p--){
                         Vec3 currP = generatedCuttingPath.elementAt(p);
                         
                         Vec3 closestPoint = Intersect2.closestPointToLineSegment( voidRegionStart, voidRegionEnd, currP);
                         double dist = closestPoint.distance(  currP );
                         //System.out.println("  dist " + dist );
-                        double getAvgSpan = getAverageSpan(generatedCuttingPath);
+                        //double getAvgSpan = getAverageSpan(generatedCuttingPath); // old method
                         //System.out.println("  dist " + dist + " getAvgSpan " + getAvgSpan );
-                        if(dist < getAvgSpan / 2){
+                        //if(dist < getAvgSpan / 2){
+                        if(dist < accuracy / 4){ // 2
+                            movedCount++;
+                            
+                            // Calculate retractionDistance to give us the same rertaction as currPointRetraction along BC axis.
+                            //Vec3
                             
                             Vec3 currRetractPoint = new Vec3(currP);
                             currRetractPoint.add(toolVector.times(retractDistance));
                             
-                            //generatedCuttingPath.setElementAt(retractPoint, p); // NO This causes points to go off course.
+                            //generatedCuttingPath.setElementAt(retractPoint, p); // NO This causes points to go off course (BC).
                             generatedCuttingPath.setElementAt(currRetractPoint, p);
                         }
                     }
+                    //System.out.println("movedCount " + movedCount + "   i: " + i);
                     
                     
                     
                     //
                     // Fill in gaps created by changes
                     //
-                    generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // Fill in gaps created by moving points.
-                    generatedCuttingPath = removeDuplicatePoints(generatedCuttingPath); // Remove duplicates if we move multiple points to the same location.
+                    generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath, accuracy); // Fill in gaps created by moving points.
+                    generatedCuttingPath = removeDuplicatePoints(generatedCuttingPath, accuracy); // Remove duplicates if we move multiple points to the same location.
+                    generatedCuttingPath = smoothPointsOnAxis(generatedCuttingPath, toolVector, accuracy);
+                    
+                    // TOOD: it would make more sense to keep an attribute in the generatedCuttingPath to know which points ...
+                    // A better smoothing on axis is possible.
+                    
                     //System.out.println("generatedCuttingPath size " + generatedCuttingPath.size()  );
                     
                     
@@ -884,7 +905,18 @@ public class Examples {
                 try { Thread.sleep(1); } catch(Exception e){} // Wait
             } // end loop generatedCuttingPath
             
+            
             //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
+            System.out.println(" Collisions: " + collisionCount );
+            System.out.println(" Points in path: " + generatedCuttingPath.size() );
+            double pathLength = 0;
+            for(int i = 1; i < generatedCuttingPath.size(); i++){
+                Vec3 ap = generatedCuttingPath.elementAt(i - 1);
+                Vec3 bp = generatedCuttingPath.elementAt(i);
+                pathLength += ap.distance(bp);
+            }
+            System.out.println(" Path length: " + pathLength );
+            
             if(collisionCount == 0){
                 running = false; // we are done.
             }
@@ -1097,7 +1129,8 @@ public class Examples {
     }
     
     
-    public Vector<SurfacePointContainer> fillGapsInPointPathSPC(Vector<SurfacePointContainer> regionSurfacePoints){
+    public Vector<SurfacePointContainer> fillGapsInPointPathSPC(Vector<SurfacePointContainer> regionSurfacePoints, double accuracy){
+        /*
         double minSpan = 999999; // TODO fix this.
         double avgSpan = 0;
         for(int i = 1; i < regionSurfacePoints.size(); i++){
@@ -1112,18 +1145,16 @@ public class Examples {
         if(regionSurfacePoints.size() > 1){
             avgSpan = avgSpan / regionSurfacePoints.size();
         }
+        */
         for(int i = 1; i < regionSurfacePoints.size(); i++){
-            
             Vec3 a = regionSurfacePoints.elementAt(i-1).point;
             Vec3 b = regionSurfacePoints.elementAt(i).point;
             double distance = a.distance(b);
-            while(distance > avgSpan * 1.5){ // minSpan
+            //while(distance > avgSpan * 1.5){ // minSpan
+            while(distance > accuracy * 1.9){
                 Vec3 insertMid = a.midPoint(b);
-                
                 SurfacePointContainer insertSPC = new SurfacePointContainer(  insertMid  , regionSurfacePoints.elementAt(i-1).passNumber );
-                
                 regionSurfacePoints.add( i, insertSPC );
-                
                 a = regionSurfacePoints.elementAt(i-1).point;
                 b = regionSurfacePoints.elementAt(i).point;
                 distance = a.distance(b);
@@ -1138,7 +1169,8 @@ public class Examples {
      * Used to ensure all paths traveled are processed for collisions.
      * Note: This is demonstration code. It does not check for infinite loop conditions.
      */
-    public Vector<Vec3> fillGapsInPointPath(Vector<Vec3> regionSurfacePoints){
+    public Vector<Vec3> fillGapsInPointPath(Vector<Vec3> regionSurfacePoints, double accuracy){
+        /*
         double minSpan = 999999; // TODO fix this.
         double avgSpan = 0;
         for(int i = 1; i < regionSurfacePoints.size(); i++){
@@ -1153,11 +1185,14 @@ public class Examples {
         if(regionSurfacePoints.size() > 1){
             avgSpan = avgSpan / regionSurfacePoints.size();
         }
+         */
+        
         for(int i = 1; i < regionSurfacePoints.size(); i++){
             Vec3 a = regionSurfacePoints.elementAt(i-1);
             Vec3 b = regionSurfacePoints.elementAt(i);
             double distance = a.distance(b);
-            while(distance > avgSpan * 1.5){ // minSpan
+            //while(distance > avgSpan * 1.5){ // minSpan
+            while(distance > accuracy * 1.9){
                 Vec3 insertMid = a.midPoint(b);
                 regionSurfacePoints.add( i, insertMid );
                 a = regionSurfacePoints.elementAt(i-1);
@@ -1188,15 +1223,18 @@ public class Examples {
     
     /**
      * removeDuplicatePoints
-     * Description:
+     * Description: remove duplicate points from list.
+     * @param:
+     * @param:
      */
-    public Vector<Vec3> removeDuplicatePoints(Vector<Vec3> points){
-        double avgSpan = getAverageSpan(points);
+    public Vector<Vec3> removeDuplicatePoints(Vector<Vec3> points, double accuracy){
+        //double avgSpan = getAverageSpan(points);
         for(int i = points.size() - 1; i > 0 ; i--){
             Vec3 a = points.elementAt(i-1);
             Vec3 b = points.elementAt(i);
             double distance = a.distance(b);
-            if(distance < avgSpan / 100){
+            //if(distance < avgSpan / 100){
+            if(distance < accuracy / 4){
                 points.removeElementAt(i);
             }
         }
@@ -1505,6 +1543,64 @@ public class Examples {
         double collisionDistance = -temp.y;
     
         return collisionDistance;
+    }
+    
+    
+    /**
+     * smoothPointsOnAxis
+     * Description:
+     */
+    public Vector<Vec3> smoothPointsOnAxis(Vector<Vec3> generatedCuttingPath, Vec3 orientation, double accuracy){
+        for(int i = 2; i < generatedCuttingPath.size(); i++){
+            Vec3 pointA = generatedCuttingPath.elementAt(i-2);
+            Vec3 pointB = generatedCuttingPath.elementAt(i-1);
+            Vec3 pointC = generatedCuttingPath.elementAt(i);
+            //double distance = pointA.distance(pointB);
+            
+            double segmentAngle = Vec3.getAngle(pointA, pointB, pointC);
+            segmentAngle = 180 - segmentAngle;
+            if(segmentAngle > 90){
+                //System.out.println("angle: " +segmentAngle );
+            }
+            
+            Vec3 tempA = new Vec3(pointA);
+            tempA.subtract(pointB);
+            
+            Vec3 tempC = new Vec3(pointC);
+            tempC.subtract(pointB);
+            
+            //Vec3 preferencePoint = new Vec3(pointA);
+            //preferencePoint.plus( orientation.times(100) );
+            
+            Vec3 perpendicularOrientation = new Vec3(orientation);
+            perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
+            perpendicularOrientation.normalize();
+            double angle = Vec3.getAngle( orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+            Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, Math.toRadians(angle));
+
+            orientationMat4.transform(tempA);
+            orientationMat4.transform(tempC);
+            
+            if( tempA.y < 0 || tempC.y < 0 ){ // Only modify if moving B up.
+                continue;
+            }
+            
+            double axisDelta = 0;
+            if( tempA.distance(new Vec3()) > tempC.distance(new Vec3()) ){  // choose larger / higher
+                axisDelta = tempA.y;
+            } else {
+                axisDelta = tempC.y;
+            }
+            
+            if( Math.abs(axisDelta) > accuracy / 4 && segmentAngle > 140 ){ // 2
+                //System.out.println("Smooth correct i " + i  + " " + axisDelta);
+                // Transform the lower point
+                Vec3 retractPoint = new Vec3(pointB);
+                retractPoint.add(orientation.times( Math.abs(axisDelta) ));
+                generatedCuttingPath.setElementAt(retractPoint, i-1); // Update pointB
+            }
+        }
+        return generatedCuttingPath;
     }
 }
 
