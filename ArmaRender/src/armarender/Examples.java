@@ -37,6 +37,7 @@ public class Examples {
         public Vec3 point;
         public Vec3 normal;
         public int passNumber = 0;
+        public boolean onSurface = true;
         SurfacePointContainer(Vec3 point, int pasNumber){
             this.point = point;
             this.passNumber = passNumber;
@@ -441,7 +442,7 @@ public class Examples {
         
         Vector<Vec3> debugMappingGrid = new Vector<Vec3>(); // pattern of cutting to be projected onto the scene.
         Vector<SurfacePointContainer> regionSurfacePoints = new Vector<SurfacePointContainer>(); // accumulated surface points projected
-        Vector<Vec3> generatedCuttingPath = new Vector<Vec3>(); // GCode cutting path
+        Vector<SurfacePointContainer> generatedCuttingPath = new Vector<SurfacePointContainer>(); // GCode cutting path
         Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
         
         ObjectInfo surfaceMapInfo = null; // Object represents surface map.
@@ -715,8 +716,8 @@ public class Examples {
         // Scan surface mesh to create tool path.
         //
         for(int i = 0; i < regionSurfacePoints.size(); i++){
-            Vec3 surfacePoint = regionSurfacePoints.elementAt(i).point;
-            generatedCuttingPath.addElement(surfacePoint);
+            //Vec3 surfacePoint = regionSurfacePoints.elementAt(i).point;
+            generatedCuttingPath.addElement(regionSurfacePoints.elementAt(i));
         }
         
         
@@ -734,7 +735,7 @@ public class Examples {
         
         // If we have a GCode tool path add it to the scene.
         if(generatedCuttingPath.size() > 1){
-            toolPath = addLineToScene(window, generatedCuttingPath, "GCode Tool Path (" + b + "-" + c + ")", true);
+            toolPath = addLineToSceneSPC(window, generatedCuttingPath, "GCode Tool Path (" + b + "-" + c + ")", true);
             toolPath.setPhysicalMaterialId(500);
         }
         
@@ -749,7 +750,8 @@ public class Examples {
             //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
             
             for(int i = 0; i < generatedCuttingPath.size(); i++){
-                Vec3 currPoint = generatedCuttingPath.elementAt(i);
+                SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i);
+                Vec3 currPoint = currSpc.point;
                 
                 //  calculate where the cutter would be to when fit to the current region surface point.
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
@@ -793,6 +795,7 @@ public class Examples {
                     if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
                         collides = true;
                         double currLocationDistance = rec.location - (rec.size / 2);
+                        //currLocationDistance = currLocationDistance * 0.5; // this unit might be too much?
                         //retractDistance += (rec.location - (rec.size / 2)); // minus the size of the object?
                         if(currLocationDistance > maxLocation){
                             maxLocation = currLocationDistance;
@@ -840,16 +843,16 @@ public class Examples {
                     // We do this because when we call fill gaps we create new points that could collide,
                     // We don't want to reciursivly add and remove points in an infinite loop.
                     //
-                    
-                    //Vec3 currPointRetraction = new Vec3(currPoint);
-                    //currPointRetraction.add(toolVector.times(retractDistance));
-                    
+                    Vec3 currPointRetraction = new Vec3(currPoint);
+                    currPointRetraction.add(toolVector.times(retractDistance));
+                    // Now we don't want to pull the channel further than currPointRetraction on the BC axis
                     Vec3 voidRegionStart = new Vec3(currPoint.plus(toolVector.times( 100 ) ));
                     Vec3 voidRegionEnd = new Vec3(currPoint.minus(toolVector.times( 100 ) ));
                     //int removedCount = 0;
                     int movedCount = 0;
                     for(int p = generatedCuttingPath.size() -1; p >= 0; p--){
-                        Vec3 currP = generatedCuttingPath.elementAt(p);
+                        SurfacePointContainer currPSpc = generatedCuttingPath.elementAt(p);
+                        Vec3 currP = currPSpc.point;
                         
                         Vec3 closestPoint = Intersect2.closestPointToLineSegment( voidRegionStart, voidRegionEnd, currP);
                         double dist = closestPoint.distance(  currP );
@@ -861,13 +864,18 @@ public class Examples {
                             movedCount++;
                             
                             // Calculate retractionDistance to give us the same rertaction as currPointRetraction along BC axis.
-                            //Vec3
+                            Vec3 currChannelRetractPoint = new Vec3(currP);
+                            currChannelRetractPoint.add(toolVector.times(retractDistance));
                             
-                            Vec3 currRetractPoint = new Vec3(currP);
-                            currRetractPoint.add(toolVector.times(retractDistance));
-                            
+                            double axisDist = getAxisDistance(currChannelRetractPoint, currPointRetraction, toolVector);
+                            if(axisDist > 0){ // too much. We pulled the channel too far.
+                                currChannelRetractPoint.add(toolVector.times( -( retractDistance / 1.5 )   )); // correct a little
+                            }
+                                
                             //generatedCuttingPath.setElementAt(retractPoint, p); // NO This causes points to go off course (BC).
-                            generatedCuttingPath.setElementAt(currRetractPoint, p);
+                            //generatedCuttingPath.setElementAt(currRetractPoint, p);
+                            currPSpc.point = currChannelRetractPoint;
+                            currPSpc.onSurface = false; // This point no longer contacts the surface and doesn not aid in adding detail to the parts being manufactured.
                         }
                     }
                     //System.out.println("movedCount " + movedCount + "   i: " + i);
@@ -877,9 +885,9 @@ public class Examples {
                     //
                     // Fill in gaps created by changes
                     //
-                    generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath, accuracy); // Fill in gaps created by moving points.
-                    generatedCuttingPath = removeDuplicatePoints(generatedCuttingPath, accuracy); // Remove duplicates if we move multiple points to the same location.
-                    generatedCuttingPath = smoothPointsOnAxis(generatedCuttingPath, toolVector, accuracy);
+                    generatedCuttingPath = fillGapsInPointPathSPC(generatedCuttingPath, accuracy); // Fill in gaps created by moving points.
+                    generatedCuttingPath = removeDuplicatePointsSPC(generatedCuttingPath, accuracy); // Remove duplicates if we move multiple points to the same location.
+                    generatedCuttingPath = smoothPointsOnAxisSPC(generatedCuttingPath, toolVector, accuracy);
                     
                     // TOOD: it would make more sense to keep an attribute in the generatedCuttingPath to know which points ...
                     // A better smoothing on axis is possible.
@@ -889,11 +897,11 @@ public class Examples {
                     
                     // Update line representing toolpath
                     Curve tpCurve = (Curve)toolPath.getObject();
-                    tpCurve.setVertexPositions(vectorToArray( generatedCuttingPath ));
+                    tpCurve.setVertexPositions(vectorToArraySPC( generatedCuttingPath ));
                     toolPath.clearCachedMeshes();
                     
                     
-                    //try { Thread.sleep(30); } catch(Exception e){} // Wait to show collision
+                    try { Thread.sleep(5); } catch(Exception e){} // Wait to show collision
                     // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
                     
                 } else {
@@ -909,11 +917,21 @@ public class Examples {
             //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
             System.out.println(" Collisions: " + collisionCount );
             System.out.println(" Points in path: " + generatedCuttingPath.size() );
+            
+            int pointsOnSurface = 0;
+            for(int i = 0; i < generatedCuttingPath.size(); i++){
+                if(generatedCuttingPath.elementAt(i).onSurface){
+                    pointsOnSurface++;
+                }
+            }
+            System.out.println(" Points on surface: " + pointsOnSurface );
+            
             double pathLength = 0;
             for(int i = 1; i < generatedCuttingPath.size(); i++){
-                Vec3 ap = generatedCuttingPath.elementAt(i - 1);
-                Vec3 bp = generatedCuttingPath.elementAt(i);
+                Vec3 ap = generatedCuttingPath.elementAt(i - 1).point;
+                Vec3 bp = generatedCuttingPath.elementAt(i).point;
                 pathLength += ap.distance(bp);
+                
             }
             System.out.println(" Path length: " + pathLength );
             
@@ -937,7 +955,7 @@ public class Examples {
         int collisions = 0;
         //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
         for(int i = 0; i < generatedCuttingPath.size(); i++){
-            Vec3 currPoint = generatedCuttingPath.elementAt(i);
+            Vec3 currPoint = generatedCuttingPath.elementAt(i).point;
             
             //  calculate where the cutter would be to when fit to the current region surface point.
             Vector<Vec3> updatedPoints = new Vector<Vec3>();
@@ -1154,6 +1172,7 @@ public class Examples {
             while(distance > accuracy * 1.9){
                 Vec3 insertMid = a.midPoint(b);
                 SurfacePointContainer insertSPC = new SurfacePointContainer(  insertMid  , regionSurfacePoints.elementAt(i-1).passNumber );
+                insertSPC.onSurface = false; // Inserted points are assumed to not be on a surface.
                 regionSurfacePoints.add( i, insertSPC );
                 a = regionSurfacePoints.elementAt(i-1).point;
                 b = regionSurfacePoints.elementAt(i).point;
@@ -1241,6 +1260,20 @@ public class Examples {
         return points;
     }
     
+    public Vector<SurfacePointContainer> removeDuplicatePointsSPC(Vector<SurfacePointContainer> points, double accuracy){
+        //double avgSpan = getAverageSpan(points);
+        for(int i = points.size() - 1; i > 0 ; i--){
+            Vec3 a = points.elementAt(i-1).point;
+            Vec3 b = points.elementAt(i).point;
+            double distance = a.distance(b);
+            //if(distance < avgSpan / 100){
+            if(distance < accuracy / 4){
+                points.removeElementAt(i);
+            }
+        }
+        return points;
+    }
+    
     
     /**
      * vectorToArray
@@ -1249,6 +1282,15 @@ public class Examples {
         Vec3[] array = new Vec3[points.size()];
         for(int i = 0; i < points.size(); i++){
             array[i] = (Vec3)points.elementAt(i);
+        }
+        return array;
+    }
+    
+    
+    public Vec3[] vectorToArraySPC(Vector<SurfacePointContainer> points){
+        Vec3[] array = new Vec3[points.size()];
+        for(int i = 0; i < points.size(); i++){
+            array[i] = (Vec3)points.elementAt(i).point;
         }
         return array;
     }
@@ -1551,12 +1593,21 @@ public class Examples {
      * Description: ...
      * NOTE: It would be better to know if a point has been retracted from a surface. Because these points are not useful and we know we can move them without losing surface detail.
      */
-    public Vector<Vec3> smoothPointsOnAxis(Vector<Vec3> generatedCuttingPath, Vec3 orientation, double accuracy){
+    public Vector<SurfacePointContainer> smoothPointsOnAxisSPC(Vector<SurfacePointContainer> generatedCuttingPath, Vec3 orientation, double accuracy){
         for(int i = 2; i < generatedCuttingPath.size(); i++){
-            Vec3 pointA = generatedCuttingPath.elementAt(i-2);
-            Vec3 pointB = generatedCuttingPath.elementAt(i-1);
-            Vec3 pointC = generatedCuttingPath.elementAt(i);
+            Vec3 pointA = generatedCuttingPath.elementAt(i-2).point;
+            Vec3 pointB = generatedCuttingPath.elementAt(i-1).point;
+            Vec3 pointC = generatedCuttingPath.elementAt(i).point;
             //double distance = pointA.distance(pointB);
+            
+            SurfacePointContainer spcA = generatedCuttingPath.elementAt(i-2);
+            SurfacePointContainer spcB = generatedCuttingPath.elementAt(i-1);
+            SurfacePointContainer spcC = generatedCuttingPath.elementAt(i);
+            
+            boolean allOffSurface = false;
+            if(spcA.onSurface == false && spcB.onSurface == false && spcC.onSurface == false){
+                allOffSurface = true;
+            }
             
             double segmentAngle = Vec3.getAngle(pointA, pointB, pointC);
             segmentAngle = 180 - segmentAngle;
@@ -1590,15 +1641,38 @@ public class Examples {
                 axisDelta = tempC.y;
             }
             
-            if( Math.abs(axisDelta) > accuracy / 4 && segmentAngle > 140 ){ // 2
+            //if( Math.abs(axisDelta) > accuracy / 4 && segmentAngle > 140 ){ // 2
+            if(  allOffSurface  && Math.abs(axisDelta) > accuracy / 16   && segmentAngle > 20  ){
+                
                 //System.out.println("Smooth correct i " + i  + " " + axisDelta);
                 // Transform the lower point
                 Vec3 retractPoint = new Vec3(pointB);
                 retractPoint.add(orientation.times( Math.abs(axisDelta) ));
-                generatedCuttingPath.setElementAt(retractPoint, i-1); // Update pointB
+                
+                //generatedCuttingPath.setElementAt(retractPoint, i-1); // Update pointB
+                generatedCuttingPath.elementAt(i-1).point = retractPoint;
             }
         }
         return generatedCuttingPath;
+    }
+    
+    
+    public double getAxisDistance(Vec3 a, Vec3 b, Vec3 orientation){
+        double result = 0;
+        Vec3 temp = new Vec3(a);
+        temp.subtract(b);
+        
+        Vec3 perpendicularOrientation = new Vec3(orientation);
+        perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
+        perpendicularOrientation.normalize();
+        double angle = Vec3.getAngle( orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+        Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, Math.toRadians(angle));
+
+        orientationMat4.transform(temp);
+        
+        result = temp.y;
+        
+        return result;
     }
 }
 
