@@ -1548,7 +1548,8 @@ public class Examples {
     
     /**
      * smoothPointsOnAxis
-     * Description:
+     * Description: ...
+     * NOTE: It would be better to know if a point has been retracted from a surface. Because these points are not useful and we know we can move them without losing surface detail.
      */
     public Vector<Vec3> smoothPointsOnAxis(Vector<Vec3> generatedCuttingPath, Vec3 orientation, double accuracy){
         for(int i = 2; i < generatedCuttingPath.size(); i++){
@@ -1568,9 +1569,6 @@ public class Examples {
             
             Vec3 tempC = new Vec3(pointC);
             tempC.subtract(pointB);
-            
-            //Vec3 preferencePoint = new Vec3(pointA);
-            //preferencePoint.plus( orientation.times(100) );
             
             Vec3 perpendicularOrientation = new Vec3(orientation);
             perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
