@@ -417,6 +417,110 @@ public class Examples {
     
     
     
+    public void constructRouterGeometry(LayoutWindow window){
+        LayoutModeling layout = new LayoutModeling();
+        Scene scene = window.getScene();
+        double c = 15; // rotation, 0-360.
+        double b = 45; // angle 45 degrees.
+        
+        // Router Size information.
+        double routerHousingPosition = 1.25;
+        double routerHousingSize = 0.75;
+        double bitTipPosition = 0.12;
+        double bitTipSize = 0.08;
+        
+        Vec3 toolVector = new Vec3(0, 1, 0); //
+        Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
+        Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
+        zRotationMat.transform(toolVector); // Apply the B axis transform.
+        yRotationMat.transform(toolVector); // Apply the C axis rotation
+        toolVector.normalize(); // Normalize to scale the vector to a length of 1.
+        System.out.println("toolVector " + toolVector);
+        
+        
+        Vec3 firstRegionSurfacePoint = new Vec3();
+        Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();
+        
+        
+        
+        // Router Z height base
+        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.75, "Router Base (" + b + "-" + c + ")" );
+        routerZBaseCubeInfo.setPhysicalMaterialId(500);
+        //routerZBaseCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
+        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.75) );
+        
+        //
+        // Add motor housing
+        //
+        // This includes multiple objects that represent the router machine.
+        // Use to detect collisions.
+        ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        drillBodyCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
+        routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2, 0.8 ) );
+        
+        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        drillBodyBackEndCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
+        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0, 0.8 ) );
+        
+        ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing (" + b + "-" + c + ")" );
+        drillBodyCilynderInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
+        routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition, routerHousingSize) );
+        
+        // add Collet
+        ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
+        drillColletInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillColletInfo, c,  b);
+        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
+        
+        // Add tool tip
+        //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
+        ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip (" + b + "-" + c + ")" );
+        toolPitCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolPitCubeInfo, c,  b);
+        routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
+        
+        // Add tool tip ball nose
+        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+        toolBallNoseInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolBallNoseInfo, c,  b);
+        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable
+        routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
+        //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
+    }
+    
+    /**
+     * threePlusTwoXFour
+     * Description:
+     */
+    public void threePlusTwoXFour(LayoutWindow window){
+        (new Thread() {
+            public void run() {
+                LayoutModeling layout = new LayoutModeling();
+                Scene scene = window.getScene();
+                
+                double accuracy = 0.2;
+                
+                boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
+                
+                Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
+                Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
+                
+                String gCode1 = calculateRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, scanedSurfacePoints, 1 ); // First Pass
+                //gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, scanedSurfacePoints, 2 );
+                gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, scanedSurfacePoints, 3 ); // Second Pass -> Rotated N degrees
+                //gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, scanedSurfacePoints, 3 );
+                
+                // Write GCode to file..
+                
+                window.updateImage(); // Update scene
+            }
+        }).start();
+    } // end demo function
+    
     /**
      * calculateRoutingPassWithBC
      * Desscription:
@@ -669,11 +773,11 @@ public class Examples {
         
         
         // Router Z height base
-        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.75, "Router Base (" + b + "-" + c + ")" );
+        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.5, "Router Base (" + b + "-" + c + ")" );
         routerZBaseCubeInfo.setPhysicalMaterialId(500);
         //routerZBaseCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
-        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.75) );
+        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.5) );
         
         //
         // Add motor housing

@@ -6846,19 +6846,35 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         examplesMenu.add(examples2RunMenuItem);
         
         
+        BMenuItem constructRouterGeometryMenuItem = Translate.menuItem("Construct Router Geometry", this, "constructRouterGeometryCommand");
+        examplesMenu.add(constructRouterGeometryMenuItem);
+        
+        
+        BMenuItem threePlusTwoXFourMenuItem = Translate.menuItem("3+2 x 4 directions", this, "threePlusTwoXFourCommand");
+        examplesMenu.add(threePlusTwoXFourMenuItem);
+        
+        
     }
     
     
     public void runExamplesCommand(){
         Examples ex = new Examples();
-        
         ex.demo(this);
     }
     
     public void runExamples2Command(){
         Examples ex = new Examples();
-        
         ex.intersectDistanceDemo(this);
+    }
+    
+    public void constructRouterGeometryCommand(){
+        Examples ex = new Examples();
+        ex.constructRouterGeometry(this);
+    }
+    
+    public void threePlusTwoXFourCommand(){
+        Examples ex = new Examples();
+        ex.threePlusTwoXFour(this);
     }
 
 /**
