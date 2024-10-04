@@ -826,6 +826,7 @@ public class Examples {
         //
         for(int i = 0; i < regionSurfacePoints.size(); i++){
             //Vec3 surfacePoint = regionSurfacePoints.elementAt(i).point;
+            //SurfacePointContainer spc = regionSurfacePoints.elementAt(i);
             generatedCuttingPath.addElement(regionSurfacePoints.elementAt(i));
         }
         
@@ -834,7 +835,37 @@ public class Examples {
         // Retract tool based on drill bit tip and angle delta between BC and the surface.
         // This should be more effecient than using the drill tip geometry to collide with the scene for retraction.
         //
-       
+        // If ball nose drill bit type.
+        for(int i = 0; i < generatedCuttingPath.size(); i++){
+            SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
+            
+            Vec3 surfaceNormal = spc.normal;
+            
+            if(spc.normal  != null){
+                
+                
+                double angle = Vec3.getAngle( toolVector, new Vec3(), spc.normal );
+                if(angle > 90){
+                    angle = 90 - angle;
+                }
+                angle = Math.abs(angle);
+                
+                double ballNoseRadius = bitTipSize / 2;
+                
+                double retract = retractSphereByAngle(ballNoseRadius, Math.toRadians(angle));
+                
+                //spc.point = new Vec3(   spc.point.plus(    toolVector.times( retract  )  ) );
+                spc.point.add( toolVector.times( retract ) );
+                System.out.println("normal " + spc.normal);
+                System.out.println(" angle " + angle + " retract: " + retract);
+            } else {
+                System.out.println(" normal is null ");
+            }
+            
+        }
+        
+        
+        
         
         
         
@@ -1804,34 +1835,19 @@ public class Examples {
     
     /**
      * retractSphereByAngle
-     * Description: Calculate length the sphere needs to be retracted along an axis
-     * NOTE: THIS IS WRONG !!!
-     * @param:
-     * @param:
-     * @return:
+     * Description: Calculate length the sphere needs to be retracted along an axis to resolve collision.
+     *
+     * @param: double radius - curcle/ sphere radius.
+     * @param: double center line angle - axis of direction.
+     * @return: double length to retract
      */
     public double retractSphereByAngle(double circleRadius, double centerlineAngle){
         double result = 0;
         double ninty = Math.toRadians(90);
         double height = calculateCircleDepthByAngle( circleRadius,  centerlineAngle);
-        
-        double width = circleRadius * Math.cos( ninty - centerlineAngle ); // //b = c × cos(α)
-        
-        Vec3 a = new Vec3( 0, -height, 0 );
-        Vec3 b = new Vec3( width, 0, 0 );
-        
-        double x = -  circleRadius * Math.cos( ninty - centerlineAngle );
-        double y =    circleRadius * Math.sin( ninty - centerlineAngle );
-        Vec3 orientation = new Vec3( x , y , 0 );
-        orientation.normalize();
-       
-        System.out.println("a " + a + " b " + b +  " orientation: " + orientation);
-        
-        
-        
-        result = getAxisDistance(a, b, orientation);
-        
-        return result;
+        double width = height * Math.tan( centerlineAngle );  //   b = a × tan(β)
+        double distance = Math.sqrt( height * height + width* width )  ; // √(a² + b²)
+        return distance;
     }
     
 }
