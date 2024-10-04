@@ -6854,6 +6854,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         examplesMenu.add(threePlusTwoXFourMenuItem);
         
         
+        
+        BMenuItem circleDecendMenuItem = Translate.menuItem("Circle Decend", this, "circleDecendCommand");
+        examplesMenu.add(circleDecendMenuItem);
     }
     
     
@@ -6876,6 +6879,22 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         Examples ex = new Examples();
         ex.threePlusTwoXFour(this);
     }
+    
+    
+    
+    public void circleDecendCommand(){
+        Examples ex = new Examples();
+        
+        for(int i = 1; i < 90; i++){
+            double descend = ex.calculateCircleDepthByAngle( 2.0, Math.toRadians(  (double)i ) );
+            
+            
+            double length = ex.retractSphereByAngle( 2.0, Math.toRadians(  (double)i )  );
+        
+            System.out.println(" descend: " + i + "  -> "  + descend  + " length: " + length);
+        }
+    }
+    
 
 /**
      * printFiveAxisGCode

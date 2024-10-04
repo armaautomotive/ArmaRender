@@ -1762,22 +1762,77 @@ public class Examples {
     }
     
     
+    /**
+     * getAxisDistance
+     * Description: Calculate difference between two points as measured along an orientation axis.
+     */
     public double getAxisDistance(Vec3 a, Vec3 b, Vec3 orientation){
         double result = 0;
         Vec3 temp = new Vec3(a);
         temp.subtract(b);
-        
         Vec3 perpendicularOrientation = new Vec3(orientation);
         perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
         perpendicularOrientation.normalize();
         double angle = Vec3.getAngle( orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
         Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, Math.toRadians(angle));
-
         orientationMat4.transform(temp);
-        
         result = temp.y;
+        return result;
+    }
+    
+    
+    /**
+     * calculateCircleDepthByAngle
+     * Description: Calculate the depth of a
+     * @param: double circleRadius -
+     * @param: double centerlineAngle -
+     * @return: double length the circle decends below.
+     */
+    public double calculateCircleDepthByAngle(double circleRadius, double centerlineAngle){
+        double result = 0;
+        double ninty = Math.toRadians(90);
+        if(centerlineAngle < 0){
+            centerlineAngle = 0;
+        }
+        if(centerlineAngle > ninty){
+            centerlineAngle = ninty;
+        }
+        double centerToLineVert = circleRadius * Math.sin( ninty - centerlineAngle );
+        result = circleRadius - centerToLineVert;
+        return result;
+    }
+    
+    /**
+     * retractSphereByAngle
+     * Description: Calculate length the sphere needs to be retracted along an axis
+     * NOTE: THIS IS WRONG !!!
+     * @param:
+     * @param:
+     * @return:
+     */
+    public double retractSphereByAngle(double circleRadius, double centerlineAngle){
+        double result = 0;
+        double ninty = Math.toRadians(90);
+        double height = calculateCircleDepthByAngle( circleRadius,  centerlineAngle);
+        
+        double width = circleRadius * Math.cos( ninty - centerlineAngle ); // //b = c × cos(α)
+        
+        Vec3 a = new Vec3( 0, -height, 0 );
+        Vec3 b = new Vec3( width, 0, 0 );
+        
+        double x = -  circleRadius * Math.cos( ninty - centerlineAngle );
+        double y =    circleRadius * Math.sin( ninty - centerlineAngle );
+        Vec3 orientation = new Vec3( x , y , 0 );
+        orientation.normalize();
+       
+        System.out.println("a " + a + " b " + b +  " orientation: " + orientation);
+        
+        
+        
+        result = getAxisDistance(a, b, orientation);
         
         return result;
     }
+    
 }
 
