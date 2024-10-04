@@ -4,7 +4,10 @@ package armarender;
 import java.util.*;
 import armarender.math.*;
 import armarender.object.*;
-
+import java.io.PrintWriter;
+import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 public class Examples {
     
@@ -406,7 +409,7 @@ public class Examples {
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
                 
                 String gCode1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
-                gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display ); // Second Pass -> Rotated N degrees
+                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display ); // Second Pass -> Rotated N degrees
                 
                 
                 
@@ -521,6 +524,8 @@ public class Examples {
                 
                 
                 
+                
+                
                 window.updateImage(); // Update scene
             }
         }).start();
@@ -536,6 +541,9 @@ public class Examples {
      * @param: Window - access to scene objects.
      */
     public void finishingThreePlusTwoByFour(LayoutWindow window){
+        //ProgressDialog progressDialog = new ProgressDialog("Exporting");
+        //progressDialog.start();
+        //progressDialog.setProgress(1);
         (new Thread() {
             public void run() {
                 LayoutModeling layout = new LayoutModeling();
@@ -549,6 +557,9 @@ public class Examples {
                 // 5) collect tool dimensions.
                 // 6) tool end type
                 
+                
+                
+                
                 double accuracy = 0.2;
                 
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
@@ -559,14 +570,42 @@ public class Examples {
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
                 
-                String gCode1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
-                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display );
-                gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
-                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display );
-                
-                // Write GCode to file..
+                String gCode = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display );
+                gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
+                //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display );
                 
                 window.updateImage(); // Update scene
+                
+                
+                // Write GCode to file..
+                try {
+                    String fileName =  window.getScene().getName() ==null?"Untitled.ads":window.getScene().getName();
+                    int extensionPos = fileName.indexOf(".ads");
+                    if(extensionPos != -1){
+                        fileName = fileName.substring(0, extensionPos);
+                    }
+                    
+                    String dirString = window.getScene().getDirectory() + System.getProperty("file.separator") + fileName;
+                    File d = new File(dirString);
+                    if(d.exists() == false){
+                        d.mkdir();
+                    }
+                    
+                    // folder for tube bends
+                    dirString = window.getScene().getDirectory() + System.getProperty("file.separator") + fileName + System.getProperty("file.separator") + "mill5axis"; // TODO: put the folder 'mill5axis' in a constant somewhere
+                    d = new File(dirString);
+                    if(d.exists() == false){
+                        d.mkdir();
+                    }
+                    
+                    File f = new File( dirString + System.getProperty("file.separator") + "finishing_3+2x4.gcode" );
+                    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+                    out.write(gCode);
+                    out.close();
+                } catch (Exception e){
+                    
+                }
             }
         }).start();
     } // end demo function
@@ -1126,19 +1165,21 @@ public class Examples {
                     toolPath.clearCachedMeshes();
                     
                     
-                    try { Thread.sleep(5); } catch(Exception e){} // Wait to show collision
+                    if(display){
+                        //try { Thread.sleep(5); } catch(Exception e){} // Wait to show collision
+                    }
                     // Note: This method of retracting to avoid collisions is simple but moves the machine excessivly in some cases.
                     
                 } else {
                     //updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 }
                 
-                if(display){
+                if(display && i % 2 == 0){
                     // Update the scene
                     window.updateImage();
-                    try { Thread.sleep(1); } catch(Exception e){} // Wait
+                    //try { Thread.sleep(1); } catch(Exception e){} // Wait
                 }
-            } // end loop generatedCuttingPath
+            } // end loop generatedCuttingPath for each point in path
             
             
             //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
@@ -1165,7 +1206,13 @@ public class Examples {
             if(collisionCount == 0){
                 running = false; // we are done.
             }
-        }
+            
+            // Show result of iteration.
+            // Update the scene
+            window.updateImage();
+            try { Thread.sleep(1); } catch(Exception e){} // Wait
+            
+        } // end loop resolve collisions
         System.out.println("Collisions resolved in passes: " + iterationCount);
         
         
@@ -1230,21 +1277,76 @@ public class Examples {
             } else {
                 //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 
+                // speed
+                double speed = 50;
+                if( i > 2 && i < generatedCuttingPath.size() - 6 ){
+                    Vec3 oppositeP = generatedCuttingPath.elementAt(i - 1).point;
+                    Vec3 oppositeP2 = generatedCuttingPath.elementAt(i - 2).point;
+                    Vec3 prevPointA = generatedCuttingPath.elementAt(i + 1).point;
+                    Vec3 prevPointB = generatedCuttingPath.elementAt(i + 2).point;
+                    Vec3 prevPointC = generatedCuttingPath.elementAt(i + 3).point;
+                    Vec3 prevPointD = generatedCuttingPath.elementAt(i + 4).point;
+                    double currAngle = 180 - Vec3.getAngle( oppositeP, currPoint, prevPointA );
+                    double currAngle2 = 180 - Vec3.getAngle( oppositeP2, oppositeP, currPoint );
+                    double angleA = 180 - Vec3.getAngle( currPoint, prevPointA, prevPointB );
+                    double angleB = 180 - Vec3.getAngle( prevPointA, prevPointB, prevPointC );
+                    double angleC = 180 - Vec3.getAngle( prevPointB, prevPointC, prevPointD );
+                    
+                    if(currAngle > 20){
+                        speed = speed * 0.9;
+                    }
+                    if(currAngle2 > 20){
+                        speed = speed * 0.9;
+                    }
+                    if(angleA > 20){
+                        speed = speed * 0.9;
+                    }
+                    if(angleB > 20){
+                        speed = speed * 0.9;
+                    }
+                    //if(angleC > 20){
+                    //    speed = speed * 0.9;
+                    //}
+                    
+                    
+                    if(currAngle > 40){
+                        speed = speed * 0.8;
+                    }
+                    if(currAngle2 > 40){
+                        speed = speed * 0.8;
+                    }
+                    if(angleA > 40){
+                        speed = speed * 0.8;
+                    }
+                    if(angleB > 40){
+                        speed = speed * 0.8;
+                    }
+                    //if(angleC > 40){
+                    //    speed = speed * 0.8;
+                    //}
+                }
+                
                 // NOTE: XYZ need to be translated off of surface or cutting point.
                 Vec3 xyzPoint = new Vec3(currPoint);
                 xyzPoint.plus(toolVector.times(2.4)); // Note this value needs to be calculated based on the BC point to tip length.
-                gCodeExport += "x" + xyzPoint.x + " y"+xyzPoint.y +" z"+xyzPoint.z+" b"+b+" c"+c+" f50;\n";
+                gCodeExport += "x" + scene.roundThree(xyzPoint.x) +
+                    " y"+scene.roundThree(xyzPoint.y) +
+                    " z"+ scene.roundThree(xyzPoint.z)+
+                    " b"+ scene.roundThree(b)+
+                    " c"+scene.roundThree(c)+" f" + (int)speed + ";\n";
             }
             
             
-            // Update the scene
-            window.updateImage();
-            try { Thread.sleep(5); } catch(Exception e){} // Wait
+            if(display){
+                // Update the scene
+                window.updateImage();
+                try { Thread.sleep(5); } catch(Exception e){} // Wait
+            }
         } // end simulate GCode toolpoath
         System.out.println("Collsisions: " + collisions);
         
-        String shortGCodeExport = gCodeExport.substring(0, Math.min(gCodeExport.length(), 3000));
-        System.out.println("GCode: (Trimmed) " +   shortGCodeExport);
+        //String shortGCodeExport = gCodeExport.substring(0, Math.min(gCodeExport.length(), 3000));
+        //System.out.println("GCode: (Trimmed) " +   shortGCodeExport);
         
         //scene.removeObjectInfo(avatarCutterLine); // remove line
         
@@ -1294,7 +1396,7 @@ public class Examples {
         // generate surface map and use block height.
         
         // Start in the center top,
-        // Traveling sales person problem. How to route the voxel points to minimize the travel distance. 
+        // Traveling sales person problem. How to route the voxel points to minimize the travel distance.
         
         
     }
