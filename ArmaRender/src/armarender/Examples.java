@@ -517,7 +517,7 @@ public class Examples {
                 double blockHeight = 3; // define the height of the material to be cut. Will be higher than the geometry of the scene.
                 
                 
-                // 1) Scan scene geometry into surface map. 
+                // 1) Scan scene geometry into surface map.
                 
                 
                 
@@ -1260,6 +1260,7 @@ public class Examples {
      * Concept is to run passes of macine Y(CAD Z) and then X with a fixed C value moving the B along with the XYZ.
      * This method uses more free movement of the B axis across the surfaces hypothetically with better surface accuracy / machine time? Untested.
      *
+     * Not convinced this would be significan'tly better than 3+2X4
      */
     public void finishingFourPlusOneByTwo(LayoutWindow window){
         
@@ -1280,6 +1281,24 @@ public class Examples {
         // TODO: implement
         
     }
+    
+    
+    /**
+     * unifiedFiveAxisVolumePath
+     * Description: tool path using five axis, roughing and finishing are one bit i.e. unified.
+     * Optimize to minimize tool path / machine movement to achive performance.
+     */
+    public void unifiedFiveAxisVolumePath(LayoutWindow window){
+        
+        // Generate volumetric Voxel map of part void to cut.
+        // generate surface map and use block height.
+        
+        // Start in the center top,
+        // Traveling sales person problem. How to route the voxel points to minimize the travel distance. 
+        
+        
+    }
+    
     
     
     /**
