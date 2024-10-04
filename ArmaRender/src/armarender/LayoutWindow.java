@@ -6860,6 +6860,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         
         BMenuItem circleDecendMenuItem = Translate.menuItem("Circle Decend", this, "circleDecendCommand");
         examplesMenu.add(circleDecendMenuItem);
+        
+        BMenuItem flatEndRetractMenuItem = Translate.menuItem("Flat End Retract", this, "flatEndRetractCommand");
+        examplesMenu.add(flatEndRetractMenuItem);
     }
     
     
@@ -6900,6 +6903,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
             double length = ex.retractSphereByAngle( 2.0, Math.toRadians(  (double)i )  );
         
             System.out.println(" descend: " + i + "  -> "  + descend  + " length: " + length);
+        }
+    }
+    
+    public void flatEndRetractCommand(){
+        Examples ex = new Examples();
+        
+        for(int i = 1; i < 90; i++){
+            double length = ex.retractFlatEndByAngle( 2.0, Math.toRadians(  (double)i )  );
+        
+            System.out.println(" flat end rertact: " + i + "  -> "  + length);
         }
     }
     

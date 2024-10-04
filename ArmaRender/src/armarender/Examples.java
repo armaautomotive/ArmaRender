@@ -513,12 +513,14 @@ public class Examples {
                 // 2) enable 0-4 direction pass
                 // 3) accuracy value
                 // 4) display debug processing.
+                // 5) collect tool dimensions.
+                // 6) tool end type
                 
                 double accuracy = 0.2;
                 
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 
-                boolean ballNoseTipType = true; // the geometry of the tip type.
+                boolean ballNoseTipType = true; // the geometry of the tip type. [true = ball, false = flat end]
                 boolean display = true; // display intermediate steps.
                 
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
@@ -540,6 +542,8 @@ public class Examples {
     /**
      * calculateFinishingRoutingPassWithBC
      * Desscription:
+     * Note: This function is missing some features:
+     * - This function does not take into account the bounds of the machine and may generate tool paths that excede the capacity of the machine.
      * // , Vector<RouterElementContainer> routerElements
      */
     public String calculateFinishingRoutingPassWithBC( LayoutWindow window,
@@ -859,12 +863,13 @@ public class Examples {
         // Retract tool based on drill bit tip and angle delta between BC and the surface.
         // This should be more effecient than using the drill tip geometry to collide with the scene for retraction.
         //
-        // If ball nose drill bit type.
+        // If ball nose drill bit type or flat end.
+        // Note: This code doesn't appear to work but its a first attempt.
         if(ballNoseTipType){
             for(int i = 0; i < generatedCuttingPath.size(); i++){
                 SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
                 Vec3 surfaceNormal = spc.normal;
-                if(surfaceNormal == null){
+                if(surfaceNormal == null){                      // Why do some surface points have missing normals???
                     //surfaceNormal = new Vec3(0, -1, 0);
                     surfaceNormal = new Vec3(0, 1, 0);
                     //System.out.println(" normal is null ");
@@ -885,11 +890,32 @@ public class Examples {
                     //System.out.println(" angle " + angle + " retract: " + retract);
                 }
             }
-        } else { // Flat tip
+        } else { // Flat end tool tip
             
-            
-            
-            
+            for(int i = 0; i < generatedCuttingPath.size(); i++){
+                SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
+                Vec3 surfaceNormal = spc.normal;
+                if(surfaceNormal == null){
+                    //surfaceNormal = new Vec3(0, -1, 0);
+                    surfaceNormal = new Vec3(0, 1, 0);
+                    //System.out.println(" normal is null ");
+                }
+                if(surfaceNormal  != null){
+                    double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
+                    if(angle > 90){
+                        //angle = 90 - angle; // ??? incorrect
+                        angle = angle - 90;
+                    }
+                    angle = Math.abs(angle);
+                    double ballNoseRadius = bitTipSize / 2;
+                    angle = 90 - angle; // we want the angle from vertical.
+                    double retract = retractFlatEndByAngle(ballNoseRadius, Math.toRadians(angle));
+                    //spc.point = new Vec3(   spc.point.plus(    toolVector.times( retract  )  ) );
+                    spc.point.add( toolVector.times( retract ) );
+                    //System.out.println("normal " + surfaceNormal);
+                    //System.out.println(" angle " + angle + " retract: " + retract);
+                }
+            }
         }
         
         
@@ -1197,9 +1223,28 @@ public class Examples {
     /**
      * finishingFourPlusOneByTwo
      *  New strategy - comming soon.
+     *
+     * Concept is to run passes of macine Y(CAD Z) and then X with a fixed C value moving the B along with the XYZ.
+     * This method uses more free movement of the B axis across the surfaces hypothetically with better surface accuracy / machine time? Untested.
+     *
      */
     public void finishingFourPlusOneByTwo(LayoutWindow window){
         
+        // 1) Firstly we need to map surface detail.
+        // Propose we create a data structure of surfacepointobjects as scanned from 6 directional axis and don't do any
+        // obstruction filtering, i.e. all surfaces get mapped even if they are obstructed by another surface.
+        // We do nt want to filter points by distance though.
+        
+        
+        // 2) run two passes of all surface features using a C value first of zero and a second pass with a value of 90.
+        // Each pass will attempt to cover all of the surface detail as long as the machine can fit.
+        // The B value will need to be adjusted taking into account the surface normal and any collisions.
+        // The more B can come close to the surface normal the better for the quality but the more likely of a collision.
+        // for each point many XYZ + B options may be tested.
+        
+        
+        
+        // TODO: implement
         
     }
     
@@ -1898,7 +1943,8 @@ public class Examples {
     
     /**
      * retractFlatEndByAngle
-     * Description:
+     * Description: Calculate how far a flat tip tool needs to be retracted along an angle given its width when the center is placed on a surface
+     * such that the tool will no longer be colliding with the surface.
      * @param: double bitRadius -
      * @param: double centerlineAngle -
      * @param: double length.
@@ -1906,8 +1952,10 @@ public class Examples {
     public double retractFlatEndByAngle(double bitRadius, double centerlineAngle){
         double result = 0;
         
+        //
+        result = bitRadius * Math.tan( centerlineAngle ); // b = a × tan(β)
         
-        return distance;
+        return result;
     }
     
 }
