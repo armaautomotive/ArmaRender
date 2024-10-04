@@ -6854,6 +6854,9 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         examplesMenu.add(threePlusTwoXFourMenuItem);
         
         
+        BMenuItem finishingFourPlusOneByTwoMenuItem = Translate.menuItem("4+1 x 2 directions", this, "finishingFourPlusOneByTwoCommand");
+        examplesMenu.add(finishingFourPlusOneByTwoMenuItem);
+        
         
         BMenuItem circleDecendMenuItem = Translate.menuItem("Circle Decend", this, "circleDecendCommand");
         examplesMenu.add(circleDecendMenuItem);
@@ -6877,9 +6880,14 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void threePlusTwoXFourCommand(){
         Examples ex = new Examples();
-        ex.threePlusTwoXFour(this);
+        ex.finishingThreePlusTwoByFour(this); 
     }
     
+    
+    public void finishingFourPlusOneByTwoCommand(){
+        Examples ex = new Examples();
+        ex.finishingFourPlusOneByTwo(this);
+    }
     
     
     public void circleDecendCommand(){

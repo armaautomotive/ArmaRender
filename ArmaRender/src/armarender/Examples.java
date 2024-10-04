@@ -399,11 +399,14 @@ public class Examples {
                 //accuracy = 0.1;
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 
+                boolean ballNoseTipType = true; // the geometry of the tip type.
+                boolean display = true; // display intermediate steps.
+                
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
                 
-                String gCode1 = calculateRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, scanedSurfacePoints, 1 ); // First Pass
-                gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, scanedSurfacePoints, 2 ); // Second Pass -> Rotated N degrees
+                String gCode1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display ); // Second Pass -> Rotated N degrees
                 
                 
                 
@@ -416,7 +419,7 @@ public class Examples {
     } // end demo function
     
     
-    
+    // not implemented yet
     public void constructRouterGeometry(LayoutWindow window){
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
@@ -492,27 +495,39 @@ public class Examples {
         //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
     }
     
+    
     /**
-     * threePlusTwoXFour
-     * Description:
+     * finishingThreePlusTwoByFour
+     * Description: Routine, run three axis XYZ across the scene with a fixed BC cutter axis fouur times against four directions.
+     * Parameter for rest machining will remove cutting passes on following passes.
+     * @param: Window - access to scene objects.
      */
-    public void threePlusTwoXFour(LayoutWindow window){
+    public void finishingThreePlusTwoByFour(LayoutWindow window){
         (new Thread() {
             public void run() {
                 LayoutModeling layout = new LayoutModeling();
                 Scene scene = window.getScene();
                 
+                // Prompt user for:
+                // 1) B angle: default 45
+                // 2) enable 0-4 direction pass
+                // 3) accuracy value
+                // 4) display debug processing.
+                
                 double accuracy = 0.2;
                 
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 
+                boolean ballNoseTipType = true; // the geometry of the tip type.
+                boolean display = true; // display intermediate steps.
+                
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
                 
-                String gCode1 = calculateRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, scanedSurfacePoints, 1 ); // First Pass
-                //gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, scanedSurfacePoints, 2 );
-                gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, scanedSurfacePoints, 3 ); // Second Pass -> Rotated N degrees
-                //gCode1 += calculateRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, scanedSurfacePoints, 3 );
+                String gCode1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display );
+                gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
+                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display );
                 
                 // Write GCode to file..
                 
@@ -521,12 +536,21 @@ public class Examples {
         }).start();
     } // end demo function
     
+    
     /**
-     * calculateRoutingPassWithBC
+     * calculateFinishingRoutingPassWithBC
      * Desscription:
      * // , Vector<RouterElementContainer> routerElements
      */
-    public String calculateRoutingPassWithBC( LayoutWindow window, double b, double c, double accuracy, boolean restMachiningEnabled, Vector<SurfacePointContainer> scanedSurfacePoints, int passNumber ){
+    public String calculateFinishingRoutingPassWithBC( LayoutWindow window,
+                                             double b,
+                                             double c,
+                                             double accuracy,
+                                             boolean restMachiningEnabled,
+                                             boolean ballNoseTipType,
+                                             Vector<SurfacePointContainer> scanedSurfacePoints,
+                                             int passNumber,
+                                             boolean display){
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
@@ -836,35 +860,37 @@ public class Examples {
         // This should be more effecient than using the drill tip geometry to collide with the scene for retraction.
         //
         // If ball nose drill bit type.
-        for(int i = 0; i < generatedCuttingPath.size(); i++){
-            SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
-            
-            Vec3 surfaceNormal = spc.normal;
-            
-            if(spc.normal  != null){
-                
-                
-                double angle = Vec3.getAngle( toolVector, new Vec3(), spc.normal );
-                if(angle > 90){
-                    angle = 90 - angle;
+        if(ballNoseTipType){
+            for(int i = 0; i < generatedCuttingPath.size(); i++){
+                SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
+                Vec3 surfaceNormal = spc.normal;
+                if(surfaceNormal == null){
+                    //surfaceNormal = new Vec3(0, -1, 0);
+                    surfaceNormal = new Vec3(0, 1, 0);
+                    //System.out.println(" normal is null ");
                 }
-                angle = Math.abs(angle);
-                
-                double ballNoseRadius = bitTipSize / 2;
-                
-                double retract = retractSphereByAngle(ballNoseRadius, Math.toRadians(angle));
-                
-                //spc.point = new Vec3(   spc.point.plus(    toolVector.times( retract  )  ) );
-                spc.point.add( toolVector.times( retract ) );
-                System.out.println("normal " + spc.normal);
-                System.out.println(" angle " + angle + " retract: " + retract);
-            } else {
-                System.out.println(" normal is null ");
+                if(surfaceNormal  != null){
+                    double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
+                    if(angle > 90){
+                        //angle = 90 - angle; // ??? incorrect
+                        angle = angle - 90;
+                    }
+                    angle = Math.abs(angle);
+                    double ballNoseRadius = bitTipSize / 2;
+                    angle = 90 - angle; // we want the angle from vertical.
+                    double retract = retractSphereByAngle(ballNoseRadius, Math.toRadians(angle));
+                    //spc.point = new Vec3(   spc.point.plus(    toolVector.times( retract  )  ) );
+                    spc.point.add( toolVector.times( retract ) );
+                    //System.out.println("normal " + surfaceNormal);
+                    //System.out.println(" angle " + angle + " retract: " + retract);
+                }
             }
+        } else { // Flat tip
+            
+            
+            
             
         }
-        
-        
         
         
         
@@ -1048,9 +1074,11 @@ public class Examples {
                     //updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 }
                 
-                // Update the scene
-                window.updateImage();
-                try { Thread.sleep(1); } catch(Exception e){} // Wait
+                if(display){
+                    // Update the scene
+                    window.updateImage();
+                    try { Thread.sleep(1); } catch(Exception e){} // Wait
+                }
             } // end loop generatedCuttingPath
             
             
@@ -1163,6 +1191,18 @@ public class Examples {
         
         return gCodeExport;
     }
+    
+    
+    
+    /**
+     * finishingFourPlusOneByTwo
+     *  New strategy - comming soon.
+     */
+    public void finishingFourPlusOneByTwo(LayoutWindow window){
+        
+        
+    }
+    
     
     /**
      * addCubeToScene
@@ -1796,6 +1836,9 @@ public class Examples {
     /**
      * getAxisDistance
      * Description: Calculate difference between two points as measured along an orientation axis.
+     * @param: Vec3 a -
+     * @param: Vec3 b -
+     * @param: Vec3 orientation -
      */
     public double getAxisDistance(Vec3 a, Vec3 b, Vec3 orientation){
         double result = 0;
@@ -1804,7 +1847,7 @@ public class Examples {
         Vec3 perpendicularOrientation = new Vec3(orientation);
         perpendicularOrientation = perpendicularOrientation.cross(new Vec3(0,1,0));
         perpendicularOrientation.normalize();
-        double angle = Vec3.getAngle( orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
+        double angle = Vec3.getAngle(orientation, new Vec3(0, 0, 0), new Vec3(0, 1, 0));
         Mat4 orientationMat4 = Mat4.axisRotation(perpendicularOrientation, Math.toRadians(angle));
         orientationMat4.transform(temp);
         result = temp.y;
@@ -1815,6 +1858,7 @@ public class Examples {
     /**
      * calculateCircleDepthByAngle
      * Description: Calculate the depth of a
+     * NOTE: Angle values of 90 could produce very large values.
      * @param: double circleRadius -
      * @param: double centerlineAngle -
      * @return: double length the circle decends below.
@@ -1828,25 +1872,41 @@ public class Examples {
         if(centerlineAngle > ninty){
             centerlineAngle = ninty;
         }
-        double centerToLineVert = circleRadius * Math.sin( ninty - centerlineAngle );
+        double centerToLineVert = circleRadius * Math.sin(ninty - centerlineAngle);
         result = circleRadius - centerToLineVert;
         return result;
     }
+    
     
     /**
      * retractSphereByAngle
      * Description: Calculate length the sphere needs to be retracted along an axis to resolve collision.
      *
      * @param: double radius - curcle/ sphere radius.
-     * @param: double center line angle - axis of direction.
-     * @return: double length to retract
+     * @param: double center line angle - axis of direction as measured from a vertical orientation.
+     * @return: double length to retract along axis of angle. Because its a sphere any direction is the same.
      */
     public double retractSphereByAngle(double circleRadius, double centerlineAngle){
         double result = 0;
         double ninty = Math.toRadians(90);
-        double height = calculateCircleDepthByAngle( circleRadius,  centerlineAngle);
-        double width = height * Math.tan( centerlineAngle );  //   b = a × tan(β)
-        double distance = Math.sqrt( height * height + width* width )  ; // √(a² + b²)
+        double height = calculateCircleDepthByAngle(circleRadius,  centerlineAngle);
+        double width = height * Math.tan(centerlineAngle);  //
+        double distance = Math.sqrt(height * height + width* width); //
+        return distance;
+    }
+    
+    
+    /**
+     * retractFlatEndByAngle
+     * Description:
+     * @param: double bitRadius -
+     * @param: double centerlineAngle -
+     * @param: double length.
+     */
+    public double retractFlatEndByAngle(double bitRadius, double centerlineAngle){
+        double result = 0;
+        
+        
         return distance;
     }
     
