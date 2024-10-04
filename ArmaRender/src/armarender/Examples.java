@@ -419,6 +419,8 @@ public class Examples {
     } // end demo function
     
     
+    
+    // Purpose is to visualize geometry of router shape given user input.
     // not implemented yet
     public void constructRouterGeometry(LayoutWindow window){
         LayoutModeling layout = new LayoutModeling();
@@ -494,6 +496,37 @@ public class Examples {
         routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
         //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
     }
+    
+    
+    /**
+     * roughingThreePlusTwoByFour
+     * Description: generate tool path for roughing pass using 3+2BY4 passes.
+     * Enter a pass height by user.
+     */
+    public void roughingThreePlusTwoByFour(LayoutWindow window){ 
+        (new Thread() {
+            public void run() {
+                LayoutModeling layout = new LayoutModeling();
+                Scene scene = window.getScene();
+        
+                // Prompt user for:
+                // pass height
+                // Drill bit width
+                double maxCutDepth = 0.5; // only cut depth at one time.
+                double drillBitWidth = 0.2;
+                double blockHeight = 3; // define the height of the material to be cut. Will be higher than the geometry of the scene.
+                
+                
+                // 1) Scan scene geometry into surface map. 
+                
+                
+                
+                window.updateImage(); // Update scene
+            }
+        }).start();
+    }
+    
+    
     
     
     /**

@@ -6850,7 +6850,12 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         examplesMenu.add(constructRouterGeometryMenuItem);
         
         
-        BMenuItem threePlusTwoXFourMenuItem = Translate.menuItem("3+2 x 4 directions", this, "threePlusTwoXFourCommand");
+        
+        BMenuItem roughingThreePlusTwoByFourMenuItem = Translate.menuItem("Roughing 3+2 x 4 directions", this, "roughingThreePlusTwoByFourCommand");
+        examplesMenu.add(roughingThreePlusTwoByFourMenuItem);
+        
+        
+        BMenuItem threePlusTwoXFourMenuItem = Translate.menuItem("Finishing 3+2 x 4 directions", this, "finishingThreePlusTwoXFourCommand");
         examplesMenu.add(threePlusTwoXFourMenuItem);
         
         
@@ -6881,12 +6886,23 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         ex.constructRouterGeometry(this);
     }
     
-    public void threePlusTwoXFourCommand(){
+    
+    //
+    // 3+2 X 4 Group
+    //
+    public void roughingThreePlusTwoByFourCommand(){
+        Examples ex = new Examples();
+        ex.roughingThreePlusTwoByFour(this);
+    }
+    public void finishingThreePlusTwoXFourCommand(){
         Examples ex = new Examples();
         ex.finishingThreePlusTwoByFour(this); 
     }
     
     
+    //
+    // 4+1X2 Group
+    //
     public void finishingFourPlusOneByTwoCommand(){
         Examples ex = new Examples();
         ex.finishingFourPlusOneByTwo(this);
