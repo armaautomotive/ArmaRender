@@ -722,7 +722,7 @@ public class Examples {
                     Vec3 samplePointB = samplePoint.minus(raySubtract); // Second point in ray cast
                     // Find collision location
                     Vec3 intersectPoint = null;
-                    Vec3 intersectNormal = null; // experimental
+                    Vec3 intersectNormal = null; // normal of surface of intersection.
                     for(int i = 0; i < sceneObjects.size(); i++){
                         ObjectInfo currInfo = sceneObjects.elementAt(i);
                         Object3D currObj = currInfo.getObject();
@@ -770,6 +770,7 @@ public class Examples {
                                 if (length > 0.0){
                                     normal.scale(1.0/length);
                                 }
+                                //System.out.println(" normal " + normal + " length "  + length);
                                 
                                 Vec3 samplePointCollision = Intersect2.getIntersection(samplePoint, samplePointB, faceA, faceB, faceC );
                                 if(samplePointCollision != null){ // found intersection.
@@ -777,7 +778,7 @@ public class Examples {
                                     if(intersectPoint != null){   // existing intersection exists, check if the new one is closer
                                         double existingDist = regionScan.distance(intersectPoint);
                                         double currrentDist = regionScan.distance(samplePointCollision);
-                                        if(currrentDist < existingDist){
+                                        if(currrentDist < existingDist){ // we only want the closest intersection.
                                             intersectPoint = samplePointCollision;
                                             intersectNormal = normal;
                                         }
@@ -812,7 +813,7 @@ public class Examples {
                             }
                         }
                         if(skipPointAsDuplicate == false){
-                            
+                            //System.out.println("intersectNormal " + intersectNormal);
                             SurfacePointContainer spc = new SurfacePointContainer(intersectPoint, intersectNormal, passNumber);
                             
                             regionSurfacePoints.addElement(spc); // local intersectPoint
@@ -829,6 +830,8 @@ public class Examples {
                 line.setPhysicalMaterialId(500);
             }
             
+            // add entry and exit points above scene.
+            // todo: check machine bounds
             if(regionSurfacePoints.size() > 0){
                 SurfacePointContainer firstSpc = regionSurfacePoints.elementAt(0);
                 SurfacePointContainer lastSpc = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
@@ -941,7 +944,8 @@ public class Examples {
             for(int i = 0; i < generatedCuttingPath.size(); i++){
                 SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
                 Vec3 surfaceNormal = spc.normal;
-                if(surfaceNormal == null){                      // Why do some surface points have missing normals???
+                if(surfaceNormal == null){                      // Why do some surface points have missing normals??? Might be points from fillGapsInPointPathSPC()
+                    //System.out.println(" Why is surface normal null in regionSurfacePoints? " + i );
                     //surfaceNormal = new Vec3(0, -1, 0);
                     surfaceNormal = new Vec3(0, 1, 0);
                     //System.out.println(" normal is null ");
@@ -1522,6 +1526,9 @@ public class Examples {
     }
     
     
+    /**
+     * fillGapsInPointPathSPC
+     */
     public Vector<SurfacePointContainer> fillGapsInPointPathSPC(Vector<SurfacePointContainer> regionSurfacePoints, double accuracy){
         /*
         double minSpan = 999999; // TODO fix this.
