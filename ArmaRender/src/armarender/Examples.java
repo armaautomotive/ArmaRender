@@ -1338,6 +1338,11 @@ public class Examples {
                     " z"+ scene.roundThree(xyzPoint.z)+
                     " b"+ scene.roundThree(b)+
                     " c"+scene.roundThree(c)+" f" + (int)speed + ";\n";
+                
+                
+                // Also calculate TCP GCode
+                // Not needed for our machine.
+                
             }
             
             
@@ -1393,6 +1398,7 @@ public class Examples {
      * unifiedFiveAxisVolumePath
      * Description: tool path using five axis, roughing and finishing are one bit i.e. unified.
      * Optimize to minimize tool path / machine movement to achive performance.
+     * In theory you could move Y with C at 15deg and oscilate B -45 - + 45 and get better performance than keeping the tip stationary.
      */
     public void unifiedFiveAxisVolumePath(LayoutWindow window){
         

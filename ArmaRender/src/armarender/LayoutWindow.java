@@ -6830,6 +6830,11 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         examplesMenu = Translate.menu("Examples");
         menubar.add(examplesMenu);
         
+        BMenuItem configureMenuItem = Translate.menuItem("Configure Five Axis", this, "configureFiveAxisCommand");
+        examplesMenu.add(configureMenuItem);
+        
+        
+        
         BMenuItem examplesRunMenuItem = Translate.menuItem("Examples Run", this, "runExamplesCommand");
         //examplesRunMenuItem.setName(null); // Name is used by event handler for ID
         //examplesRunMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
@@ -6870,6 +6875,10 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         examplesMenu.add(flatEndRetractMenuItem);
     }
     
+    public void configureFiveAxisCommand(){
+        FiveAxisConfig config = new FiveAxisConfig();
+        
+    }
     
     public void runExamplesCommand(){
         Examples ex = new Examples();
