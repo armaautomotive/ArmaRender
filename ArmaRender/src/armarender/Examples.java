@@ -1003,6 +1003,17 @@ public class Examples {
     
     
     /**
+     * toolPathToGCodeTCP
+     * Description: A version of the path to GCode that generates TCP GCode for other machines. Not needed right now but possible.
+     */
+    public String toolPathToGCodeTCP(LayoutWindow window, Vector<SurfacePointContainer> generatedCuttingPath){
+        String gCodeExport = "";
+        
+        return gCodeExport;
+    }
+    
+    
+    /**
      * splitToolPathIntoRooughingLayers
      * Description: Given a tool path, split it into loops of layers for roughing.
      * Note: the surface points contain the B/C info.
