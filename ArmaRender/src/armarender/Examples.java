@@ -41,6 +41,8 @@ public class Examples {
         public Vec3 normal;
         public int passNumber = 0;
         public boolean onSurface = true;
+        public double b = 0;
+        public double c = 0;
         SurfacePointContainer(Vec3 point, int pasNumber){
             this.point = point;
             this.passNumber = passNumber;
@@ -52,484 +54,7 @@ public class Examples {
         }
     }
     
-    /**
-     * This example will move a selected object along a orientation vector by the length of detected collision.
-     * This should result in the object resting outside the collision.
-     */
-    public void intersectDistanceDemo(LayoutWindow window){
-        LayoutModeling layout = new LayoutModeling();
-        Scene scene = window.getScene();
-        Vector<ObjectInfo> sceneObjects = scene.getObjects();
-        
-        Vec3 orientation = new Vec3(-.7, .7, 0);
-        orientation.normalize();
-        //addLineToScene(window, new Vec3(0,0,0), orientation, "Orientation", true ); // CORRECT
-        
-        boolean selectionCollides = false;
-        int sel[] = window.getSelectedIndices();
-        Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>(); // TriangleMesh.Edge
-        if(sel.length > 0){
-            Vector<ObjectInfo> selectedObjects = new Vector<ObjectInfo>();
-            Vector<Vec3> selectionWorldVerts = new Vector<Vec3>();
-            
-            for(int s = 0; s < sel.length; s++){
-                ObjectInfo selectedInfo = window.getScene().getObject( sel[s] );
-                if(selectedInfo != null){
-                    CoordinateSystem c;
-                    c = layout.getCoords(selectedInfo);
-                    Mat4 mat4 = c.duplicate().fromLocal();
-                    
-                    Object3D selectedObj = selectedInfo.getObject();
-                    TriangleMesh selectedTM = null;
-                    if(selectedObj instanceof TriangleMesh){
-                        selectedTM = (TriangleMesh)selectedObj;
-                    } else if(selectedObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
-                        selectedTM = selectedObj.convertToTriangleMesh(0.1);
-                    }
-                    if(selectedTM != null){
-                        selectedObjects.addElement(selectedInfo);   // Save for exclusion later.
-                        MeshVertex[] verts = selectedTM.getVertices();
-                        
-                        for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
-                            Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
-                            mat4.transform(vert);
-                            selectionWorldVerts.addElement(vert); // add the translated vert to our list.
-                            //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
-                        }
-                        TriangleMesh.Edge[] edges = selectedTM.getEdges();
-                        for(int e = 0; e < edges.length; e++){
-                            TriangleMesh.Edge edge = edges[e];
-                            Vec3 a = selectionWorldVerts.elementAt( edge.v1 );
-                            Vec3 b = selectionWorldVerts.elementAt( edge.v2 );
-                            EdgePoints ep = new EdgePoints(a, b);
-                            selectedEdgePoints.addElement(ep);
-                        }
-                    }
-                }
-            } // for each selection
-            if(selectedEdgePoints.size() > 0){
-                //System.out.println(" edges " + selectedEdgePoints.size() );
-                // Scan through objects in the scene to see if there is a collistion.
-                for(int i = 0; i < sceneObjects.size(); i++){
-                    ObjectInfo currInfo = sceneObjects.elementAt(i);
-                    if( selectedObjects.contains(currInfo) ){          // Don't compare with self
-                        continue;
-                    }
-                    //System.out.println("   Compare with  scene object: " + currInfo.getName() );
-                    Object3D currObj = currInfo.getObject();
-                    
-                    double longestCollisionDist = 0;
-                    
-                    //
-                    // Is the object a TriangleMesh or can it be converted?
-                    //
-                    TriangleMesh triangleMesh = null;
-                    if(currObj instanceof TriangleMesh){
-                        triangleMesh = (TriangleMesh)currObj;
-                    } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
-                        triangleMesh = currObj.convertToTriangleMesh(0.1);
-                    }
-                    if(triangleMesh != null){
-                        CoordinateSystem c;
-                        c = layout.getCoords(currInfo);
-                        
-                        // Convert object coordinates to world (absolute) coordinates.
-                        // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
-                        Mat4 mat4 = c.duplicate().fromLocal();
-                        MeshVertex[] verts = triangleMesh.getVertices();
-                        Vector<Vec3> worldVerts = new Vector<Vec3>();
-                        for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
-                            Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
-                            mat4.transform(vert);
-                            worldVerts.addElement(vert); // add the translated vert to our list.
-                            //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
-                        }
-                        TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
-                        TriangleMesh.Face[] faces = triangleMesh.getFaces();
-                        for(int f = 0; f < faces.length; f++ ){
-                            TriangleMesh.Face face = faces[f];
-                            Vec3 faceA = worldVerts.elementAt(face.v1);
-                            Vec3 faceB = worldVerts.elementAt(face.v2);
-                            Vec3 faceC = worldVerts.elementAt(face.v3);
-                            for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
-                                EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
-                                
-                                Vec3 samplePointCollision = Intersect2.getIntersection(edgePoint.a, edgePoint.b, faceA, faceB, faceC );
-                                if(samplePointCollision != null && samplePointCollision.x != 0  ){
-                                    //System.out.println("Collsion ");
-                                    
-                                    //addLineToScene(window, samplePointCollision,  samplePointCollision.minus( new Vec3(0,1,0) ), "Collision", true ); // OK
-                                    //addLineToScene(window, samplePointCollision, samplePointCollision.plus(new Vec3(0,2,0)), "Collision", true );
-                                    
-                                    double collisionDistance = getCollisionDistance( samplePointCollision, edgePoint.a, edgePoint.b, orientation );
-                                    //double collisionDistance = Vec3.distanceOnAxis(edgePoint.a, edgePoint.b, orientation);
-                                    
-                                    if(collisionDistance > longestCollisionDist){
-                                        longestCollisionDist = collisionDistance;
-                                    }
-                                    
-                                    
-                                    //System.out.println("collisionDistance " + collisionDistance);
-                                    
-                                    Vec3 showPointer = new Vec3(orientation);
-                                    showPointer.normalize();
-                                    showPointer = showPointer.times(collisionDistance);
-                                    
-                                    //System.out.println(" test " +  showPointer.distance(new Vec3())  );
-                                    //addLineToScene(window, collidedObjectPoint, collidedObjectPoint.plus( showPointer )  , "-TEST: " + " " + collisionDistance, true );
-                                }
-                                //if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
-                                //    selectionCollides = true;
-                                //    System.out.println("Collision  object: " + currInfo.getName());
-                                //}
-                            }
-                        }
-                    }
-                    if(longestCollisionDist > 0){
-                        Vec3 showPointer = new Vec3(orientation);
-                        showPointer.normalize();
-                        showPointer = showPointer.times(longestCollisionDist);
-                        
-                        for(int s = 0; s < selectedObjects.size(); s++){
-                            ObjectInfo sInfo = selectedObjects.elementAt(s);
-
-                            CoordinateSystem reCS = sInfo.getModelingCoords();
-                            Vec3 currOrigin = reCS.getOrigin();
-                            
-                            reCS.setOrigin( currOrigin.plus(  showPointer  ) );  // showPointer
-                            sInfo.clearCachedMeshes();
-                            
-                            System.out.println("Moving object. distance: " + longestCollisionDist);
-                        }
-                        window.updateImage();
-                    }
-                } // for each object in scene
-            }
-            //System.out.println("Selection collides: " + selectionCollides ); // Print result
-        } else {
-            System.out.println("No objects selected to check for collisions.");
-        }
-    }
     
-    /**
-     * demo
-     * Description: Example of common tasks.
-     */
-    public void demo(LayoutWindow window){
-        (new Thread() {
-            public void run() {
-                LayoutModeling layout = new LayoutModeling();
-                Scene scene = window.getScene();
-                
-                
-                // list objects in the scene.
-                Vector<ObjectInfo> sceneObjects = scene.getObjects();
-                for(int i = 0; i < sceneObjects.size(); i++){
-                    ObjectInfo currInfo = sceneObjects.elementAt(i);
-                    System.out.println(" iterate scene objects: " + currInfo.getName() );
-                    Object3D currObj = currInfo.getObject();
-                    
-                    //
-                    // Is the object a TriangleMesh?
-                    //
-                    TriangleMesh triangleMesh = null;
-                    if(currObj instanceof TriangleMesh){
-                        triangleMesh = (TriangleMesh)currObj;
-                    } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
-                        triangleMesh = currObj.convertToTriangleMesh(0.1);
-                    }
-                    if(triangleMesh != null){
-                        CoordinateSystem c;
-                        c = layout.getCoords(currInfo);
-                        
-                        // Convert object coordinates to world (absolute) coordinates.
-                        // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
-                        Mat4 mat4 = c.duplicate().fromLocal();
-                        
-                        MeshVertex[] verts = triangleMesh.getVertices();
-                        Vector<Vec3> worldVerts = new Vector<Vec3>();
-                        for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
-                            Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
-                            mat4.transform(vert);
-                            worldVerts.addElement(vert); // add the translated vert to our list.
-                            //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
-                        }
-                        
-                        TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
-                        TriangleMesh.Face[] faces = triangleMesh.getFaces();
-                        
-                        for(int f = 0; f < faces.length; f++ ){
-                            TriangleMesh.Face face = faces[f];
-                            
-                            //System.out.println("  Face: A: " + worldVerts.elementAt(face.v1) + " B: " + worldVerts.elementAt(face.v2) + " C: " + worldVerts.elementAt(face.v3)  );
-                            
-                            // Calculate the center point and its face normal vector.
-                            // ...
-                            
-                            
-                            // Add a line object to the scene to represent the normal vector.
-                            
-                        }
-                        
-                    }
-                }
-              
-                
-                
-                //
-                // Detect if a selected object is colliding with other objects in the scene.
-                // Note: This is only one possible implementation of collision detection.
-                // For a section, capture the locations of the edges, then scan through the objects in the scene,
-                // and check if the edges intersect with any of the faces.
-                // Collitions on multiple objects constructed to represent the router, collete and machine could be used to detect collisions with
-                // The mould part.
-                //
-                boolean selectionCollides = false;
-                int sel[] = window.getSelectedIndices();
-                Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>(); // TriangleMesh.Edge
-                if(sel.length > 0){
-                    Vector<ObjectInfo> selectedObjects = new Vector<ObjectInfo>();
-                    for(int s = 0; s < sel.length; s++){
-                        ObjectInfo selectedInfo = window.getScene().getObject( sel[s] );
-                        if(selectedInfo != null){
-                            CoordinateSystem c;
-                            c = layout.getCoords(selectedInfo);
-                            Mat4 mat4 = c.duplicate().fromLocal();
-                            
-                            Object3D selectedObj = selectedInfo.getObject();
-                            TriangleMesh selectedTM = null;
-                            if(selectedObj instanceof TriangleMesh){
-                                selectedTM = (TriangleMesh)selectedObj;
-                            } else if(selectedObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
-                                selectedTM = selectedObj.convertToTriangleMesh(0.1);
-                            }
-                            if(selectedTM != null){
-                                selectedObjects.addElement(selectedInfo);   // Save for exclusion later.
-                                MeshVertex[] verts = selectedTM.getVertices();
-                                Vector<Vec3> worldVerts = new Vector<Vec3>();
-                                for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
-                                    Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
-                                    mat4.transform(vert);
-                                    worldVerts.addElement(vert); // add the translated vert to our list.
-                                    //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
-                                }
-                                TriangleMesh.Edge[] edges = selectedTM.getEdges();
-                                for(int e = 0; e < edges.length; e++){
-                                    TriangleMesh.Edge edge = edges[e];
-                                    Vec3 a = worldVerts.elementAt( edge.v1 );
-                                    Vec3 b = worldVerts.elementAt( edge.v2 );
-                                    EdgePoints ep = new EdgePoints(a, b);
-                                    selectedEdgePoints.addElement(ep);
-                                }
-                            }
-                        }
-                    } // for each selection
-                    if(selectedEdgePoints.size() > 0){
-                        //System.out.println(" edges " + selectedEdgePoints.size() );
-                        // Scan through objects in the scene to see if there is a collistion.
-                        for(int i = 0; i < sceneObjects.size(); i++){
-                            ObjectInfo currInfo = sceneObjects.elementAt(i);
-                            if( selectedObjects.contains(currInfo) ){          // Don't compare with self
-                                continue;
-                            }
-                            //System.out.println("   Compare with  scene object: " + currInfo.getName() );
-                            Object3D currObj = currInfo.getObject();
-                            
-                            //
-                            // Is the object a TriangleMesh or can it be converted?
-                            //
-                            TriangleMesh triangleMesh = null;
-                            if(currObj instanceof TriangleMesh){
-                                triangleMesh = (TriangleMesh)currObj;
-                            } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
-                                triangleMesh = currObj.convertToTriangleMesh(0.1);
-                            }
-                            if(triangleMesh != null){
-                                CoordinateSystem c;
-                                c = layout.getCoords(currInfo);
-                                
-                                // Convert object coordinates to world (absolute) coordinates.
-                                // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
-                                Mat4 mat4 = c.duplicate().fromLocal();
-                                MeshVertex[] verts = triangleMesh.getVertices();
-                                Vector<Vec3> worldVerts = new Vector<Vec3>();
-                                for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
-                                    Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
-                                    mat4.transform(vert);
-                                    worldVerts.addElement(vert); // add the translated vert to our list.
-                                    //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
-                                }
-                                TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
-                                TriangleMesh.Face[] faces = triangleMesh.getFaces();
-                                for(int f = 0; f < faces.length; f++ ){
-                                    TriangleMesh.Face face = faces[f];
-                                    Vec3 faceA = worldVerts.elementAt(face.v1);
-                                    Vec3 faceB = worldVerts.elementAt(face.v2);
-                                    Vec3 faceC = worldVerts.elementAt(face.v3);
-                                    for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
-                                        EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
-                                        if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
-                                            selectionCollides = true;
-                                            System.out.println("Collision  object: " + currInfo.getName());
-                                        }
-                                    }
-                                }
-                            }
-                        } // for each object in scene
-                    }
-                    System.out.println("Selection collides: " + selectionCollides ); // Print result
-                } else {
-                    System.out.println("No objects selected to check for collisions.");
-                }
-            
-                
-                
-                //
-                // Calculate a working / cutting region based on:
-                // A) the objects in the scene representing the shape to create.
-                // B) The projection vector or direction of the B/C axis pointing the drill in a direction
-                //
-                double c = 15; // rotation, 0-360.
-                double b = 45; // angle 45 degrees.
-                {   // test each of the approach directions. 
-                    //c = 0;
-                    //c = 90;
-                    //c = 180;
-                    //c = 270;
-                }
-                
-                double accuracy = 0.2;
-                //accuracy = 0.1;
-                boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
-                
-                boolean ballNoseTipType = true; // the geometry of the tip type.
-                boolean display = true; // display intermediate steps.
-                
-                Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
-                Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
-                
-                String gCode1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
-                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display ); // Second Pass -> Rotated N degrees
-                
-                
-                
-                // More demos to come
-                
-                
-                window.updateImage(); // Update scene
-            }
-        }).start();
-    } // end demo function
-    
-    
-    
-    // Purpose is to visualize geometry of router shape given user input.
-    // not implemented yet
-    public void constructRouterGeometry(LayoutWindow window){
-        LayoutModeling layout = new LayoutModeling();
-        Scene scene = window.getScene();
-        double c = 15; // rotation, 0-360.
-        double b = 45; // angle 45 degrees.
-        
-        // Router Size information.
-        double routerHousingPosition = 1.25;
-        double routerHousingSize = 0.75;
-        double bitTipPosition = 0.12;
-        double bitTipSize = 0.08;
-        
-        Vec3 toolVector = new Vec3(0, 1, 0); //
-        Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
-        Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
-        zRotationMat.transform(toolVector); // Apply the B axis transform.
-        yRotationMat.transform(toolVector); // Apply the C axis rotation
-        toolVector.normalize(); // Normalize to scale the vector to a length of 1.
-        System.out.println("toolVector " + toolVector);
-        
-        
-        Vec3 firstRegionSurfacePoint = new Vec3();
-        Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();
-        
-        
-        
-        // Router Z height base
-        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.75, "Router Base (" + b + "-" + c + ")" );
-        routerZBaseCubeInfo.setPhysicalMaterialId(500);
-        //routerZBaseCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
-        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.75) );
-        
-        //
-        // Add motor housing
-        //
-        // This includes multiple objects that represent the router machine.
-        // Use to detect collisions.
-        ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base (" + b + "-" + c + ")" ); // Cube represents a part of the machine
-        drillBodyCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2, 0.8 ) );
-        
-        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
-        drillBodyBackEndCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0, 0.8 ) );
-        
-        ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing (" + b + "-" + c + ")" );
-        drillBodyCilynderInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition, routerHousingSize) );
-        
-        // add Collet
-        ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
-        drillColletInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillColletInfo, c,  b);
-        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
-        
-        // Add tool tip
-        //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
-        ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip (" + b + "-" + c + ")" );
-        toolPitCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(toolPitCubeInfo, c,  b);
-        routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
-        
-        // Add tool tip ball nose
-        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
-        toolBallNoseInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(toolBallNoseInfo, c,  b);
-        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable
-        routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
-        //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
-    }
-    
-    
-    /**
-     * roughingThreePlusTwoByFour
-     * Description: generate tool path for roughing pass using 3+2BY4 passes.
-     * Enter a pass height by user.
-     */
-    public void roughingThreePlusTwoByFour(LayoutWindow window){ 
-        (new Thread() {
-            public void run() {
-                LayoutModeling layout = new LayoutModeling();
-                Scene scene = window.getScene();
-        
-                // Prompt user for:
-                // pass height
-                // Drill bit width
-                double maxCutDepth = 0.5; // only cut depth at one time.
-                double drillBitWidth = 0.2;
-                double blockHeight = 3; // define the height of the material to be cut. Will be higher than the geometry of the scene.
-                
-                
-                // 1) Scan scene geometry into surface map.
-                
-                
-                
-                
-                
-                window.updateImage(); // Update scene
-            }
-        }).start();
-    }
     
     
     
@@ -570,10 +95,16 @@ public class Examples {
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
                 
-                String gCode = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                //String gCode = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display );
-                gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
+                //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display );
+                
+                Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                String gCode = toolPathToGCode(window, toolPath1 );
+                
+                //Vector<SurfacePointContainer> toolPath2 = calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
+                //gCode += toolPathToGCode(window, toolPath2 );
                 
                 window.updateImage(); // Update scene
                 
@@ -606,9 +137,19 @@ public class Examples {
                 } catch (Exception e){
                     
                 }
+                
+                // Convert tool path to roughing path.
+                
+                
+                
             }
         }).start();
     } // end demo function
+    
+    
+    
+    
+    
     
     
     /**
@@ -618,7 +159,7 @@ public class Examples {
      * - This function does not take into account the bounds of the machine and may generate tool paths that excede the capacity of the machine.
      * // , Vector<RouterElementContainer> routerElements
      */
-    public String calculateFinishingRoutingPassWithBC( LayoutWindow window,
+    public Vector<SurfacePointContainer> calculateFinishingRoutingPassWithBC( LayoutWindow window,
                                              double b,
                                              double c,
                                              double accuracy,
@@ -815,9 +356,9 @@ public class Examples {
                         if(skipPointAsDuplicate == false){
                             //System.out.println("intersectNormal " + intersectNormal);
                             SurfacePointContainer spc = new SurfacePointContainer(intersectPoint, intersectNormal, passNumber);
-                            
+                            spc.b = b;
+                            spc.c = c;
                             regionSurfacePoints.addElement(spc); // local intersectPoint
-                            
                             scanedSurfacePoints.addElement(spc); // external
                         }
                         //addLineToScene(window, intersectPoint,  intersectPoint.plus(new Vec3(0,1,0)) );
@@ -835,6 +376,10 @@ public class Examples {
             if(regionSurfacePoints.size() > 0){
                 SurfacePointContainer firstSpc = regionSurfacePoints.elementAt(0);
                 SurfacePointContainer lastSpc = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
+                firstSpc.b = b;
+                firstSpc.c = c;
+                lastSpc.b = b;
+                lastSpc.c = c;
                 
                 // Add entry and exit paths from start position.
                 // Note if this entry or exit collide they would beed to be rerouted.
@@ -861,7 +406,7 @@ public class Examples {
         } // bounds
         
         if(regionSurfacePoints.size() == 0){
-            return "";
+            return new Vector<SurfacePointContainer>();
         }
         
         //
@@ -1228,6 +773,7 @@ public class Examples {
         
         //
         // Now simulate cutting of the new GCode which should result in no collisions.
+        // NOTE: This is now redundant or for show only. The gcode is made in a new function
         //
         String gCodeExport = "";
         int collisions = 0;
@@ -1349,7 +895,7 @@ public class Examples {
             if(display){
                 // Update the scene
                 window.updateImage();
-                try { Thread.sleep(5); } catch(Exception e){} // Wait
+                try { Thread.sleep(4); } catch(Exception e){} // Wait
             }
         } // end simulate GCode toolpoath
         System.out.println("Collsisions: " + collisions);
@@ -1359,9 +905,115 @@ public class Examples {
         
         //scene.removeObjectInfo(avatarCutterLine); // remove line
         
+        //return gCodeExport;
+        return generatedCuttingPath;
+    }
+    
+    
+    /**
+     * toolPathToGCode
+     * Description: Given a tool path, (points defining a surface to cut) generate GCode to control the couter to cut it.
+     * @param:
+     */
+    public String toolPathToGCode(LayoutWindow window, Vector<SurfacePointContainer> generatedCuttingPath){
+        String gCodeExport = "";
+        Scene scene = window.getScene();
+        //int collisions = 0;
+        //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
+        for(int i = 0; i < generatedCuttingPath.size(); i++){
+            SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
+            Vec3 currPoint = generatedCuttingPath.elementAt(i).point;
+            
+            
+            Vec3 toolVector = new Vec3(0, 1, 0); //
+            Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(spc.b)); // Will be used to orient the inital position of the B axis.
+            Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(spc.c)); // Will be used to orient the inital position of the C axis.
+            zRotationMat.transform(toolVector); // Apply the B axis transform.
+            yRotationMat.transform(toolVector); // Apply the C axis rotation
+            toolVector.normalize(); // Normalize to scale the vector to a length of 1.
+            //System.out.println("toolVector " + toolVector);
+            
+            //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
+            
+            // speed
+            double speed = 50;
+            if( i > 2 && i < generatedCuttingPath.size() - 6 ){
+                Vec3 oppositeP = generatedCuttingPath.elementAt(i - 1).point;
+                Vec3 oppositeP2 = generatedCuttingPath.elementAt(i - 2).point;
+                Vec3 prevPointA = generatedCuttingPath.elementAt(i + 1).point;
+                Vec3 prevPointB = generatedCuttingPath.elementAt(i + 2).point;
+                Vec3 prevPointC = generatedCuttingPath.elementAt(i + 3).point;
+                Vec3 prevPointD = generatedCuttingPath.elementAt(i + 4).point;
+                double currAngle = 180 - Vec3.getAngle( oppositeP, currPoint, prevPointA );
+                double currAngle2 = 180 - Vec3.getAngle( oppositeP2, oppositeP, currPoint );
+                double angleA = 180 - Vec3.getAngle( currPoint, prevPointA, prevPointB );
+                double angleB = 180 - Vec3.getAngle( prevPointA, prevPointB, prevPointC );
+                double angleC = 180 - Vec3.getAngle( prevPointB, prevPointC, prevPointD );
+                
+                if(currAngle > 20){
+                    speed = speed * 0.9;
+                }
+                if(currAngle2 > 20){
+                    speed = speed * 0.9;
+                }
+                if(angleA > 20){
+                    speed = speed * 0.9;
+                }
+                if(angleB > 20){
+                    speed = speed * 0.9;
+                }
+                //if(angleC > 20){
+                //    speed = speed * 0.9;
+                //}
+                
+                
+                if(currAngle > 40){
+                    speed = speed * 0.8;
+                }
+                if(currAngle2 > 40){
+                    speed = speed * 0.8;
+                }
+                if(angleA > 40){
+                    speed = speed * 0.8;
+                }
+                if(angleB > 40){
+                    speed = speed * 0.8;
+                }
+                //if(angleC > 40){
+                //    speed = speed * 0.8;
+                //}
+            }
+            
+            // NOTE: XYZ need to be translated off of surface or cutting point.
+            Vec3 xyzPoint = new Vec3(currPoint);
+            xyzPoint.plus(toolVector.times(2.4)); // Note this value needs to be calculated based on the BC point to tip length.
+            gCodeExport += "x" + scene.roundThree(xyzPoint.x) +
+                " y"+scene.roundThree(xyzPoint.y) +
+                " z"+ scene.roundThree(xyzPoint.z)+
+                " b"+ scene.roundThree(spc.b)+
+                " c"+scene.roundThree(spc.c)+" f" + (int)speed + ";\n";
+            
+            
+            // Also calculate TCP GCode
+            // Not needed for our machine.
+        
+        } // end simulate GCode toolpoath
         return gCodeExport;
     }
     
+    
+    /**
+     * splitToolPathIntoRooughingLayers
+     * Description: Given a tool path, split it into loops of layers for roughing.
+     * Note: the surface points contain the B/C info.
+     */
+    public Vector<SurfacePointContainer> splitToolPathIntoRooughingLayers(LayoutWindow window, Vector<SurfacePointContainer> generatedCuttingPath, double layerHeight){
+        Vector<SurfacePointContainer> result = new Vector<SurfacePointContainer>();
+        
+        // TODO:
+        
+        return result;
+    }
     
     
     /**
@@ -1534,24 +1186,11 @@ public class Examples {
     
     /**
      * fillGapsInPointPathSPC
+     * Description: Insert mid points in path. Used to ensure regions between points are covered for movement.
+     * @param:
+     * @param:
      */
     public Vector<SurfacePointContainer> fillGapsInPointPathSPC(Vector<SurfacePointContainer> regionSurfacePoints, double accuracy){
-        /*
-        double minSpan = 999999; // TODO fix this.
-        double avgSpan = 0;
-        for(int i = 1; i < regionSurfacePoints.size(); i++){
-            Vec3 a = regionSurfacePoints.elementAt(i-1).point;
-            Vec3 b = regionSurfacePoints.elementAt(i).point;
-            double distance = a.distance(b);
-            if(distance < minSpan){
-                minSpan = distance;
-            }
-            avgSpan += distance;
-        }
-        if(regionSurfacePoints.size() > 1){
-            avgSpan = avgSpan / regionSurfacePoints.size();
-        }
-        */
         for(int i = 1; i < regionSurfacePoints.size(); i++){
             Vec3 a = regionSurfacePoints.elementAt(i-1).point;
             Vec3 b = regionSurfacePoints.elementAt(i).point;
@@ -1560,6 +1199,8 @@ public class Examples {
             while(distance > accuracy * 1.9){
                 Vec3 insertMid = a.midPoint(b);
                 SurfacePointContainer insertSPC = new SurfacePointContainer(  insertMid  , regionSurfacePoints.elementAt(i-1).passNumber );
+                insertSPC.b = regionSurfacePoints.elementAt(i-1).b;
+                insertSPC.c = regionSurfacePoints.elementAt(i-1).c;
                 insertSPC.onSurface = false; // Inserted points are assumed to not be on a surface.
                 regionSurfacePoints.add( i, insertSPC );
                 a = regionSurfacePoints.elementAt(i-1).point;
@@ -1571,7 +1212,7 @@ public class Examples {
     }
     
     /**
-     * fillGapsInPointPath
+     * fillGapsInPointPath  -- DEPRICATE ---
      * Description: Evaluate point list, insert mid points in areas where there are gaps.
      * Used to ensure all paths traveled are processed for collisions.
      * Note: This is demonstration code. It does not check for infinite loop conditions.
@@ -2125,5 +1766,488 @@ public class Examples {
         return result;
     }
     
+    
+    //
+    // Old
+    //
+    
+    /**
+     * This example will move a selected object along a orientation vector by the length of detected collision.
+     * This should result in the object resting outside the collision.
+     */
+    public void intersectDistanceDemo(LayoutWindow window){
+        LayoutModeling layout = new LayoutModeling();
+        Scene scene = window.getScene();
+        Vector<ObjectInfo> sceneObjects = scene.getObjects();
+        
+        Vec3 orientation = new Vec3(-.7, .7, 0);
+        orientation.normalize();
+        //addLineToScene(window, new Vec3(0,0,0), orientation, "Orientation", true ); // CORRECT
+        
+        boolean selectionCollides = false;
+        int sel[] = window.getSelectedIndices();
+        Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>(); // TriangleMesh.Edge
+        if(sel.length > 0){
+            Vector<ObjectInfo> selectedObjects = new Vector<ObjectInfo>();
+            Vector<Vec3> selectionWorldVerts = new Vector<Vec3>();
+            
+            for(int s = 0; s < sel.length; s++){
+                ObjectInfo selectedInfo = window.getScene().getObject( sel[s] );
+                if(selectedInfo != null){
+                    CoordinateSystem c;
+                    c = layout.getCoords(selectedInfo);
+                    Mat4 mat4 = c.duplicate().fromLocal();
+                    
+                    Object3D selectedObj = selectedInfo.getObject();
+                    TriangleMesh selectedTM = null;
+                    if(selectedObj instanceof TriangleMesh){
+                        selectedTM = (TriangleMesh)selectedObj;
+                    } else if(selectedObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                        selectedTM = selectedObj.convertToTriangleMesh(0.1);
+                    }
+                    if(selectedTM != null){
+                        selectedObjects.addElement(selectedInfo);   // Save for exclusion later.
+                        MeshVertex[] verts = selectedTM.getVertices();
+                        
+                        for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                            Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                            mat4.transform(vert);
+                            selectionWorldVerts.addElement(vert); // add the translated vert to our list.
+                            //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                        }
+                        TriangleMesh.Edge[] edges = selectedTM.getEdges();
+                        for(int e = 0; e < edges.length; e++){
+                            TriangleMesh.Edge edge = edges[e];
+                            Vec3 a = selectionWorldVerts.elementAt( edge.v1 );
+                            Vec3 b = selectionWorldVerts.elementAt( edge.v2 );
+                            EdgePoints ep = new EdgePoints(a, b);
+                            selectedEdgePoints.addElement(ep);
+                        }
+                    }
+                }
+            } // for each selection
+            if(selectedEdgePoints.size() > 0){
+                //System.out.println(" edges " + selectedEdgePoints.size() );
+                // Scan through objects in the scene to see if there is a collistion.
+                for(int i = 0; i < sceneObjects.size(); i++){
+                    ObjectInfo currInfo = sceneObjects.elementAt(i);
+                    if( selectedObjects.contains(currInfo) ){          // Don't compare with self
+                        continue;
+                    }
+                    //System.out.println("   Compare with  scene object: " + currInfo.getName() );
+                    Object3D currObj = currInfo.getObject();
+                    
+                    double longestCollisionDist = 0;
+                    
+                    //
+                    // Is the object a TriangleMesh or can it be converted?
+                    //
+                    TriangleMesh triangleMesh = null;
+                    if(currObj instanceof TriangleMesh){
+                        triangleMesh = (TriangleMesh)currObj;
+                    } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                        triangleMesh = currObj.convertToTriangleMesh(0.1);
+                    }
+                    if(triangleMesh != null){
+                        CoordinateSystem c;
+                        c = layout.getCoords(currInfo);
+                        
+                        // Convert object coordinates to world (absolute) coordinates.
+                        // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        MeshVertex[] verts = triangleMesh.getVertices();
+                        Vector<Vec3> worldVerts = new Vector<Vec3>();
+                        for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                            Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                            mat4.transform(vert);
+                            worldVerts.addElement(vert); // add the translated vert to our list.
+                            //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                        }
+                        TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                        TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                        for(int f = 0; f < faces.length; f++ ){
+                            TriangleMesh.Face face = faces[f];
+                            Vec3 faceA = worldVerts.elementAt(face.v1);
+                            Vec3 faceB = worldVerts.elementAt(face.v2);
+                            Vec3 faceC = worldVerts.elementAt(face.v3);
+                            for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
+                                EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
+                                
+                                Vec3 samplePointCollision = Intersect2.getIntersection(edgePoint.a, edgePoint.b, faceA, faceB, faceC );
+                                if(samplePointCollision != null && samplePointCollision.x != 0  ){
+                                    //System.out.println("Collsion ");
+                                    
+                                    //addLineToScene(window, samplePointCollision,  samplePointCollision.minus( new Vec3(0,1,0) ), "Collision", true ); // OK
+                                    //addLineToScene(window, samplePointCollision, samplePointCollision.plus(new Vec3(0,2,0)), "Collision", true );
+                                    
+                                    double collisionDistance = getCollisionDistance( samplePointCollision, edgePoint.a, edgePoint.b, orientation );
+                                    //double collisionDistance = Vec3.distanceOnAxis(edgePoint.a, edgePoint.b, orientation);
+                                    
+                                    if(collisionDistance > longestCollisionDist){
+                                        longestCollisionDist = collisionDistance;
+                                    }
+                                    
+                                    
+                                    //System.out.println("collisionDistance " + collisionDistance);
+                                    
+                                    Vec3 showPointer = new Vec3(orientation);
+                                    showPointer.normalize();
+                                    showPointer = showPointer.times(collisionDistance);
+                                    
+                                    //System.out.println(" test " +  showPointer.distance(new Vec3())  );
+                                    //addLineToScene(window, collidedObjectPoint, collidedObjectPoint.plus( showPointer )  , "-TEST: " + " " + collisionDistance, true );
+                                }
+                                //if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
+                                //    selectionCollides = true;
+                                //    System.out.println("Collision  object: " + currInfo.getName());
+                                //}
+                            }
+                        }
+                    }
+                    if(longestCollisionDist > 0){
+                        Vec3 showPointer = new Vec3(orientation);
+                        showPointer.normalize();
+                        showPointer = showPointer.times(longestCollisionDist);
+                        
+                        for(int s = 0; s < selectedObjects.size(); s++){
+                            ObjectInfo sInfo = selectedObjects.elementAt(s);
+
+                            CoordinateSystem reCS = sInfo.getModelingCoords();
+                            Vec3 currOrigin = reCS.getOrigin();
+                            
+                            reCS.setOrigin( currOrigin.plus(  showPointer  ) );  // showPointer
+                            sInfo.clearCachedMeshes();
+                            
+                            System.out.println("Moving object. distance: " + longestCollisionDist);
+                        }
+                        window.updateImage();
+                    }
+                } // for each object in scene
+            }
+            //System.out.println("Selection collides: " + selectionCollides ); // Print result
+        } else {
+            System.out.println("No objects selected to check for collisions.");
+        }
+    }
+    
+    /**
+     * demo
+     * Description: Example of common tasks.
+     */
+    public void demo(LayoutWindow window){
+        (new Thread() {
+            public void run() {
+                LayoutModeling layout = new LayoutModeling();
+                Scene scene = window.getScene();
+                
+                
+                // list objects in the scene.
+                Vector<ObjectInfo> sceneObjects = scene.getObjects();
+                for(int i = 0; i < sceneObjects.size(); i++){
+                    ObjectInfo currInfo = sceneObjects.elementAt(i);
+                    System.out.println(" iterate scene objects: " + currInfo.getName() );
+                    Object3D currObj = currInfo.getObject();
+                    
+                    //
+                    // Is the object a TriangleMesh?
+                    //
+                    TriangleMesh triangleMesh = null;
+                    if(currObj instanceof TriangleMesh){
+                        triangleMesh = (TriangleMesh)currObj;
+                    } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                        triangleMesh = currObj.convertToTriangleMesh(0.1);
+                    }
+                    if(triangleMesh != null){
+                        CoordinateSystem c;
+                        c = layout.getCoords(currInfo);
+                        
+                        // Convert object coordinates to world (absolute) coordinates.
+                        // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
+                        Mat4 mat4 = c.duplicate().fromLocal();
+                        
+                        MeshVertex[] verts = triangleMesh.getVertices();
+                        Vector<Vec3> worldVerts = new Vector<Vec3>();
+                        for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                            Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                            mat4.transform(vert);
+                            worldVerts.addElement(vert); // add the translated vert to our list.
+                            //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                        }
+                        
+                        TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                        TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                        
+                        for(int f = 0; f < faces.length; f++ ){
+                            TriangleMesh.Face face = faces[f];
+                            
+                            //System.out.println("  Face: A: " + worldVerts.elementAt(face.v1) + " B: " + worldVerts.elementAt(face.v2) + " C: " + worldVerts.elementAt(face.v3)  );
+                            
+                            // Calculate the center point and its face normal vector.
+                            // ...
+                            
+                            
+                            // Add a line object to the scene to represent the normal vector.
+                            
+                        }
+                        
+                    }
+                }
+              
+                
+                
+                //
+                // Detect if a selected object is colliding with other objects in the scene.
+                // Note: This is only one possible implementation of collision detection.
+                // For a section, capture the locations of the edges, then scan through the objects in the scene,
+                // and check if the edges intersect with any of the faces.
+                // Collitions on multiple objects constructed to represent the router, collete and machine could be used to detect collisions with
+                // The mould part.
+                //
+                boolean selectionCollides = false;
+                int sel[] = window.getSelectedIndices();
+                Vector<EdgePoints> selectedEdgePoints = new Vector<EdgePoints>(); // TriangleMesh.Edge
+                if(sel.length > 0){
+                    Vector<ObjectInfo> selectedObjects = new Vector<ObjectInfo>();
+                    for(int s = 0; s < sel.length; s++){
+                        ObjectInfo selectedInfo = window.getScene().getObject( sel[s] );
+                        if(selectedInfo != null){
+                            CoordinateSystem c;
+                            c = layout.getCoords(selectedInfo);
+                            Mat4 mat4 = c.duplicate().fromLocal();
+                            
+                            Object3D selectedObj = selectedInfo.getObject();
+                            TriangleMesh selectedTM = null;
+                            if(selectedObj instanceof TriangleMesh){
+                                selectedTM = (TriangleMesh)selectedObj;
+                            } else if(selectedObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                                selectedTM = selectedObj.convertToTriangleMesh(0.1);
+                            }
+                            if(selectedTM != null){
+                                selectedObjects.addElement(selectedInfo);   // Save for exclusion later.
+                                MeshVertex[] verts = selectedTM.getVertices();
+                                Vector<Vec3> worldVerts = new Vector<Vec3>();
+                                for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                                    Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                                    mat4.transform(vert);
+                                    worldVerts.addElement(vert); // add the translated vert to our list.
+                                    //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                                }
+                                TriangleMesh.Edge[] edges = selectedTM.getEdges();
+                                for(int e = 0; e < edges.length; e++){
+                                    TriangleMesh.Edge edge = edges[e];
+                                    Vec3 a = worldVerts.elementAt( edge.v1 );
+                                    Vec3 b = worldVerts.elementAt( edge.v2 );
+                                    EdgePoints ep = new EdgePoints(a, b);
+                                    selectedEdgePoints.addElement(ep);
+                                }
+                            }
+                        }
+                    } // for each selection
+                    if(selectedEdgePoints.size() > 0){
+                        //System.out.println(" edges " + selectedEdgePoints.size() );
+                        // Scan through objects in the scene to see if there is a collistion.
+                        for(int i = 0; i < sceneObjects.size(); i++){
+                            ObjectInfo currInfo = sceneObjects.elementAt(i);
+                            if( selectedObjects.contains(currInfo) ){          // Don't compare with self
+                                continue;
+                            }
+                            //System.out.println("   Compare with  scene object: " + currInfo.getName() );
+                            Object3D currObj = currInfo.getObject();
+                            
+                            //
+                            // Is the object a TriangleMesh or can it be converted?
+                            //
+                            TriangleMesh triangleMesh = null;
+                            if(currObj instanceof TriangleMesh){
+                                triangleMesh = (TriangleMesh)currObj;
+                            } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                                triangleMesh = currObj.convertToTriangleMesh(0.1);
+                            }
+                            if(triangleMesh != null){
+                                CoordinateSystem c;
+                                c = layout.getCoords(currInfo);
+                                
+                                // Convert object coordinates to world (absolute) coordinates.
+                                // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
+                                Mat4 mat4 = c.duplicate().fromLocal();
+                                MeshVertex[] verts = triangleMesh.getVertices();
+                                Vector<Vec3> worldVerts = new Vector<Vec3>();
+                                for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                                    Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                                    mat4.transform(vert);
+                                    worldVerts.addElement(vert); // add the translated vert to our list.
+                                    //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                                }
+                                TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                                TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                                for(int f = 0; f < faces.length; f++ ){
+                                    TriangleMesh.Face face = faces[f];
+                                    Vec3 faceA = worldVerts.elementAt(face.v1);
+                                    Vec3 faceB = worldVerts.elementAt(face.v2);
+                                    Vec3 faceC = worldVerts.elementAt(face.v3);
+                                    for(int ep = 0; ep < selectedEdgePoints.size(); ep++){
+                                        EdgePoints edgePoint = selectedEdgePoints.elementAt(ep);
+                                        if(Intersect2.intersects(edgePoint.a, edgePoint.b, faceA, faceB, faceC)){
+                                            selectionCollides = true;
+                                            System.out.println("Collision  object: " + currInfo.getName());
+                                        }
+                                    }
+                                }
+                            }
+                        } // for each object in scene
+                    }
+                    System.out.println("Selection collides: " + selectionCollides ); // Print result
+                } else {
+                    System.out.println("No objects selected to check for collisions.");
+                }
+            
+                
+                
+                //
+                // Calculate a working / cutting region based on:
+                // A) the objects in the scene representing the shape to create.
+                // B) The projection vector or direction of the B/C axis pointing the drill in a direction
+                //
+                double c = 15; // rotation, 0-360.
+                double b = 45; // angle 45 degrees.
+                {   // test each of the approach directions.
+                    //c = 0;
+                    //c = 90;
+                    //c = 180;
+                    //c = 270;
+                }
+                
+                double accuracy = 0.2;
+                //accuracy = 0.1;
+                boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
+                
+                boolean ballNoseTipType = true; // the geometry of the tip type.
+                boolean display = true; // display intermediate steps.
+                
+                Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
+                Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
+                
+                //String gCode1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                //gCode1 += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display ); // Second Pass -> Rotated N degrees
+                
+                
+                
+                // More demos to come
+                
+                
+                window.updateImage(); // Update scene
+            }
+        }).start();
+    } // end demo function
+    
+    
+    
+    // Purpose is to visualize geometry of router shape given user input.
+    // not implemented yet
+    public void constructRouterGeometry(LayoutWindow window){
+        LayoutModeling layout = new LayoutModeling();
+        Scene scene = window.getScene();
+        double c = 15; // rotation, 0-360.
+        double b = 45; // angle 45 degrees.
+        
+        // Router Size information.
+        double routerHousingPosition = 1.25;
+        double routerHousingSize = 0.75;
+        double bitTipPosition = 0.12;
+        double bitTipSize = 0.08;
+        
+        Vec3 toolVector = new Vec3(0, 1, 0); //
+        Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
+        Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
+        zRotationMat.transform(toolVector); // Apply the B axis transform.
+        yRotationMat.transform(toolVector); // Apply the C axis rotation
+        toolVector.normalize(); // Normalize to scale the vector to a length of 1.
+        System.out.println("toolVector " + toolVector);
+        
+        
+        Vec3 firstRegionSurfacePoint = new Vec3();
+        Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();
+        
+        
+        
+        // Router Z height base
+        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.75, "Router Base (" + b + "-" + c + ")" );
+        routerZBaseCubeInfo.setPhysicalMaterialId(500);
+        //routerZBaseCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
+        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.75) );
+        
+        //
+        // Add motor housing
+        //
+        // This includes multiple objects that represent the router machine.
+        // Use to detect collisions.
+        ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        drillBodyCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
+        routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2, 0.8 ) );
+        
+        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        drillBodyBackEndCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
+        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0, 0.8 ) );
+        
+        ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing (" + b + "-" + c + ")" );
+        drillBodyCilynderInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
+        routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition, routerHousingSize) );
+        
+        // add Collet
+        ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
+        drillColletInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillColletInfo, c,  b);
+        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
+        
+        // Add tool tip
+        //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
+        ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip (" + b + "-" + c + ")" );
+        toolPitCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolPitCubeInfo, c,  b);
+        routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
+        
+        // Add tool tip ball nose
+        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+        toolBallNoseInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolBallNoseInfo, c,  b);
+        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable
+        routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
+        //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
+    }
+    
+    
+    /**
+     * roughingThreePlusTwoByFour  (DEPRICATE)
+     * Description: generate tool path for roughing pass using 3+2BY4 passes.
+     * Enter a pass height by user.
+     */
+    public void roughingThreePlusTwoByFour(LayoutWindow window){
+        (new Thread() {
+            public void run() {
+                LayoutModeling layout = new LayoutModeling();
+                Scene scene = window.getScene();
+        
+                // Prompt user for:
+                // pass height
+                // Drill bit width
+                double maxCutDepth = 0.5; // only cut depth at one time.
+                double drillBitWidth = 0.2;
+                double blockHeight = 3; // define the height of the material to be cut. Will be higher than the geometry of the scene.
+                
+                
+                // 1) Scan scene geometry into surface map.
+                
+                
+                
+                
+                
+                window.updateImage(); // Update scene
+            }
+        }).start();
+    }
 }
 
