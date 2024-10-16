@@ -40,6 +40,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.*;
 
 public class FiveAxisConfig {
     private double minx = 99999;
@@ -60,6 +61,13 @@ public class FiveAxisConfig {
     private double nozzleDistance = 10.0; // .5 distance from nozzle to 4/5 axis.
     private double depthPerPass = 1.25; // max material that can be removed in one pass
     private double cAngleOrigin = 0; // c axis (rotation vertically) origin. Machine vs cad coordinate system may be different.
+    private double bAngleOrigin = 0;
+    private double colleteWidth = 2;
+    private double routerHousingDiameter = 4.2;
+    private double fulcrumToHousingRear = 6.2;
+    
+    private double t1_drill_bit_cut_Length = 2;
+    private double t1_drill_bit_tip_to_collete_length = 5;
     
     private boolean toolpathMarkup = false;
     private boolean cutOptimization = true;
@@ -74,11 +82,19 @@ public class FiveAxisConfig {
     private JTextField bitAngleField;
     private JTextField nozzleDistanceField;
     private JTextField cAngleOriginField;
+    private JTextField bAngleOriginField;
+    private JTextField t1BitCutLengthField;
+    private JTextField t1BitCutTipToColleteLengthField;
+    private JTextField colleteWidthField;
+    private JTextField routerHousingDiameterField;
+    private JTextField fulcrumToHousingRearField;
     
     private JCheckBox toolpathCheck;
     private JCheckBox optimizationCheck;
     private JCheckBox minimizePassesCheck;
     private JCheckBox simulateCheck;
+    private JCheckBox invertBDirectionCheck;
+    private JCheckBox invertCDirectionCheck;
     
     public FiveAxisConfig(){
         prompt();
@@ -98,47 +114,49 @@ public class FiveAxisConfig {
         panel.setLayout(null);
         
         int cellHeight = 20;
-        int secondColX = 160;
+        int secondColX = 190;
+        int rowSpacing = 36;
+        
+        int labelWidth = 170;
+        int inputFieldWidth = 130;
         
         
         JLabel widthLabel = new JLabel("Bed Width");
         //widthLabel.setForeground(new Color(255, 255, 0));
-        widthLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        widthLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         widthLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        widthLabel.setBounds(0, cellHeight, 130, 40); // x, y, width, height
+        widthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(widthLabel);
         
         JTextField widthField = new JTextField(new String(width+""));
-        widthField.setBounds(130, cellHeight, 130, 40); // x, y, width, height
+        widthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(widthField);
         //widthField.getDocument().addDocumentListener(myListener);
-        cellHeight += 40;
+        cellHeight += rowSpacing;
         
         
         JLabel labelDepth = new JLabel("Bed Depth");
         //labelHeight.setForeground(new Color(255, 255, 0));
-        labelDepth.setHorizontalAlignment(SwingConstants.CENTER);
+        labelDepth.setHorizontalAlignment(SwingConstants.RIGHT);
         labelDepth.setFont(new Font("Arial", Font.BOLD, 11));
-        labelDepth.setBounds(0, cellHeight, 130, 40); // x, y, width, height
+        labelDepth.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(labelDepth);
         
         JTextField depthtField = new JTextField( new String(depth+""));
-        depthtField.setBounds(130, cellHeight, 130, 40); // x, y, width, height
+        depthtField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(depthtField);
-         
         
         
-        
-        //cellHeight += 40;
-        JLabel labelHeight = new JLabel("Material Height");
+        cellHeight += rowSpacing;
+        JLabel labelHeight = new JLabel("Bed Height");
         //labelHeight.setForeground(new Color(255, 255, 0));
         labelHeight.setHorizontalAlignment(SwingConstants.RIGHT);
         labelHeight.setFont(new Font("Arial", Font.BOLD, 11));
-        labelHeight.setBounds(0, cellHeight, 130, 40); // x, y, width, height
+        labelHeight.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(labelHeight);
         
         heightField = new JTextField(new String(material_height+""));
-        heightField.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
+        heightField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(heightField);
         heightField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
@@ -149,11 +167,11 @@ public class FiveAxisConfig {
         
         /*
         //depthPerPass
-        cellHeight += 40;
+        cellHeight += rowSpacing;
         JLabel labelDepthPerPass = new JLabel("Depth Per Pass");
         labelDepthPerPass.setHorizontalAlignment(SwingConstants.CENTER);
         labelDepthPerPass.setFont(new Font("Arial", Font.BOLD, 11));
-        labelDepthPerPass.setBounds(0, cellHeight, 130, 40); // x, y, width, height
+        labelDepthPerPass.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(labelDepthPerPass);
         
         JTextField depthPerPassField = new JTextField(new String(depthPerPass +""));
@@ -161,9 +179,10 @@ public class FiveAxisConfig {
         panel.add(depthPerPassField);
         */
         
+        /*
         // quanta_length
-        cellHeight += 40;
-        JLabel labelAccuracy = new JLabel("Accracy");
+        cellHeight += rowSpacing;
+        JLabel labelAccuracy = new JLabel("Default Accracy");
         //labelHeight.setForeground(new Color(255, 255, 0));
         labelAccuracy.setHorizontalAlignment(SwingConstants.RIGHT);
         labelAccuracy.setFont(new Font("Arial", Font.BOLD, 11));
@@ -178,28 +197,13 @@ public class FiveAxisConfig {
                 save();
             }
         });
-        
+         */
     
-        cellHeight += 40;
-        JLabel labelBit = new JLabel("Finish Drill Bit Diameter");
-        //labelHeight.setForeground(new Color(255, 255, 0));
-        labelBit.setHorizontalAlignment(SwingConstants.RIGHT);
-        labelBit.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBit.setBounds(0, cellHeight, 130, 40); // x, y, width, height
-        panel.add(labelBit);
         
-        bitField = new JTextField("" + drill_bit); //
-        bitField.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
-        panel.add(bitField);
-        bitField.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent event) {
-                save();
-            }
-        });
         
         
         /*
-        cellHeight += 40;
+        cellHeight += rowSpacing;
         JLabel roughLabelBit = new JLabel("Rough Drill Bit Diameter");                  // NEW
         //roughLabelBit.setForeground(new Color(255, 255, 0));
         roughLabelBit.setHorizontalAlignment(SwingConstants.CENTER);
@@ -212,33 +216,119 @@ public class FiveAxisConfig {
         panel.add(roughBitField);
         */
         
-        cellHeight += 40;
-        JLabel labelBitAngle = new JLabel("Drill Bit Angle");
-        //labelHeight.setForeground(new Color(255, 255, 0));
-        labelBitAngle.setHorizontalAlignment(SwingConstants.RIGHT);
-        labelBitAngle.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBitAngle.setBounds(0, cellHeight, 130, 40); // x, y, width, height
-        panel.add(labelBitAngle);
         
-        bitAngleField = new JTextField( new String(drill_bit_angle+""));
-        bitAngleField.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
-        panel.add(bitAngleField);
-        bitAngleField.addKeyListener(new KeyAdapter() {
+        
+        //
+        // Coordinate system.
+        //
+        cellHeight += rowSpacing;
+        JLabel csHeight = new JLabel("Coordinate System");
+        //csHeight.setForeground(new Color(255, 255, 0));
+        csHeight.setHorizontalAlignment(SwingConstants.CENTER);
+        csHeight.setFont(new Font("Arial", Font.BOLD, 11));
+        csHeight.setBounds(0, cellHeight, 280, 40); // x, y, width, height
+        panel.add(csHeight);
+        
+        // C angle
+        cellHeight += rowSpacing;
+        JLabel cAngleOriginLabel = new JLabel("C Axis Angle Origin");
+        cAngleOriginLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        cAngleOriginLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        cAngleOriginLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(cAngleOriginLabel);
+        
+        cAngleOriginField = new JTextField( new String(cAngleOrigin+""));
+        cAngleOriginField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(cAngleOriginField);
+        cAngleOriginField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
                 save();
             }
         });
         
+        // Invert C
+        cellHeight += rowSpacing;
+        JLabel invertCDirectionLabel = new JLabel("Invert C Direction");
+        //invertCDirectionLabel.setForeground(new Color(255, 255, 0));
+        invertCDirectionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        invertCDirectionLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        invertCDirectionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(invertCDirectionLabel);
+
+        invertCDirectionCheck = new JCheckBox("");
+        invertCDirectionCheck.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        invertCDirectionCheck.setSelected( simulateRoute );
+        panel.add(invertCDirectionCheck);
+        invertCDirectionCheck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //save();
+                //System.out.println("save minimize ");
+            }
+        });
         
-        cellHeight += 40;
-        JLabel nozzleDistanceLabel = new JLabel("Tip Axis Distance");
+        // Offset B Degrees
+        cellHeight += rowSpacing;
+        JLabel bAngleOriginLabel = new JLabel("B Axis Angle Origin");
+        bAngleOriginLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        bAngleOriginLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        bAngleOriginLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(bAngleOriginLabel);
+        
+        bAngleOriginField = new JTextField( new String(bAngleOrigin+""));
+        bAngleOriginField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(bAngleOriginField);
+        bAngleOriginField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                //save();
+            }
+        });
+        
+        
+        
+        // Invert B
+        cellHeight += rowSpacing;
+        JLabel invertBDirectionLabel = new JLabel("Invert B Direction");
+        //invertBDirectionLabel.setForeground(new Color(255, 255, 0));
+        invertBDirectionLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        invertBDirectionLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        invertBDirectionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(invertBDirectionLabel);
+
+        invertBDirectionCheck = new JCheckBox("");
+        invertBDirectionCheck.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        invertBDirectionCheck.setSelected( simulateRoute );
+        panel.add(invertBDirectionCheck);
+        invertBDirectionCheck.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //save();
+                //System.out.println("save minimize ");
+            }
+        });
+        
+        
+        
+        
+        //
+        // Router size properties.
+        //
+        cellHeight += rowSpacing;
+        JLabel routerDimensionsHeight = new JLabel("Router Dimensions");
+        //routerDimensionsHeight.setForeground(new Color(255, 255, 0));
+        routerDimensionsHeight.setHorizontalAlignment(SwingConstants.CENTER);
+        routerDimensionsHeight.setFont(new Font("Arial", Font.BOLD, 11));
+        routerDimensionsHeight.setBounds(0, cellHeight, 280, 40); // x, y, width, height
+        panel.add(routerDimensionsHeight);
+        
+        
+        cellHeight += rowSpacing;
+        JLabel nozzleDistanceLabel = new JLabel("Fulcrum to Collet Distance"); // TODO
         nozzleDistanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         nozzleDistanceLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        nozzleDistanceLabel.setBounds(0, cellHeight, 130, 40); // x, y, width, height
+        nozzleDistanceLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(nozzleDistanceLabel);
         
         nozzleDistanceField = new JTextField( new String(nozzleDistance+""));
-        nozzleDistanceField.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
+        nozzleDistanceField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(nozzleDistanceField);
         nozzleDistanceField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
@@ -247,42 +337,140 @@ public class FiveAxisConfig {
         });
         
         
-        cellHeight += 40;
-        JLabel cAngleOriginLabel = new JLabel("C Axis Angle Origin");
-        cAngleOriginLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        cAngleOriginLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        cAngleOriginLabel.setBounds(0, cellHeight, 130, 40); // x, y, width, height
-        panel.add(cAngleOriginLabel);
+        // Collete Width
+        cellHeight += rowSpacing;
+        JLabel colleteWidthLabel = new JLabel("Collet Width"); // TODO
+        colleteWidthLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        colleteWidthLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        colleteWidthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(colleteWidthLabel);
         
-        cAngleOriginField = new JTextField( new String(cAngleOrigin+""));
-        cAngleOriginField.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
-        panel.add(cAngleOriginField);
-        cAngleOriginField.addKeyListener(new KeyAdapter() {
+        colleteWidthField = new JTextField( new String(colleteWidth+""));
+        colleteWidthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(colleteWidthField);
+        colleteWidthField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
                 save();
             }
         });
         
         
-        // Debug feature.
-        cellHeight += 40;
-        JLabel pathBit = new JLabel("Tool Path Markup");
-        //labelHeight.setForeground(new Color(255, 255, 0));
-        pathBit.setHorizontalAlignment(SwingConstants.RIGHT);
-        pathBit.setFont(new Font("Arial", Font.BOLD, 11));
-        pathBit.setBounds(0, cellHeight, 130, 40); // x, y, width, height
-        panel.add(pathBit);
+        // Router Housing Diameter
+        cellHeight += rowSpacing;
+        JLabel routerHousingDiameterLabel = new JLabel("Router Housing Diameter"); // TODO
+        routerHousingDiameterLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        routerHousingDiameterLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        routerHousingDiameterLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(routerHousingDiameterLabel);
         
-        toolpathCheck = new JCheckBox("");
-        toolpathCheck.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
-        toolpathCheck.setSelected(false);
-        panel.add(toolpathCheck);
-        toolpathCheck.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        routerHousingDiameterField = new JTextField( new String(routerHousingDiameter+""));
+        routerHousingDiameterField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(routerHousingDiameterField);
+        routerHousingDiameterField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
                 save();
-                System.out.println("save markup ");
             }
         });
+        
+        // Back end length
+        cellHeight += rowSpacing;
+        JLabel fulcrumToHousingRearLabel = new JLabel("Fulcrum to Housing Rear"); // TODO
+        fulcrumToHousingRearLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        fulcrumToHousingRearLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        fulcrumToHousingRearLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(fulcrumToHousingRearLabel);
+        
+        fulcrumToHousingRearField = new JTextField( new String(fulcrumToHousingRear+""));
+        fulcrumToHousingRearField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(fulcrumToHousingRearField);
+        fulcrumToHousingRearField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                save();
+            }
+        });
+        
+        
+        
+        //
+        // Bit properties.
+        //
+        cellHeight += rowSpacing;
+        JLabel bitLabel = new JLabel("Bits");
+        //bitLabel.setForeground(new Color(255, 255, 0));
+        bitLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        bitLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        bitLabel.setBounds(0, cellHeight, 280, 40); // x, y, width, height
+        panel.add(bitLabel);
+        
+        
+        cellHeight += rowSpacing;
+        JLabel labelBitT1 = new JLabel("T1 Bit Diameter");
+        //labelBitT1.setForeground(new Color(255, 255, 0));
+        labelBitT1.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitT1.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitT1.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(labelBitT1);
+        
+        bitField = new JTextField("" + drill_bit); //
+        bitField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(bitField);
+        bitField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                save();
+            }
+        });
+        
+        // M1 Type (Ball / Flat End)
+        cellHeight += rowSpacing;
+        JLabel labelBitT1End = new JLabel("T1 Bit End Type");
+        //labelBitT1End.setForeground(new Color(255, 255, 0));
+        labelBitT1End.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitT1End.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitT1End.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(labelBitT1End);
+        
+        String[] bitEndTypesToChoose = {"Ball Nose", "Flat End"};
+        JComboBox<String> t1BitEndComboBox = new JComboBox<>(bitEndTypesToChoose);
+        t1BitEndComboBox.setBounds(secondColX, cellHeight, inputFieldWidth, 40);
+        panel.add(t1BitEndComboBox);
+        
+        
+        // Bit Cut Length
+        cellHeight += rowSpacing;
+        JLabel labelBitT1CutLength = new JLabel("T1 Bit Cutting Length");
+        //labelBitT1CutLength.setForeground(new Color(255, 255, 0));
+        labelBitT1CutLength.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitT1CutLength.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitT1CutLength.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(labelBitT1CutLength);
+        
+        t1BitCutLengthField = new JTextField("" + t1_drill_bit_cut_Length); //
+        t1BitCutLengthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(t1BitCutLengthField);
+        t1BitCutLengthField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                save();
+            }
+        });
+        
+        // Bit Tip to Collete distance
+        cellHeight += rowSpacing;
+        JLabel labelBitT1TipToColleteLength = new JLabel("T1 Bit Tip To Collete Length");
+        //labelBitT1TipToColleteLength.setForeground(new Color(255, 255, 0));
+        labelBitT1TipToColleteLength.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitT1TipToColleteLength.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitT1TipToColleteLength.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(labelBitT1TipToColleteLength);
+        
+        t1BitCutTipToColleteLengthField = new JTextField("" + t1_drill_bit_tip_to_collete_length); //
+        t1BitCutTipToColleteLengthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(t1BitCutTipToColleteLengthField);
+        t1BitCutTipToColleteLengthField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                save();
+            }
+        });
+        
         
         
         /*
@@ -306,7 +494,7 @@ public class FiveAxisConfig {
         });
         */
         
-        
+        /*
         cellHeight += 40;
         JLabel minimizePassesLabel = new JLabel("Minimize Passes");
         //minimizePassesLabel.setForeground(new Color(255, 255, 0));
@@ -325,7 +513,7 @@ public class FiveAxisConfig {
                 System.out.println("save minimize ");
             }
         });
-        
+        */
         
         /*
         cellHeight += 40;
@@ -348,6 +536,7 @@ public class FiveAxisConfig {
         });
         */
         
+        /*
         cellHeight += 40;
         JLabel warningHeight = new JLabel("Note: 5-Axis routing is not production ready.");
         //warningHeight.setForeground(new Color(255, 255, 0));
@@ -355,7 +544,7 @@ public class FiveAxisConfig {
         warningHeight.setFont(new Font("Arial", Font.BOLD, 11));
         warningHeight.setBounds(0, cellHeight, 280, 40); // x, y, width, height
         panel.add(warningHeight);
-        
+        */
         
         UIManager.put("OptionPane.minimumSize",new Dimension(500, cellHeight + 80 + 40));
         
@@ -364,7 +553,7 @@ public class FiveAxisConfig {
         ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
         
         //int result = JOptionPane.showConfirmDialog(null, panel, "Five Axis CNC Properties", JOptionPane.OK_CANCEL_OPTION);
-        int result = JOptionPane.showConfirmDialog(null, panel, "Finishing Five Axis CNC Properties", JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION,  iconImage);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Five Axis CNC Configuration", JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION,  iconImage);
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("width value: " + widthField.getText());
             //System.out.println("depth value: " + depthtField.getText());
