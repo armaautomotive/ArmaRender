@@ -590,7 +590,7 @@ public class FiveAxisConfig {
     public void load(){
         try {
             //String path = FileSystem.getSettingsPath(); //
-        String path = new File(".").getCanonicalPath();
+            String path = new File(".").getCanonicalPath();
             //System.out.println("path: " + path);
             String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
             InputStream input = new FileInputStream(propertyFileName);

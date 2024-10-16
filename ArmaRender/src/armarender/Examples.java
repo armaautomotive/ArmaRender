@@ -82,10 +82,10 @@ public class Examples {
                 // 5) collect tool dimensions.
                 // 6) tool end type
                 
+                ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt();
                 
                 
-                
-                double accuracy = 0.2;
+                double accuracy = 0.4;
                 
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 
@@ -726,7 +726,7 @@ public class Examples {
                 if(display && i % 2 == 0){
                     // Update the scene
                     window.updateImage();
-                    //try { Thread.sleep(1); } catch(Exception e){} // Wait
+                    try { Thread.sleep(4); } catch(Exception e){} // Wait
                 }
             } // end loop generatedCuttingPath for each point in path
             
@@ -759,7 +759,7 @@ public class Examples {
             // Show result of iteration.
             // Update the scene
             window.updateImage();
-            try { Thread.sleep(1); } catch(Exception e){} // Wait
+            try { Thread.sleep(6); } catch(Exception e){} // Wait
             
         } // end loop resolve collisions
         System.out.println("Collisions resolved in passes: " + iterationCount);
