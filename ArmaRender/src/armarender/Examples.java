@@ -1,3 +1,7 @@
+/**
+ *
+ * Nov 1, 2024
+ */
 
 package armarender;
 
@@ -85,7 +89,7 @@ public class Examples {
                 ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt();
                 
                 
-                double accuracy = 0.4;
+                double accuracy = 0.15;
                 
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 
@@ -102,6 +106,33 @@ public class Examples {
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1 );
+                
+                
+                
+                // Append header and footer
+                String header =
+                "(Arma Automotive Inc.)\n"+
+                    "G90 (Absolute Positioning)\n" +
+                    "G94 (Feed Per Minute. f = units per minute)\n" +
+                    "G40 (Disable Cutter Radius Compensation)\n" +
+                    "G49 (Cancel Tool Length Offset)\n" +
+                    "G20 (Inches Mode)\n"+
+                    "T5 M6 (Switch Tool)\n"+
+                    "S9000 M3 (Set Spindle RPM, Clockwise direction)\n"+
+                    "G54 (Work Coordinate System selection)"+
+                    "\n";
+                                //"//G28 (Return to Machine Home)
+                
+                String footer = "\n" +
+                    "M5 (Stop Spindle)\n" +
+                    "G28  (Return to Machine Home)\n" +
+                    "G90 (Absolute Positioning)\n" +
+                    "G0 B0. C0. (Orient Router B/C)\n" +
+                    "M30 (Program End and Rest)\n";
+                            
+                
+                gCode = header + gCode + footer;
+               
                 
                 //Vector<SurfacePointContainer> toolPath2 = calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
                 //gCode += toolPathToGCode(window, toolPath2 );
@@ -130,7 +161,7 @@ public class Examples {
                         d.mkdir();
                     }
                     
-                    File f = new File( dirString + System.getProperty("file.separator") + "finishing_3+2x4.gcode" );
+                    File f = new File( dirString + System.getProperty("file.separator") + "finishing_3+2.gcode" );
                     PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
                     out.write(gCode);
                     out.close();
