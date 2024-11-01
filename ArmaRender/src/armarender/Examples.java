@@ -69,7 +69,7 @@ public class Examples {
      * Parameter for rest machining will remove cutting passes on following passes.
      * @param: Window - access to scene objects.
      */
-    public void finishingThreePlusTwoByFour(LayoutWindow window){
+    public void finishingThreePlusTwo(LayoutWindow window){
         //ProgressDialog progressDialog = new ProgressDialog("Exporting");
         //progressDialog.start();
         //progressDialog.setProgress(1);
@@ -104,7 +104,11 @@ public class Examples {
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display );
                 
-                Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, 45, 15, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                double b = prompt.getBValue();
+                double c = prompt.getCValue();
+                accuracy = prompt.getAccuracy();
+                
+                Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1 );
                 
                 
@@ -117,14 +121,16 @@ public class Examples {
                     "G40 (Disable Cutter Radius Compensation)\n" +
                     "G49 (Cancel Tool Length Offset)\n" +
                     "G20 (Inches Mode)\n"+
-                    "T5 M6 (Switch Tool)\n"+
-                    "S9000 M3 (Set Spindle RPM, Clockwise direction)\n"+
-                    "G54 (Work Coordinate System selection)"+
-                    "\n";
+                    "G17 (XY Plane or flat to ground)\n"+
+                    "(T3 M6) (Switch Tool)\n"+
+                    "(S9000 M3) (Set Spindle RPM, Clockwise direction)\n"+
+                    "G55 (Work Coordinate System selection)"+
+                    "\n" +
+                    "G01\n";
                                 //"//G28 (Return to Machine Home)
                 
                 String footer = "\n" +
-                    "M5 (Stop Spindle)\n" +
+                    "(M5) (Stop Spindle)\n" +
                     "G28  (Return to Machine Home)\n" +
                     "G90 (Absolute Positioning)\n" +
                     "G0 B0. C0. (Orient Router B/C)\n" +
@@ -189,6 +195,10 @@ public class Examples {
      * Note: This function is missing some features:
      * - This function does not take into account the bounds of the machine and may generate tool paths that excede the capacity of the machine.
      * // , Vector<RouterElementContainer> routerElements
+     * @param: Window - Access to scene data.
+     * @param: double b - angle of B axis in degree, zero is down.
+     * @param: double c - angle of c axis in degrees. range 0- 359.
+     * @param: double accuracy -
      */
     public Vector<SurfacePointContainer> calculateFinishingRoutingPassWithBC( LayoutWindow window,
                                              double b,
@@ -208,10 +218,17 @@ public class Examples {
         double routerHousingPosition = 1.25;
         double routerHousingSize = 0.75;
         double bitTipPosition = 0.12;
-        double bitTipSize = 0.08;
+        double bitTipSize = 0.09;  // 0.08   .25 infinite loop
+        
+        double backEndLength = 5; // inches router housing extends back from the fulcrum.
+        
+        
+        //  we set the length from B/C pivot to tool tip with two values: 1 from the config collete length + the Particular tool length
+        // Length of fulcrum to tool tip
+        double fulcrumToToolTipLength = 12.6821; // T3
         
         // Collision Properties
-        double retractionValue = 0.50; // Hhigher means more change, more pull out, Lower means smoother finish, longer processing time.
+        double retractionValue = 0.60; // 0.5 Hhigher means more change, more pull out, Lower means smoother finish, longer processing time.
         
         // Note: This concept could be used by running the following code example 4 times with the
         // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
@@ -250,7 +267,7 @@ public class Examples {
             //System.out.println("accuracy " + accuracy );
             Vec3 sceneCenter = sceneBounds.getCenter();
             
-            Vec3 raySubtract = new Vec3(toolVector.times( sceneSize * 2) );
+            Vec3 raySubtract = new Vec3(toolVector.times( sceneSize * (2) ) ); //  This is only for debug to show the direction the drill will be pointing
             
             // construct a grid and iterate each coordinate and translate it to the toolVector
         
@@ -446,13 +463,15 @@ public class Examples {
         System.out.println("Scanning surface points using B/C Tool angle. ");
         Vec3 firstRegionSurfacePoint = regionSurfacePoints.elementAt(0).point;
         Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1).point;
-        ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(4) ), "Cutter (" + b + "-" + c + ")", true );
+        
+        
+        ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(fulcrumToToolTipLength) ), "Cutter (" + b + "-" + c + ")", true );
         avatarCutterLine.setPhysicalMaterialId(500);
         Curve currCurve = (Curve)avatarCutterLine.getObject();
         
         
         // Router Z height base
-        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 4 ) ), 0.5, "Router Base (" + b + "-" + c + ")" );
+        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength ) ), 0.5, "Router Base (" + b + "-" + c + ")" );
         routerZBaseCubeInfo.setPhysicalMaterialId(500);
         //routerZBaseCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
@@ -468,7 +487,7 @@ public class Examples {
         setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
         routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2, 0.8 ) );
         
-        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 5.0) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength + backEndLength) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
         drillBodyBackEndCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
         routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0, 0.8 ) );
@@ -602,7 +621,7 @@ public class Examples {
                 //  calculate where the cutter would be to when fit to the current region surface point.
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
                 updatedPoints.addElement(currPoint);
-                updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
+                updatedPoints.addElement(currPoint.plus(toolVector.times( fulcrumToToolTipLength ))  ); // Make the length of the avatar arbitrary, scale later on.
                 
                 // Update the avatar object to show to the user where it is in space.
                 currCurve.setVertexPositions(vectorToArray(updatedPoints)); // represents cutter
@@ -815,7 +834,7 @@ public class Examples {
             //  calculate where the cutter would be to when fit to the current region surface point.
             Vector<Vec3> updatedPoints = new Vector<Vec3>();
             updatedPoints.addElement(currPoint);
-            updatedPoints.addElement(currPoint.plus(toolVector.times(4))  ); // Make the length of the avatar arbitrary, scale later on.
+            updatedPoints.addElement(currPoint.plus(toolVector.times(4 + 6))  ); // Make the length of the avatar arbitrary, scale later on.  ********
             // Update the avatar object to show to the user where it is in space.
             currCurve.setVertexPositions(vectorToArray(updatedPoints));
             avatarCutterLine.clearCachedMeshes();
@@ -1018,9 +1037,10 @@ public class Examples {
             // NOTE: XYZ need to be translated off of surface or cutting point.
             Vec3 xyzPoint = new Vec3(currPoint);
             xyzPoint.plus(toolVector.times(2.4)); // Note this value needs to be calculated based on the BC point to tip length.
-            gCodeExport += "x" + scene.roundThree(xyzPoint.x) +
-                " y"+scene.roundThree(xyzPoint.y) +
-                " z"+ scene.roundThree(xyzPoint.z)+
+            gCodeExport +=
+                "x" + scene.roundThree(xyzPoint.x) +
+                " y"+scene.roundThree(xyzPoint.z) +
+                " z"+ scene.roundThree(xyzPoint.y) +
                 " b"+ scene.roundThree(spc.b)+
                 " c"+scene.roundThree(spc.c)+" f" + (int)speed + ";\n";
             
@@ -2263,11 +2283,11 @@ public class Examples {
     
     
     /**
-     * roughingThreePlusTwoByFour  (DEPRICATE)
+     * roughingThreePlusTwo  
      * Description: generate tool path for roughing pass using 3+2BY4 passes.
      * Enter a pass height by user.
      */
-    public void roughingThreePlusTwoByFour(LayoutWindow window){
+    public void roughingThreePlusTwo(LayoutWindow window){
         (new Thread() {
             public void run() {
                 LayoutModeling layout = new LayoutModeling();
