@@ -74,13 +74,13 @@ public class FiveAxisConfig {
     private boolean minimizePasses = true;
     private boolean simulateRoute = false;
     
-    private Properties prop = new Properties();
+    private static Properties prop = new Properties();
     
     private JTextField heightField;
     private JTextField accuracyField;
     private JTextField bitField;
-    private JTextField bitAngleField;
-    private JTextField nozzleDistanceField;
+    //private JTextField bitAngleField; // remove? replace with types (Flat end or ball nose)
+    private JTextField nozzleDistanceField; // Collete dist
     private JTextField cAngleOriginField;
     private JTextField bAngleOriginField;
     private JTextField t1BitCutLengthField;
@@ -559,14 +559,14 @@ public class FiveAxisConfig {
             //System.out.println("depth value: " + depthtField.getText());
             //System.out.println("height value: " + heightField.getText());
             //System.out.println("bit value: " + bitField.getText());
-            this.width = 9999; // Integer.parseInt(widthField.getText());
-            this.depth = 9999; // Integer.parseInt(depthtField.getText());
+            this.width = Integer.parseInt(widthField.getText());
+            this.depth = Integer.parseInt(depthtField.getText());
             this.material_height = Double.parseDouble(heightField.getText());
             //this.depthPerPass = Double.parseDouble(depthPerPassField.getText());
             this.drill_bit = Double.parseDouble(bitField.getText());
             //this.rough_drill_bit = Double.parseDouble(roughBitField.getText());
-            this.accuracy = Double.parseDouble(accuracyField.getText());
-            this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
+            //this.accuracy = Double.parseDouble(accuracyField.getText());
+            //this.drill_bit_angle = Double.parseDouble(bitAngleField.getText());
             this.nozzleDistance = Double.parseDouble(nozzleDistanceField.getText());
             //this.toolpathMarkup = toolpathCheck.isSelected();
             //this.cutOptimization = optimizationCheck.isSelected();
@@ -575,11 +575,37 @@ public class FiveAxisConfig {
             
             this.cAngleOrigin = Double.parseDouble(cAngleOriginField.getText());
             
+            
+            // Router
+            this.fulcrumToHousingRear = Double.parseDouble(fulcrumToHousingRearField.getText());
+            this.routerHousingDiameter = Double.parseDouble(routerHousingDiameterField.getText());
+            this.colleteWidth = Double.parseDouble(colleteWidthField.getText());
+            this.nozzleDistance = Double.parseDouble(nozzleDistanceField.getText()); // collete distance
+            
+            // Tools T1
+            this.drill_bit = Double.parseDouble(bitField.getText()); // T1 Bit Diameter
+            
+            
+            
+            
             //return true;
         }
         
     }
 
+    
+    public static void loadProperties(){
+        try {
+            String path = new File(".").getCanonicalPath();
+            //System.out.println("path: " + path);
+            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
+            InputStream input = new FileInputStream(propertyFileName);
+            // load a properties file
+            prop.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
     
     
     /**
@@ -597,17 +623,26 @@ public class FiveAxisConfig {
             // load a properties file
             prop.load(input);
             
-            setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
-            setBooleanProperty(prop, optimizationCheck, "ads.export_mill_5axis_cut_optimization");
-            setBooleanProperty(prop, minimizePassesCheck, "ads.export_mill_5axis_minimize_passes");
-            setBooleanProperty(prop, simulateCheck, "ads.export_mill_5axis_simulate");
+            //setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
+            //setBooleanProperty(prop, optimizationCheck, "ads.export_mill_5axis_cut_optimization");
+            //setBooleanProperty(prop, minimizePassesCheck, "ads.export_mill_5axis_minimize_passes");
+            //setBooleanProperty(prop, simulateCheck, "ads.export_mill_5axis_simulate");
             
             setStringProperty(prop, heightField, "ads.export_mill_5axis_material_height");
-            setStringProperty(prop, accuracyField, "ads.export_mill_5axis_accuracy");
+            //setStringProperty(prop, accuracyField, "ads.export_mill_5axis_accuracy"); // moved to other dialog
             setStringProperty(prop, bitField, "ads.export_mill_5axis_bit_diameter");
-            setStringProperty(prop, bitAngleField, "ads.export_mill_5axis_bit_angle");
+            //setStringProperty(prop, bitAngleField, "ads.export_mill_5axis_bit_angle");
             setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_bc_distance");
             setStringProperty(prop, cAngleOriginField, "ads.export_mill_5axis_c_angle_orientation");
+            
+            
+            setStringProperty(prop, fulcrumToHousingRearField, "ads.export_mill_5axis_router_rear_length");
+            setStringProperty(prop, routerHousingDiameterField, "ads.export_mill_5axis_router_housing_diameter");
+            
+            
+            setStringProperty(prop, colleteWidthField, "ads.export_mill_5axis_collete_diameter");
+            setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_collete_distance");
+            
            
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -642,6 +677,8 @@ public class FiveAxisConfig {
     }
     
     
+    
+    
     /**
      * save
      *
@@ -667,17 +704,27 @@ public class FiveAxisConfig {
             
             // set the properties value
             
-            prop.setProperty("ads.export_mill_5axis_toolpath_markup", ""+toolpathCheck.isSelected());
-            prop.setProperty("ads.export_mill_5axis_cut_optimization", ""+optimizationCheck.isSelected());
-            prop.setProperty("ads.export_mill_5axis_minimize_passes", ""+minimizePassesCheck.isSelected());
-            prop.setProperty("ads.export_mill_5axis_simulate", ""+simulateCheck.isSelected());
+            //prop.setProperty("ads.export_mill_5axis_toolpath_markup", ""+toolpathCheck.isSelected());
+            //prop.setProperty("ads.export_mill_5axis_cut_optimization", ""+optimizationCheck.isSelected());
+            //prop.setProperty("ads.export_mill_5axis_minimize_passes", ""+minimizePassesCheck.isSelected());
+            //prop.setProperty("ads.export_mill_5axis_simulate", ""+simulateCheck.isSelected());
             
             prop.setProperty("ads.export_mill_5axis_material_height", ""+heightField.getText());
-            prop.setProperty("ads.export_mill_5axis_accuracy", ""+accuracyField.getText());
+            //prop.setProperty("ads.export_mill_5axis_accuracy", ""+accuracyField.getText()); // moved to other dialog
             prop.setProperty("ads.export_mill_5axis_bit_diameter", ""+bitField.getText());
-            prop.setProperty("ads.export_mill_5axis_bit_angle", ""+bitAngleField.getText());
+            //prop.setProperty("ads.export_mill_5axis_bit_angle", ""+bitAngleField.getText());
             prop.setProperty("ads.export_mill_5axis_bc_distance", ""+nozzleDistanceField.getText());
             prop.setProperty("ads.export_mill_5axis_c_angle_orientation", ""+cAngleOriginField.getText());
+            
+            
+            prop.setProperty("ads.export_mill_5axis_router_rear_length", ""+fulcrumToHousingRearField.getText());
+            prop.setProperty("ads.export_mill_5axis_router_housing_diameter", ""+routerHousingDiameterField.getText());
+            
+            
+            prop.setProperty("ads.export_mill_5axis_collete_diameter", ""+colleteWidthField.getText());
+            prop.setProperty("ads.export_mill_5axis_collete_distance", ""+nozzleDistanceField.getText());
+            
+            
           
             // save properties to project root folder
             prop.store(output, null);
@@ -686,4 +733,27 @@ public class FiveAxisConfig {
         }
     }
     
+    
+    public static double getDoubleProperty(String property){
+        double d = 0;
+        String strValue = prop.getProperty(property);
+        if(strValue == null){
+            d = Double.parseDouble(strValue);
+        }
+        return d;
+    }
+    
+    /**
+     * getColleteDistance
+     * Description: Load the length value for the B/C fulcrum to the collete length from the property file.
+     */
+    public static double getColleteDistance(){
+        double value = 0;
+        loadProperties();
+        value = getDoubleProperty("ads.export_mill_5axis_collete_diameter");
+        return value;
+    }
+    
+    
+    // TODO: Get other peroperties. Used by the router classes generating GCode.
 }

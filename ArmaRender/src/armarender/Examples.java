@@ -167,7 +167,7 @@ public class Examples {
                         d.mkdir();
                     }
                     
-                    File f = new File( dirString + System.getProperty("file.separator") + "finishing_3+2.gcode" );
+                    File f = new File( dirString + System.getProperty("file.separator") + "finishing_3+2_"+b+"_"+c+"_"+accuracy+".gcode" );
                     PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
                     out.write(gCode);
                     out.close();
