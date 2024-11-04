@@ -171,6 +171,9 @@ public class Examples {
                     PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
                     out.write(gCode);
                     out.close();
+                    
+                    window.loadExportFolder();
+                    
                 } catch (Exception e){
                     
                 }
@@ -2293,23 +2296,310 @@ public class Examples {
                 LayoutModeling layout = new LayoutModeling();
                 Scene scene = window.getScene();
         
+                ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt();
+                
+                Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
+                Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
+                
                 // Prompt user for:
                 // pass height
                 // Drill bit width
                 double maxCutDepth = 0.5; // only cut depth at one time.
                 double drillBitWidth = 0.2;
                 double blockHeight = 3; // define the height of the material to be cut. Will be higher than the geometry of the scene.
+                double accuracy = 0.15;
+                
+                boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
+                boolean ballNoseTipType = true; // the geometry of the tip type. [true = ball, false = flat end]
+                boolean display = true; // display intermediate steps.
                 
                 
                 // 1) Scan scene geometry into surface map.
                 
+                double b = prompt.getBValue();
+                double c = prompt.getCValue();
+                accuracy = prompt.getAccuracy();
                 
+                Vector<SurfacePointContainer> toolPath1 = calculateRoughingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 
                 
                 
                 window.updateImage(); // Update scene
+                
+                
+                
+                //window.loadExportFolder();
             }
         }).start();
     }
+    
+    
+    
+    public Vector<SurfacePointContainer> calculateRoughingRoutingPassWithBC( LayoutWindow window,
+                                             double b,
+                                             double c,
+                                             double accuracy,
+                                             boolean restMachiningEnabled,
+                                             boolean ballNoseTipType,
+                                             Vector<SurfacePointContainer> scanedSurfacePoints,
+                                             int passNumber,
+                                                                            boolean display){
+        LayoutModeling layout = new LayoutModeling();
+        Scene scene = window.getScene();
+        Vector<ObjectInfo> sceneObjects = scene.getObjects();
+        
+        
+        
+        // Router Size information.
+        double routerHousingPosition = 1.25;
+        double routerHousingSize = 0.75;
+        double bitTipPosition = 0.12;
+        double bitTipSize = 0.09;  // 0.08   .25 infinite loop
+        
+        double backEndLength = 5; // inches router housing extends back from the fulcrum.
+        
+        
+        //  we set the length from B/C pivot to tool tip with two values: 1 from the config collete length + the Particular tool length
+        // Length of fulcrum to tool tip
+        double fulcrumToToolTipLength = 12.6821; // T3
+        
+        // Collision Properties
+        double retractionValue = 0.60; // 0.5 Hhigher means more change, more pull out, Lower means smoother finish, longer processing time.
+        
+        // Note: This concept could be used by running the following code example 4 times with the
+        // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
+        // This way each of the sides are covered by at leas one pass.
+        
+        Vector<Vec3> debugMappingGrid = new Vector<Vec3>(); // pattern of cutting to be projected onto the scene.
+        Vector<SurfacePointContainer> regionSurfacePoints = new Vector<SurfacePointContainer>(); // accumulated surface points projected
+        Vector<SurfacePointContainer> generatedCuttingPath = new Vector<SurfacePointContainer>(); // GCode cutting path
+        Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
+        
+        ObjectInfo surfaceMapInfo = null; // Object represents surface map.
+        ObjectInfo toolPath = null;
+        
+        Vec3 toolVector = new Vec3(0, 1, 0); //
+        Mat4 zRotationMat = Mat4.zrotation(Math.toRadians(b)); // Will be used to orient the inital position of the B axis.
+        Mat4 yRotationMat = Mat4.yrotation(Math.toRadians(c)); // Will be used to orient the inital position of the C axis.
+        zRotationMat.transform(toolVector); // Apply the B axis transform.
+        yRotationMat.transform(toolVector); // Apply the C axis rotation
+        toolVector.normalize(); // Normalize to scale the vector to a length of 1.
+        System.out.println("toolVector " + toolVector);
+        // Calculate the bounds of the scene objects,
+        // for each object, get bounds.
+        BoundingBox sceneBounds = null ; //new BoundingBox(); // Vec3 p1, Vec3 p2
+        for(int i = 0; i < sceneObjects.size(); i++){
+            ObjectInfo currInfo = sceneObjects.elementAt(i);
+            BoundingBox currBounds = currInfo.getTranslatedBounds();
+            if(sceneBounds == null){
+                sceneBounds = currBounds;
+            } else {
+                sceneBounds.extend(currBounds);
+            }
+        }
+        
+        if(sceneBounds != null){
+            double sceneSize = Math.max(sceneBounds.maxx - sceneBounds.minx, Math.max(sceneBounds.maxy - sceneBounds.miny, sceneBounds.maxz - sceneBounds.minz));
+            //System.out.println("sceneSize " + sceneSize );
+            //System.out.println("accuracy " + accuracy );
+            Vec3 sceneCenter = sceneBounds.getCenter();
+            
+            Vec3 raySubtract = new Vec3(toolVector.times( sceneSize * (2) ) ); //  This is only for debug to show the direction the drill will be pointing
+            
+            // construct a grid and iterate each coordinate and translate it to the toolVector
+        
+            // Translate to point in space to project region mapping.
+            
+            Vec3 regionScan = new Vec3(sceneCenter);
+            regionScan.add( toolVector.times(sceneSize) );
+            
+            // DEBUG Show
+            ObjectInfo bcLineInfo = addLineToScene(window, regionScan,  regionScan.minus(raySubtract), "B/C Axis Ray (" + b + "-" + c + ")", true ); // debug show ray cast line
+            bcLineInfo.setPhysicalMaterialId(500);
+            
+            int width = (int)(sceneSize / accuracy);
+            int height = (int)(sceneSize / accuracy);
+            //System.out.println("width " + width );
+            
+            // Loop through grid
+            // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
+            for(int x = 0; x < width; x++){
+                for(int y = 0; y < height; y++){
+                    // xy offset to coords, Translate based on 'toolVector'
+                    
+                    Vec3 samplePoint = new Vec3(regionScan);
+                    
+                    double scaleFactor = accuracy; //  (sceneSize / accuracy) ;
+                    
+                    //Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2 , (double)(y-(height/2)) * 0.2, (double)(y-(height/2)) * 0.2 ); // First try
+                    Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * scaleFactor, 0, (double)(y-(height/2)) * scaleFactor );
+                    
+                    if(x % 2 == 0){ // Alternate scan direction on Y pass every other X. This is more effecient as it cuts the travel distance in half.
+                        currGridPoint = new Vec3( (double)(x-(width/2)) * scaleFactor, 0, (double)((height-y-1) - (height/2)) * scaleFactor ); // reversed
+                    }
+                    
+                    zRotationMat.transform(currGridPoint); // Apply the B axis transform.
+                    yRotationMat.transform(currGridPoint); // Apply the C axis rotation
+                    
+                    samplePoint.add( currGridPoint ); // shift
+                    
+                    debugMappingGrid.addElement(currGridPoint);
+                    
+                    Vec3 samplePointB = samplePoint.minus(raySubtract); // Second point in ray cast
+                    // Find collision location
+                    Vec3 intersectPoint = null;
+                    Vec3 intersectNormal = null; // normal of surface of intersection.
+                    for(int i = 0; i < sceneObjects.size(); i++){
+                        ObjectInfo currInfo = sceneObjects.elementAt(i);
+                        Object3D currObj = currInfo.getObject();
+                        //System.out.println("Checking for intersect in: " + currInfo.getName());
+                        
+                        if( currInfo.getPhysicalMaterialId() == 500 ){
+                            continue;
+                        }
+                        
+                        //
+                        // Is the object a TriangleMesh?
+                        //
+                        TriangleMesh triangleMesh = null;
+                        if(currObj instanceof TriangleMesh){
+                            triangleMesh = (TriangleMesh)currObj;
+                        } else if(currObj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT){
+                            triangleMesh = currObj.convertToTriangleMesh(0.1);
+                        }
+                        if(triangleMesh != null){
+                            CoordinateSystem cs;
+                            cs = layout.getCoords(currInfo);
+                            
+                            // Convert object coordinates to world (absolute) coordinates.
+                            // The object has its own coordinate system with transformations of location, orientation, scale ect. To see them in absolute world coordinates we need to convert.
+                            Mat4 mat4 = cs.duplicate().fromLocal();
+                            
+                            MeshVertex[] verts = triangleMesh.getVertices();
+                            Vector<Vec3> worldVerts = new Vector<Vec3>();
+                            for(int v = 0; v < verts.length; v++){  // These translated verts will have the same indexes as the object array.
+                                Vec3 vert = new Vec3(verts[v].r); // Make a new Vec3 as we don't want to modify the geometry of the object.
+                                mat4.transform(vert);
+                                worldVerts.addElement(vert); // add the translated vert to our list.
+                                //System.out.println("  Vert index: " + v + " - " + vert); // Print vert location XYZ data.
+                            }
+                            TriangleMesh.Edge[] edges = ((TriangleMesh)triangleMesh).getEdges();
+                            TriangleMesh.Face[] faces = triangleMesh.getFaces();
+                            for(int f = 0; f < faces.length; f++ ){
+                                TriangleMesh.Face face = faces[f];
+                                Vec3 faceA = worldVerts.elementAt(face.v1);
+                                Vec3 faceB = worldVerts.elementAt(face.v2);
+                                Vec3 faceC = worldVerts.elementAt(face.v3);
+                                
+                                Vec3 normal = faceB.minus(faceA).cross(faceC.minus(faceA));
+                                double length = normal.length();
+                                if (length > 0.0){
+                                    normal.scale(1.0/length);
+                                }
+                                //System.out.println(" normal " + normal + " length "  + length);
+                                
+                                Vec3 samplePointCollision = Intersect2.getIntersection(samplePoint, samplePointB, faceA, faceB, faceC );
+                                if(samplePointCollision != null){ // found intersection.
+                                    //System.out.println(" *** ");
+                                    if(intersectPoint != null){   // existing intersection exists, check if the new one is closer
+                                        double existingDist = regionScan.distance(intersectPoint);
+                                        double currrentDist = regionScan.distance(samplePointCollision);
+                                        if(currrentDist < existingDist){ // we only want the closest intersection.
+                                            intersectPoint = samplePointCollision;
+                                            intersectNormal = normal;
+                                        }
+                                    } else {
+                                        intersectPoint = samplePointCollision;
+                                        intersectNormal = normal;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(intersectPoint != null){
+                        //System.out.println(" Colision " + intersectPoint );
+                        
+                        // TODO: If a close point in scanedSurfacePoints exists, then don't include it in the surface to cut as it has allready been done.
+                        boolean skipPointAsDuplicate = false; // only skip point if it was added from a different pass!
+                        if(restMachiningEnabled){
+                            double closestExistingSufacePoint = 9999999;
+                            int existingPointCount = 0;
+                            for(int pi = 0; pi < scanedSurfacePoints.size(); pi++){
+                                SurfacePointContainer spc = scanedSurfacePoints.elementAt(pi);
+                                Vec3 currExistingPoint = spc.point;
+                                double currDist = intersectPoint.distance(currExistingPoint);
+                                if( currDist < (accuracy * 1.5) && passNumber != spc.passNumber ){ // 1.2 // experiment with threshold
+                                    skipPointAsDuplicate = true; // old method, doesn't do any overlap
+                                    existingPointCount++;
+                                }
+                            }
+                            //System.out.println("existingPointCount " + existingPointCount);
+                            if(existingPointCount >= 3){ // we want overlap - needs work
+                                skipPointAsDuplicate = true;
+                            }
+                        }
+                        if(skipPointAsDuplicate == false){
+                            //System.out.println("intersectNormal " + intersectNormal);
+                            SurfacePointContainer spc = new SurfacePointContainer(intersectPoint, intersectNormal, passNumber);
+                            spc.b = b;
+                            spc.c = c;
+                            regionSurfacePoints.addElement(spc); // local intersectPoint
+                            scanedSurfacePoints.addElement(spc); // external
+                        }
+                        //addLineToScene(window, intersectPoint,  intersectPoint.plus(new Vec3(0,1,0)) );
+                    }
+                } // Y
+            } // X
+            
+            if(debugMappingGrid.size() > 1){
+                ObjectInfo line = addLineToScene(window, debugMappingGrid, "Projection Grid (" + b + "-" + c + ")", true);
+                line.setPhysicalMaterialId(500);
+            }
+            
+            // add entry and exit points above scene.
+            // todo: check machine bounds
+            if(regionSurfacePoints.size() > 0){
+                SurfacePointContainer firstSpc = regionSurfacePoints.elementAt(0);
+                SurfacePointContainer lastSpc = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1);
+                firstSpc.b = b;
+                firstSpc.c = c;
+                lastSpc.b = b;
+                lastSpc.c = c;
+                
+                // Add entry and exit paths from start position.
+                // Note if this entry or exit collide they would beed to be rerouted.
+                double maxMachineHeight = 0; // TODO calculate entry and exit points based on the capacity of the machine.
+                Vec3 firstRegionSurfacePoint = firstSpc.point;
+                Vec3 lastRegionSurfacePoint = lastSpc.point;
+                
+                
+                SurfacePointContainer insertFirstSpc = new SurfacePointContainer( new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z), 0 );
+                SurfacePointContainer insertLastSpc = new SurfacePointContainer(  new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z) , 0);
+                
+                regionSurfacePoints.add(0, insertFirstSpc); // insert entry
+                regionSurfacePoints.add(regionSurfacePoints.size(), insertLastSpc );
+                
+                // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
+                regionSurfacePoints = fillGapsInPointPathSPC(regionSurfacePoints, accuracy);
+                
+                // Draw line showing mapped surface
+                if(regionSurfacePoints.size() > 1){
+                    surfaceMapInfo = addLineToSceneSPC(window, regionSurfacePoints, "Surface Map (" + b + "-" + c + ")", true);
+                    surfaceMapInfo.setPhysicalMaterialId(500);
+                }
+            }
+        } // bounds
+        
+        if(regionSurfacePoints.size() == 0){
+            return new Vector<SurfacePointContainer>();
+        }
+        
+        
+        return generatedCuttingPath;
+    }
+    
+    
+    
+    
 }
 

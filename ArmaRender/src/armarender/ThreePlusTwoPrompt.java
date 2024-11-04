@@ -47,6 +47,7 @@ public class ThreePlusTwoPrompt {
     public JTextField cPositionField = null;
     public JTextField bPositionField = null;
     public JTextField accuracyField = null;
+    public JTextField toolField = null;
     
     public ThreePlusTwoPrompt(){
         prompt();
@@ -126,6 +127,21 @@ public class ThreePlusTwoPrompt {
         accuracyField = new JTextField( new String(0.128+""));
         accuracyField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(accuracyField);
+        
+        
+        cellHeight += rowSpacing;
+        
+        
+        JLabel toolLabel = new JLabel("Tool");
+        //toolLabel.setForeground(new Color(255, 255, 0));
+        toolLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        toolLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        toolLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(toolLabel);
+        
+        toolField = new JTextField( new String("T1"));
+        toolField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(toolField);
         
         
         cellHeight += rowSpacing;
@@ -280,6 +296,17 @@ public class ThreePlusTwoPrompt {
         return result;
     }
     
+    
+    /**
+     * getTool
+     * Description: get Tool to use for this run.
+     */
+    public String getTool(){
+        if(toolField != null){
+            return toolField.getText();
+        }
+        return "T1"; // Default
+    }
 }
 
 
