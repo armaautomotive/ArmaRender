@@ -48,9 +48,11 @@ public class ThreePlusTwoPrompt {
     public JTextField bPositionField = null;
     public JTextField accuracyField = null;
     public JTextField toolField = null;
+    public JTextField speedField = null;
+    public JTextField depthField = null;
     
-    public ThreePlusTwoPrompt(){
-        prompt();
+    public ThreePlusTwoPrompt(boolean roughing){
+        prompt(roughing);
     }
     
     
@@ -58,7 +60,7 @@ public class ThreePlusTwoPrompt {
      * prompt
      * Description: Prompt user for tool path generation information.
      */
-    public void prompt(){
+    public void prompt(boolean roughing){
         
         JPanel panel = new JPanel();
         //panel.setBackground(new Color(0, 0, 0));
@@ -142,6 +144,38 @@ public class ThreePlusTwoPrompt {
         toolField = new JTextField( new String("T1"));
         toolField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(toolField);
+        
+        
+        cellHeight += rowSpacing;
+        
+        // Speed
+        JLabel speedLabel = new JLabel("Speed (IPM)");
+        //speedLabel.setForeground(new Color(255, 255, 0));
+        speedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        speedLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        speedLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(speedLabel);
+        
+        speedField = new JTextField( new String("50"));
+        speedField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(speedField);
+        
+        
+        // Max cut depth
+        if(roughing){
+            cellHeight += rowSpacing;
+            
+            JLabel depthLabel = new JLabel("Max Depth");
+            //depthLabel.setForeground(new Color(255, 255, 0));
+            depthLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            depthLabel.setFont(new Font("Arial", Font.BOLD, 11));
+            depthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+            panel.add(depthLabel);
+            
+            depthField = new JTextField( new String("0.5"));
+            depthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+            panel.add(depthField);
+        }
         
         
         cellHeight += rowSpacing;
@@ -307,6 +341,24 @@ public class ThreePlusTwoPrompt {
         }
         return "T1"; // Default
     }
+    
+    
+    public String getSpeed(){
+        if(speedField != null){
+            return speedField.getText();
+        }
+        return "30";
+    }
+    
+    
+    public double getDepth(){
+        double result = 0.25;
+        if(depthField != null){
+            result = Double.parseDouble(depthField.getText());
+        }
+        return result;
+    }
+    
 }
 
 

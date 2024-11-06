@@ -86,7 +86,7 @@ public class Examples {
                 // 5) collect tool dimensions.
                 // 6) tool end type
                 
-                ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt();
+                ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt(false);
                 
                 
                 double accuracy = 0.15;
@@ -2296,7 +2296,7 @@ public class Examples {
                 LayoutModeling layout = new LayoutModeling();
                 Scene scene = window.getScene();
         
-                ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt();
+                ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt(true);
                 
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
