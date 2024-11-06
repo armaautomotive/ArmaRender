@@ -87,6 +87,9 @@ public class Examples {
                 // 6) tool end type
                 
                 ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt(false);
+                if(prompt.prompt(false) == false){
+                    return;
+                }
                 
                 
                 double accuracy = 0.15;
@@ -2297,6 +2300,9 @@ public class Examples {
                 Scene scene = window.getScene();
         
                 ThreePlusTwoPrompt prompt = new ThreePlusTwoPrompt(true);
+                if(prompt.prompt(true) == false){
+                    return;
+                }
                 
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool

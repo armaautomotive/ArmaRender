@@ -47,12 +47,12 @@ public class ThreePlusTwoPrompt {
     public JTextField cPositionField = null;
     public JTextField bPositionField = null;
     public JTextField accuracyField = null;
-    public JTextField toolField = null;
+    public JTextField toolSelectionField = null;
     public JTextField speedField = null;
     public JTextField depthField = null;
     
     public ThreePlusTwoPrompt(boolean roughing){
-        prompt(roughing);
+        //prompt(roughing);
     }
     
     
@@ -60,7 +60,7 @@ public class ThreePlusTwoPrompt {
      * prompt
      * Description: Prompt user for tool path generation information.
      */
-    public void prompt(boolean roughing){
+    public boolean prompt(boolean roughing){
         
         JPanel panel = new JPanel();
         //panel.setBackground(new Color(0, 0, 0));
@@ -112,7 +112,7 @@ public class ThreePlusTwoPrompt {
         toolSelectionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(toolSelectionLabel);
         
-        JTextField toolSelectionField = new JTextField( new String("T1"));
+        toolSelectionField = new JTextField( new String("T1"));
         toolSelectionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(toolSelectionField);
         
@@ -131,19 +131,7 @@ public class ThreePlusTwoPrompt {
         panel.add(accuracyField);
         
         
-        cellHeight += rowSpacing;
         
-        
-        JLabel toolLabel = new JLabel("Tool");
-        //toolLabel.setForeground(new Color(255, 255, 0));
-        toolLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        toolLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        toolLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
-        panel.add(toolLabel);
-        
-        toolField = new JTextField( new String("T1"));
-        toolField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
-        panel.add(toolField);
         
         
         cellHeight += rowSpacing;
@@ -233,7 +221,10 @@ public class ThreePlusTwoPrompt {
             
             this.cAngleOrigin = Double.parseDouble(cAngleOriginField.getText());
             */
+            return true;
         }
+        
+        return false;
     }
  
     
@@ -336,8 +327,8 @@ public class ThreePlusTwoPrompt {
      * Description: get Tool to use for this run.
      */
     public String getTool(){
-        if(toolField != null){
-            return toolField.getText();
+        if(toolSelectionField != null){
+            return toolSelectionField.getText();
         }
         return "T1"; // Default
     }
