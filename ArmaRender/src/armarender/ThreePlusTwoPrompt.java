@@ -44,18 +44,23 @@ import javax.swing.*;
 
 public class ThreePlusTwoPrompt {
     private Properties prop = new Properties();
+    public JTextField cPositionField = null;
+    public JTextField bPositionField = null;
+    public JTextField accuracyField = null;
+    public JTextField toolSelectionField = null;
+    public JTextField speedField = null;
+    public JTextField depthField = null;
     
-    
-    public ThreePlusTwoPrompt(){
-        prompt();
+    public ThreePlusTwoPrompt(boolean roughing){
+        //prompt(roughing);
     }
     
     
     /**
      * prompt
-     * Description:
+     * Description: Prompt user for tool path generation information.
      */
-    public void prompt(){
+    public boolean prompt(boolean roughing){
         
         JPanel panel = new JPanel();
         //panel.setBackground(new Color(0, 0, 0));
@@ -77,7 +82,7 @@ public class ThreePlusTwoPrompt {
         cPositionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(cPositionLabel);
         
-        JTextField cPositionField = new JTextField(new String(0+""));
+        cPositionField = new JTextField(new String(15+""));
         cPositionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(cPositionField);
         //cPositionField.getDocument().addDocumentListener(myListener);
@@ -92,7 +97,7 @@ public class ThreePlusTwoPrompt {
         bPositionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(bPositionLabel);
         
-        JTextField bPositionField = new JTextField( new String(0+""));
+        bPositionField = new JTextField( new String(45+""));
         bPositionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(bPositionField);
         
@@ -107,7 +112,7 @@ public class ThreePlusTwoPrompt {
         toolSelectionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(toolSelectionLabel);
         
-        JTextField toolSelectionField = new JTextField( new String("T1"));
+        toolSelectionField = new JTextField( new String("T1"));
         toolSelectionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(toolSelectionField);
         
@@ -121,9 +126,44 @@ public class ThreePlusTwoPrompt {
         accuracyLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(accuracyLabel);
         
-        JTextField accuracyField = new JTextField( new String(0.095+""));
+        accuracyField = new JTextField( new String(0.128+""));
         accuracyField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(accuracyField);
+        
+        
+        
+        
+        
+        cellHeight += rowSpacing;
+        
+        // Speed
+        JLabel speedLabel = new JLabel("Speed (IPM)");
+        //speedLabel.setForeground(new Color(255, 255, 0));
+        speedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        speedLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        speedLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(speedLabel);
+        
+        speedField = new JTextField( new String("50"));
+        speedField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(speedField);
+        
+        
+        // Max cut depth
+        if(roughing){
+            cellHeight += rowSpacing;
+            
+            JLabel depthLabel = new JLabel("Max Depth");
+            //depthLabel.setForeground(new Color(255, 255, 0));
+            depthLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            depthLabel.setFont(new Font("Arial", Font.BOLD, 11));
+            depthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+            panel.add(depthLabel);
+            
+            depthField = new JTextField( new String("0.5"));
+            depthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+            panel.add(depthField);
+        }
         
         
         cellHeight += rowSpacing;
@@ -181,7 +221,10 @@ public class ThreePlusTwoPrompt {
             
             this.cAngleOrigin = Double.parseDouble(cAngleOriginField.getText());
             */
+            return true;
         }
+        
+        return false;
     }
  
     
@@ -246,6 +289,67 @@ public class ThreePlusTwoPrompt {
         }
         return value;
     }
+    
+    
+    
+    /**
+     * getCValue
+     * Description:
+     */
+    public double getCValue(){
+        double result = 0;
+        if(cPositionField != null){
+            result = Double.parseDouble(cPositionField.getText());
+        }
+        return result;
+    }
+    
+    public double getBValue(){
+        double result = 0;
+        if(bPositionField != null){
+            result = Double.parseDouble(bPositionField.getText());
+        }
+        return result;
+    }
+    
+    
+    public double getAccuracy(){
+        double result = 0;
+        if(accuracyField != null){
+            result = Double.parseDouble(accuracyField.getText());
+        }
+        return result;
+    }
+    
+    
+    /**
+     * getTool
+     * Description: get Tool to use for this run.
+     */
+    public String getTool(){
+        if(toolSelectionField != null){
+            return toolSelectionField.getText();
+        }
+        return "T1"; // Default
+    }
+    
+    
+    public String getSpeed(){
+        if(speedField != null){
+            return speedField.getText();
+        }
+        return "30";
+    }
+    
+    
+    public double getDepth(){
+        double result = 0.25;
+        if(depthField != null){
+            result = Double.parseDouble(depthField.getText());
+        }
+        return result;
+    }
+    
 }
 
 

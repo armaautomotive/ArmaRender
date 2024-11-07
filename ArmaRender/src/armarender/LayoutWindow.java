@@ -6833,7 +6833,32 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         BMenuItem configureMenuItem = Translate.menuItem("Configure Five Axis", this, "configureFiveAxisCommand");
         examplesMenu.add(configureMenuItem);
         
+        examplesMenu.addSeparator();
         
+        BMenuItem roughingThreePlusTwoMenuItem = Translate.menuItem("Roughing 3+2 ", this, "roughingThreePlusTwoCommand");
+        examplesMenu.add(roughingThreePlusTwoMenuItem);
+        
+       
+        BMenuItem threePlusTwoXFourMenuItem = Translate.menuItem("Finishing 3+2 ", this, "finishingThreePlusTwoCommand");
+        examplesMenu.add(threePlusTwoXFourMenuItem);
+        
+        
+        
+        examplesMenu.addSeparator();
+        
+        
+        // Concepts
+        BMenuItem finishingFourPlusOneByTwoMenuItem = Translate.menuItem("4+1 directions", this, "finishingFourPlusOneCommand");
+        examplesMenu.add(finishingFourPlusOneByTwoMenuItem);
+        
+        
+        
+        examplesMenu.addSeparator();
+        
+        
+        // Code examples
+        BMenuItem constructRouterGeometryMenuItem = Translate.menuItem("Construct Router Geometry", this, "constructRouterGeometryCommand");
+        examplesMenu.add(constructRouterGeometryMenuItem);
         
         BMenuItem examplesRunMenuItem = Translate.menuItem("Examples Run", this, "runExamplesCommand");
         //examplesRunMenuItem.setName(null); // Name is used by event handler for ID
@@ -6849,23 +6874,6 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         //examplesRunMenuItem.addEventLink(MouseEnteredEvent.class, this, "mouseEnteredEvent");
         //examplesRunMenuItem.addEventLink(MouseExitedEvent.class, this, "mouseExitedEvent");
         examplesMenu.add(examples2RunMenuItem);
-        
-        
-        BMenuItem constructRouterGeometryMenuItem = Translate.menuItem("Construct Router Geometry", this, "constructRouterGeometryCommand");
-        examplesMenu.add(constructRouterGeometryMenuItem);
-        
-        
-        
-        BMenuItem roughingThreePlusTwoByFourMenuItem = Translate.menuItem("Roughing 3+2 x 4 directions", this, "roughingThreePlusTwoByFourCommand");
-        examplesMenu.add(roughingThreePlusTwoByFourMenuItem);
-        
-        
-        BMenuItem threePlusTwoXFourMenuItem = Translate.menuItem("Finishing 3+2 x 4 directions", this, "finishingThreePlusTwoXFourCommand");
-        examplesMenu.add(threePlusTwoXFourMenuItem);
-        
-        
-        BMenuItem finishingFourPlusOneByTwoMenuItem = Translate.menuItem("4+1 x 2 directions", this, "finishingFourPlusOneByTwoCommand");
-        examplesMenu.add(finishingFourPlusOneByTwoMenuItem);
         
         
         BMenuItem circleDecendMenuItem = Translate.menuItem("Circle Decend", this, "circleDecendCommand");
@@ -6899,20 +6907,20 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     //
     // 3+2 X 4 Group
     //
-    public void roughingThreePlusTwoByFourCommand(){
+    public void roughingThreePlusTwoCommand(){
         Examples ex = new Examples();
-        ex.roughingThreePlusTwoByFour(this);
+        ex.roughingThreePlusTwo(this);
     }
-    public void finishingThreePlusTwoXFourCommand(){
+    public void finishingThreePlusTwoCommand(){
         Examples ex = new Examples();
-        ex.finishingThreePlusTwoByFour(this); 
+        ex.finishingThreePlusTwo(this);
     }
     
     
     //
     // 4+1X2 Group
     //
-    public void finishingFourPlusOneByTwoCommand(){
+    public void finishingFourPlusOneCommand(){
         Examples ex = new Examples();
         ex.finishingFourPlusOneByTwo(this);
     }
@@ -6997,6 +7005,52 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         
         rebuildItemList(); // updates the object tree once after all the objects are added.
         // itemTree.repaint();
+    }
+    
+    /**
+     * loadExportFolder
+     *  Description: Load the window with all of the export files.
+     */
+    public void loadExportFolder(){
+        LayoutModeling layout = new LayoutModeling();
+        if(theScene == null){
+            
+            UIManager.put("OptionPane.minimumSize",new Dimension(300, 100));
+            ImageIcon iconImage = new ImageIcon(getClass().getResource("/armadesignstudio/Icons/favicon-32x32.png"));
+            
+            JOptionPane.showMessageDialog(null, "Scene not loaded.",  "Error" , JOptionPane.ERROR_MESSAGE , iconImage);
+            return;
+        }
+        
+        // If unsaved, display error.
+        if(theScene.getDirectory() == null){
+            UIManager.put("OptionPane.minimumSize",new Dimension(300, 100));
+            ImageIcon iconImage = new ImageIcon(getClass().getResource("/armadesignstudio/Icons/favicon-32x32.png"));
+            
+            
+            JOptionPane.showMessageDialog(null, "Save or load a Project.",  "Error" , JOptionPane.ERROR_MESSAGE , iconImage);
+            return;
+        }
+        
+        String fileName = theScene.getName();
+        if(fileName.indexOf(".") != -1){
+            fileName = fileName.substring(0, fileName.indexOf("."));
+        }
+        
+        String dir = theScene.getDirectory() + System.getProperty("file.separator") + fileName + "";
+        
+        //System.out.println("load " + dir );
+        try {
+            File d = new File(dir);
+            if(d.exists() == false){
+                d.mkdir();
+            }
+            
+            // Load
+            Desktop.getDesktop().open(d);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
