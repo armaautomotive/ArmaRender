@@ -50,6 +50,7 @@ public class ThreePlusTwoPrompt {
     public JTextField toolSelectionField = null;
     public JTextField speedField = null;
     public JTextField depthField = null;
+    public JCheckBox simulateCheck = null;
     
     public ThreePlusTwoPrompt(boolean roughing){
         //prompt(roughing);
@@ -160,7 +161,7 @@ public class ThreePlusTwoPrompt {
             depthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
             panel.add(depthLabel);
             
-            depthField = new JTextField( new String("0.5"));
+            depthField = new JTextField( new String("0.25"));
             depthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
             panel.add(depthField);
         }
@@ -176,7 +177,7 @@ public class ThreePlusTwoPrompt {
         panel.add(showMarkupLabel);
         
         boolean simulateRoute = true;
-        JCheckBox simulateCheck = new JCheckBox("");
+        simulateCheck = new JCheckBox("");
         simulateCheck.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
         simulateCheck.setSelected( simulateRoute );
         panel.add(simulateCheck);
@@ -346,6 +347,14 @@ public class ThreePlusTwoPrompt {
         double result = 0.25;
         if(depthField != null){
             result = Double.parseDouble(depthField.getText());
+        }
+        return result;
+    }
+    
+    public boolean getDisplay(){
+        boolean result = true;
+        if(simulateCheck != null){
+            result = simulateCheck.isSelected();
         }
         return result;
     }
