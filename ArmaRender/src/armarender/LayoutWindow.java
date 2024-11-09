@@ -6835,6 +6835,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         
         examplesMenu.addSeparator();
         
+        
+        BMenuItem loadGCodeMenuItem = Translate.menuItem("Load GCode Path", this, "loadGCodeCommand");
+        examplesMenu.add(loadGCodeMenuItem);
+        
+        BMenuItem saveSelectedCodeMenuItem = Translate.menuItem("Save Selected GCode Path", this, "saveSelectedGCodeCommand");
+        examplesMenu.add(saveSelectedCodeMenuItem);
+        
+        examplesMenu.addSeparator();
+        
+        
         BMenuItem roughingThreePlusTwoMenuItem = Translate.menuItem("Roughing 3+2 ", this, "roughingThreePlusTwoCommand");
         examplesMenu.add(roughingThreePlusTwoMenuItem);
         
@@ -6886,6 +6896,16 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     public void configureFiveAxisCommand(){
         FiveAxisConfig config = new FiveAxisConfig();
         
+    }
+    
+    public void loadGCodeCommand(){
+        Examples ex = new Examples();
+        ex.loadGCode(this);
+    }
+    
+    public void saveSelectedGCodeCommand(){
+        Examples ex = new Examples();
+        ex.saveSelectedGCode(this);
     }
     
     public void runExamplesCommand(){

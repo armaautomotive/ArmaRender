@@ -51,6 +51,8 @@ public class ThreePlusTwoPrompt {
     public JTextField speedField = null;
     public JTextField depthField = null;
     public JCheckBox simulateCheck = null;
+    public JCheckBox restMachiningCheck = null;
+    
     
     public ThreePlusTwoPrompt(boolean roughing){
         //prompt(roughing);
@@ -188,6 +190,27 @@ public class ThreePlusTwoPrompt {
         });
         
         
+        if(!roughing){
+            cellHeight += rowSpacing;
+            
+            JLabel restMachiningLabel = new JLabel("Rest Machining");
+            //restMachiningLabel.setForeground(new Color(255, 255, 0));
+            restMachiningLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            restMachiningLabel.setFont(new Font("Arial", Font.BOLD, 11));
+            restMachiningLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+            panel.add(restMachiningLabel);
+            
+            boolean restMachining = true;
+            restMachiningCheck = new JCheckBox("");
+            restMachiningCheck.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
+            restMachiningCheck.setSelected( restMachining );
+            panel.add(restMachiningCheck);
+            restMachiningCheck.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    
+                }
+            });
+        }
         
      
         
@@ -356,6 +379,16 @@ public class ThreePlusTwoPrompt {
         boolean result = true;
         if(simulateCheck != null){
             result = simulateCheck.isSelected();
+        }
+        return result;
+    }
+    
+    
+    
+    public boolean getRestMachining(){
+        boolean result = true;
+        if(restMachiningCheck != null){
+            result = restMachiningCheck.isSelected();
         }
         return result;
     }

@@ -112,6 +112,7 @@ public class Examples {
                 accuracy = prompt.getAccuracy();
                 display = prompt.getDisplay();
                 double speed = prompt.getSpeed();
+                restMachiningEnabled = prompt.getRestMachining();
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1, speed);
@@ -3331,6 +3332,28 @@ public class Examples {
     
 
     
+    /**
+     * loadGCode
+     * Description: Load an existing gcode tool path.
+     * This serves severa functions:
+     * 1) You can preview a toolpath to verify it does the intended operation.
+     * 2) You can modify the toolpath by removing areas or otherwise modifying it.
+     * 3) You can use it to tell a finishing pass not to cut existing areas allready cut using the 'rest machining' checkbox.
+     */
+    public void loadGCode(LayoutWindow window){
+        
+        System.out.println("load GCode. Not implemented. ");
+    }
     
+    
+    /**
+     * saveSelectedGCode
+     * Description: Save a selected line/curve to a GCode file.
+     * TODO: what about the attributes? Capture them from an existing gcode file by the same name?
+     */
+    public void saveSelectedGCode(LayoutWindow window){
+        
+        System.out.println("save selected GCode. Not implemented. ");
+    }
 }
 
