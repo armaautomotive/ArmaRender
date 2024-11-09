@@ -335,11 +335,12 @@ public class ThreePlusTwoPrompt {
     }
     
     
-    public String getSpeed(){
+    public double getSpeed(){
+        double result = 50;
         if(speedField != null){
-            return speedField.getText();
+            result = Double.parseDouble(speedField.getText()); 
         }
-        return "30";
+        return result;
     }
     
     

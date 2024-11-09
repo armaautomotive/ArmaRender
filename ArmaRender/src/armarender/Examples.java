@@ -111,15 +111,19 @@ public class Examples {
                 double c = prompt.getCValue();
                 accuracy = prompt.getAccuracy();
                 display = prompt.getDisplay();
+                double speed = prompt.getSpeed();
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
-                String gCode = toolPathToGCode(window, toolPath1 );
+                String gCode = toolPathToGCode(window, toolPath1, speed);
                 
-                
+                double toolPathTime = getToolpathTime( toolPath1, speed );
                 
                 // Append header and footer
                 String header =
                 "(Arma Automotive Inc.)\n"+
+                "(Date: n/a)\n"+
+                    "(Duration Minutes: "+ scene.roundThree(toolPathTime) +")\n"+
+                    "()\n"+
                     "G90 (Absolute Positioning)\n" +
                     "G94 (Feed Per Minute. f = units per minute)\n" +
                     "G40 (Disable Cutter Radius Compensation)\n" +
@@ -291,6 +295,9 @@ public class Examples {
             int height = (int)(sceneSize / accuracy);
             //System.out.println("width " + width );
             
+            width *= 1.5;           // expand (depending on C/B the rotation can cause the scene to expand beyond the rectangular bounds. )
+            height *= 1.5;
+            
             // Loop through grid
             // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
             for(int x = 0; x < width; x++){
@@ -299,7 +306,7 @@ public class Examples {
                     
                     Vec3 samplePoint = new Vec3(regionScan);
                     
-                    double scaleFactor = accuracy; //  (sceneSize / accuracy) ;
+                    double scaleFactor = accuracy; //  (sceneSize / accuracy);
                     
                     //Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * 0.2 , (double)(y-(height/2)) * 0.2, (double)(y-(height/2)) * 0.2 ); // First try
                     Vec3 currGridPoint = new Vec3( (double)(x-(width/2)) * scaleFactor, 0, (double)(y-(height/2)) * scaleFactor );
@@ -970,9 +977,11 @@ public class Examples {
     /**
      * toolPathToGCode
      * Description: Given a tool path, (points defining a surface to cut) generate GCode to control the couter to cut it.
-     * @param:
+     * @param: window -
+     * @param: Vector<> - path
+     * @param: speed -
      */
-    public String toolPathToGCode(LayoutWindow window, Vector<SurfacePointContainer> generatedCuttingPath){
+    public String toolPathToGCode(LayoutWindow window, Vector<SurfacePointContainer> generatedCuttingPath, double speed){
         String gCodeExport = "";
         Scene scene = window.getScene();
         //int collisions = 0;
@@ -993,7 +1002,7 @@ public class Examples {
             //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
             
             // speed
-            double speed = 50;
+            //double speed = 50;
             if( i > 2 && i < generatedCuttingPath.size() - 6 ){
                 Vec3 oppositeP = generatedCuttingPath.elementAt(i - 1).point;
                 Vec3 oppositeP2 = generatedCuttingPath.elementAt(i - 2).point;
@@ -1057,6 +1066,31 @@ public class Examples {
         
         } // end simulate GCode toolpoath
         return gCodeExport;
+    }
+    
+    /**
+     * getToolpathTime
+     * Description: Get time in minutes this tool path will take.
+     * Asume units are inches and movement is inches per minite.
+     */
+    public double getToolpathTime( Vector<SurfacePointContainer> generatedCuttingPath, double speed ){
+        double time = 0;
+        
+        for(int i = 1; i < generatedCuttingPath.size(); i++){
+            SurfacePointContainer spcA = generatedCuttingPath.elementAt(i-1);
+            Vec3 currPointA = generatedCuttingPath.elementAt(i-1).point;
+            
+            SurfacePointContainer spcB = generatedCuttingPath.elementAt(i);
+            Vec3 currPointB = generatedCuttingPath.elementAt(i).point;
+            
+            double dist = currPointA.distance(currPointB);
+            
+            double segmentTime = dist  / (speed);
+            time += segmentTime;
+        }
+        
+        
+        return time;
     }
     
     
@@ -2328,13 +2362,19 @@ public class Examples {
                 accuracy = prompt.getAccuracy();
                 layerHeight = prompt.getDepth();
                 display = prompt.getDisplay();
+                double speed = prompt.getSpeed();
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateRoughingRoutingPassWithBC( window, b, c, accuracy, layerHeight, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
-                String gCode = toolPathToGCode(window, toolPath1 );
+                String gCode = toolPathToGCode(window, toolPath1, speed);
+                
+                double toolPathTime = getToolpathTime( toolPath1, speed );
                 
                 // Append header and footer
                 String header =
                 "(Arma Automotive Inc.)\n"+
+                "(Date: n/a)\n"+
+                "(Duration Minutes: " + scene.roundThree(toolPathTime) + ")"+
+                "()\n"+
                     "G90 (Absolute Positioning)\n" +
                     "G94 (Feed Per Minute. f = units per minute)\n" +
                     "G40 (Disable Cutter Radius Compensation)\n" +
@@ -2480,6 +2520,8 @@ public class Examples {
         }
         
         if(sceneBounds != null){
+            BoundingBox expandedSceneBounds = new BoundingBox(sceneBounds);
+            expandedSceneBounds.expandPercentage(5); // expand by 5%
             double sceneSize = Math.max(sceneBounds.maxx - sceneBounds.minx, Math.max(sceneBounds.maxy - sceneBounds.miny, sceneBounds.maxz - sceneBounds.minz));
             //System.out.println("sceneSize " + sceneSize );
             //System.out.println("accuracy " + accuracy );
@@ -2501,7 +2543,9 @@ public class Examples {
             int width = (int)(sceneSize / accuracy);
             int height = (int)(sceneSize / accuracy);
             //System.out.println("width " + width );
-            
+             
+            width *= 1.5;           // expand (depending on C/B the rotation can cause the scene to expand beyond the rectangular bounds. )
+            height *= 1.5;
             
             //
             // Loop through layers
@@ -2519,6 +2563,8 @@ public class Examples {
             
                 currLayerHeight = sceneBounds.maxy - ( l * layerHeight );                   // Height for current layer
             
+                boolean isFirstPointInLayer = true;
+                
                 // Loop through grid
                 // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
                 for(int x = 0; x < width; x++){
@@ -2644,21 +2690,46 @@ public class Examples {
                             layerPointCollision = intersectPoint;
                         }
                         
+                        // Check to see if this point is within the scene bounds (objects to cut)
+
+                        if(expandedSceneBounds.contains(layerPointCollision)){ // Don't add points outside scene area.
                         
+                            if(isFirstPointInLayer){ // Raise between layers
+                                if(layerPoints.size() > 1){
+                                    Vec3 raisedPoint1 = new Vec3(layerPoints.elementAt(layerPoints.size() - 1));
+                                    raisedPoint1.y += layerHeight; // layerHeight sceneHeight
+                                    layerPoints.addElement(raisedPoint1);
+                                    SurfacePointContainer spc = new SurfacePointContainer(raisedPoint1, intersectNormal, passNumber);
+                                    spc.b = b;
+                                    spc.c = c;
+                                    regionSurfacePoints.addElement(spc); // local intersectPoint
+                                    scanedSurfacePoints.addElement(spc); // external
+                                }
+                                
+                                Vec3 raisedPoint2 = new Vec3(layerPointCollision);
+                                raisedPoint2.y += layerHeight * 2; // layerHeight sceneHeight
+                                layerPoints.addElement(raisedPoint2);
+                                SurfacePointContainer spc = new SurfacePointContainer(raisedPoint2, intersectNormal, passNumber);
+                                spc.b = b;
+                                spc.c = c;
+                                regionSurfacePoints.addElement(spc); // local intersectPoint
+                                scanedSurfacePoints.addElement(spc); // external
+                            }
+                            isFirstPointInLayer = false;
+                            
+                            //
+                            // Point for this layer found
+                            //
+                            layerPoints.addElement(layerPointCollision);
+                            // Add SPC
+                            //Vec3 intersectNormal = null;
+                            SurfacePointContainer spc = new SurfacePointContainer(layerPointCollision, intersectNormal, passNumber);
+                            spc.b = b;
+                            spc.c = c;
+                            regionSurfacePoints.addElement(spc); // local intersectPoint
+                            scanedSurfacePoints.addElement(spc); // external
                         
-                        //
-                        // Point for this layer found
-                        //
-                        layerPoints.addElement(layerPointCollision);
-                        // Add SPC
-                        //Vec3 intersectNormal = null;
-                        SurfacePointContainer spc = new SurfacePointContainer(layerPointCollision, intersectNormal, passNumber);
-                        spc.b = b;
-                        spc.c = c;
-                        regionSurfacePoints.addElement(spc); // local intersectPoint
-                        scanedSurfacePoints.addElement(spc); // external
-                        
-                        
+                        }
                         
                         /*
                         if(intersectPoint != null){
@@ -2697,6 +2768,7 @@ public class Examples {
                         
                     } // Y
                 } // X
+                
             } // Layer
             
             
