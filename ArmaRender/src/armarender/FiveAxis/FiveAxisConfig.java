@@ -52,6 +52,9 @@ public class FiveAxisConfig {
     private double routerHousingDiameter = 4.2;
     private double fulcrumToHousingRear = 6.2;
     
+    String[] bitToUse = {"T1", "T2", "T3", "T4", "T5", "T6"};
+    String[] propFilesForBits = {"t1.properties", "t2.properties", "t3.properties", "t4.properties", "t5.properties", "t6.properties"}; // Not an elegant way, but efficient
+
     String[] bitEndTypesToChoose = {"Ball Nose", "Flat End"};
     private double t1_drill_bit_cut_Length = 2;
     private double t1_drill_bit_tip_to_collete_length = 5;
@@ -62,6 +65,7 @@ public class FiveAxisConfig {
     private boolean simulateRoute = false;
     
     private static Properties prop = new Properties();
+    private static Properties bitProps = new Properties();
     
     private JTextField heightField;
     private JTextField widthField;
@@ -72,12 +76,17 @@ public class FiveAxisConfig {
     private JTextField nozzleDistanceField; // Collete dist
     private JTextField cAngleOriginField;
     private JTextField bAngleOriginField;
-    private JTextField t1BitCutLengthField;
-    private JTextField t1BitCutTipToColleteLengthField;
+    private JTextField bitCutLengthField;
+    private JTextField bitTipToColleteLengthField;
     private JTextField colleteWidthField;
     private JTextField routerHousingDiameterField;
     private JTextField fulcrumToHousingRearField;
-    
+
+    private JLabel labelBitDiameter;
+    private JLabel labelBitEndType;
+    private JLabel labelBitCutLength;
+    private JLabel labelBitTipToColleteLength;
+
     private JCheckBox toolpathCheck;
     private JCheckBox optimizationCheck;
     private JCheckBox minimizePassesCheck;
@@ -85,7 +94,8 @@ public class FiveAxisConfig {
     private JCheckBox invertBDirectionCheck;
     private JCheckBox invertCDirectionCheck;
 
-    private JComboBox<String> t1BitEndComboBox;
+    private JComboBox<String> usedBitComboBox;
+    private JComboBox<String> bitEndComboBox;
     
     public FiveAxisConfig(){
         prompt();
@@ -387,73 +397,91 @@ public class FiveAxisConfig {
         //
         // Bit properties.
         //
-        JLabel labelBitT1 = new JLabel("T1 Bit Diameter");
-        //labelBitT1.setForeground(new Color(255, 255, 0));
-        labelBitT1.setHorizontalAlignment(SwingConstants.RIGHT);
-        labelBitT1.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBitT1.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
-        bitsPanel.add(labelBitT1);
-        
+        JLabel labelUsedBit = new JLabel("Bit to Use");
+        //labelBitDiameter.setForeground(new Color(255, 255, 0));
+        labelUsedBit.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelUsedBit.setFont(new Font("Arial", Font.BOLD, 11));
+        labelUsedBit.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        bitsPanel.add(labelUsedBit);
+
+        usedBitComboBox = new JComboBox<>(bitToUse);
+        usedBitComboBox.setBounds(secondColX, cellHeight, inputFieldWidth, 40);
+        bitsPanel.add(usedBitComboBox);
+        usedBitComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                setBitText();
+                save();
+            }
+        });
+
+        cellHeight += rowSpacing;
+        labelBitDiameter = new JLabel("T1 Bit Diameter");
+        //labelBitDiameter.setForeground(new Color(255, 255, 0));
+        labelBitDiameter.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitDiameter.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitDiameter.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        bitsPanel.add(labelBitDiameter);
+
         bitField = new JTextField("" + drill_bit); //
         bitField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         bitsPanel.add(bitField);
         bitField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
-                save();
+                saveBitInfo();
             }
-        });
+        });   
         
         // M1 Type (Ball / Flat End)
         cellHeight += rowSpacing;
-        JLabel labelBitT1End = new JLabel("T1 Bit End Type");
-        //labelBitT1End.setForeground(new Color(255, 255, 0));
-        labelBitT1End.setHorizontalAlignment(SwingConstants.RIGHT);
-        labelBitT1End.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBitT1End.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
-        bitsPanel.add(labelBitT1End);
+        labelBitEndType = new JLabel("T1 Bit End Type");
+        //labelBitEndType.setForeground(new Color(255, 255, 0));
+        labelBitEndType.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitEndType.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitEndType.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        bitsPanel.add(labelBitEndType);
         
-        t1BitEndComboBox = new JComboBox<>(bitEndTypesToChoose);
-        t1BitEndComboBox.setBounds(secondColX, cellHeight, inputFieldWidth, 40);
-        bitsPanel.add(t1BitEndComboBox);
-        t1BitEndComboBox.addActionListener(new ActionListener() {
+        bitEndComboBox = new JComboBox<>(bitEndTypesToChoose);
+        bitEndComboBox.setBounds(secondColX, cellHeight, inputFieldWidth, 40);
+        bitsPanel.add(bitEndComboBox);
+        bitEndComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                save();
+                saveBitInfo();
             }
         });
         
         // Bit Cut Length
         cellHeight += rowSpacing;
-        JLabel labelBitT1CutLength = new JLabel("T1 Bit Cutting Length");
-        //labelBitT1CutLength.setForeground(new Color(255, 255, 0));
-        labelBitT1CutLength.setHorizontalAlignment(SwingConstants.RIGHT);
-        labelBitT1CutLength.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBitT1CutLength.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
-        bitsPanel.add(labelBitT1CutLength);
+        labelBitCutLength = new JLabel("T1 Bit Cutting Length");
+        //labelBitCutLength.setForeground(new Color(255, 255, 0));
+        labelBitCutLength.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitCutLength.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitCutLength.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        bitsPanel.add(labelBitCutLength);
         
-        t1BitCutLengthField = new JTextField("" + t1_drill_bit_cut_Length); //
-        t1BitCutLengthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
-        bitsPanel.add(t1BitCutLengthField);
-        t1BitCutLengthField.addKeyListener(new KeyAdapter() {
+        bitCutLengthField = new JTextField("" + t1_drill_bit_cut_Length); //
+        bitCutLengthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        bitsPanel.add(bitCutLengthField);
+        bitCutLengthField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
-                save();
+                saveBitInfo();
             }
         });
         
         // Bit Tip to Collete distance
         cellHeight += rowSpacing;
-        JLabel labelBitT1TipToColleteLength = new JLabel("T1 Bit Tip To Collete Length");
-        //labelBitT1TipToColleteLength.setForeground(new Color(255, 255, 0));
-        labelBitT1TipToColleteLength.setHorizontalAlignment(SwingConstants.RIGHT);
-        labelBitT1TipToColleteLength.setFont(new Font("Arial", Font.BOLD, 11));
-        labelBitT1TipToColleteLength.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
-        bitsPanel.add(labelBitT1TipToColleteLength);
+        labelBitTipToColleteLength = new JLabel("T1 Bit Tip To Collete Length");
+        //labelBitTipToColleteLength.setForeground(new Color(255, 255, 0));
+        labelBitTipToColleteLength.setHorizontalAlignment(SwingConstants.RIGHT);
+        labelBitTipToColleteLength.setFont(new Font("Arial", Font.BOLD, 11));
+        labelBitTipToColleteLength.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        bitsPanel.add(labelBitTipToColleteLength);
         
-        t1BitCutTipToColleteLengthField = new JTextField("" + t1_drill_bit_tip_to_collete_length); //
-        t1BitCutTipToColleteLengthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
-        bitsPanel.add(t1BitCutTipToColleteLengthField);
-        t1BitCutTipToColleteLengthField.addKeyListener(new KeyAdapter() {
+        bitTipToColleteLengthField = new JTextField("" + t1_drill_bit_tip_to_collete_length); //
+        bitTipToColleteLengthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        bitsPanel.add(bitTipToColleteLengthField);
+        bitTipToColleteLengthField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
-                save();
+                saveBitInfo();
             }
         });
 
@@ -543,7 +571,7 @@ public class FiveAxisConfig {
         */
         int paneHeight = maxCellHeight + 120;
         UIManager.put("OptionPane.minimumSize",new Dimension(500, paneHeight));
-        tabbedPane.setPreferredSize(new Dimension(400, paneHeight));
+        tabbedPane.setPreferredSize(new Dimension(450, paneHeight));
 
         load(); // read propertyies and set UI fields.
         ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
@@ -588,13 +616,12 @@ public class FiveAxisConfig {
         }
         
     }
-
     
-    public static void loadProperties() throws IOException {
+    public static void loadProperties(String filename, Properties prop) throws IOException {
         try {
             String path = new File(".").getCanonicalPath();
             //System.out.println("path: " + path);
-            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
+            String propertyFileName = path + System.getProperty("file.separator") + filename;
             InputStream input = new FileInputStream(propertyFileName);
             // load a properties file
             prop.load(input);
@@ -611,7 +638,7 @@ public class FiveAxisConfig {
      */
     public void load(){
         try {
-            loadProperties();
+            loadProperties("cam.properties", prop);
 
             //setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
             //setBooleanProperty(prop, optimizationCheck, "ads.export_mill_5axis_cut_optimization");
@@ -636,10 +663,10 @@ public class FiveAxisConfig {
             setStringProperty(prop, fulcrumToHousingRearField, "ads.export_mill_5axis_router_rear_length");
             
             // Bits
-            setStringProperty(prop, bitField, "ads.export_mill_5axis_bit_diameter");
-            setStringProperty(prop, t1BitCutLengthField, "ads.export_mill_5axis_bit_cutting_length");
-            setStringProperty(prop, t1BitCutTipToColleteLengthField, "ads.export_mill_5axis_bit_cuttip_to_collete_length");
-            setJComboProperty(prop, t1BitEndComboBox, "ads.export_mill_5axis_bit_end_type");
+            String bitIndexStr = prop.getProperty("ads.export_bit_index");
+            int bitIndex = bitIndexStr == null ? 0 : Integer.parseInt(bitIndexStr); // Avoid null read
+            usedBitComboBox.setSelectedIndex(bitIndex);
+            setBitText();
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -679,10 +706,65 @@ public class FiveAxisConfig {
         }
         return value;
     }
-    
-    
-    
-    
+
+    public void setBitText() {
+        // Load data from bit file
+        int bitIndex = usedBitComboBox.getSelectedIndex();
+        String fileName = propFilesForBits[bitIndex];
+        try {
+            loadProperties(fileName, bitProps);
+        } catch (FileNotFoundException ex) {
+            createEmptyBitFile(fileName);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } 
+
+        // Update UI
+        String usedBit = bitToUse[bitIndex];
+        labelBitDiameter.setText(usedBit + " Bit Diameter");
+        labelBitEndType.setText(usedBit + " Bit End Type");
+        labelBitCutLength.setText(usedBit + " Bit Cutting Length");
+        labelBitTipToColleteLength.setText(usedBit + " Bit Tip To Collete Length");
+
+        setStringProperty(bitProps, bitField, "ads.export_mill_5axis_bit_diameter");
+        setStringProperty(bitProps, bitCutLengthField, "ads.export_mill_5axis_bit_cutting_length");
+        setStringProperty(bitProps, bitTipToColleteLengthField, "ads.export_mill_5axis_bit_cuttip_to_collete_length");
+        setJComboProperty(bitProps, bitEndComboBox, "ads.export_mill_5axis_bit_end_type");
+    }
+
+    public void createEmptyBitFile(String fileName) {
+        try {
+            String path = new File(".").getCanonicalPath();
+            String propertyFileName = path + System.getProperty("file.separator") + fileName;
+            OutputStream output = new FileOutputStream(propertyFileName);
+
+            bitProps.store(output, null);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    } 
+
+    public void saveBitInfo() {
+        int bitIndex = usedBitComboBox.getSelectedIndex();
+        try {
+            String path = new File(".").getCanonicalPath();
+            String fileName = propFilesForBits[bitIndex];
+
+            String propertyFileName = path + System.getProperty("file.separator") + fileName;
+            OutputStream output = new FileOutputStream(propertyFileName);
+
+            bitProps.setProperty("ads.export_mill_5axis_bit_diameter", ""+bitField.getText());
+            bitProps.setProperty("ads.export_mill_5axis_bit_cutting_length", ""+bitCutLengthField.getText());
+            bitProps.setProperty("ads.export_mill_5axis_bit_cuttip_to_collete_length", ""+bitTipToColleteLengthField.getText());
+            bitProps.setProperty("ads.export_mill_5axis_bit_end_type", ""+bitEndComboBox.getSelectedItem());
+
+            bitProps.store(output, null);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+
     /**
      * save
      *
@@ -690,8 +772,6 @@ public class FiveAxisConfig {
      */
     public void save(){
         try {
-            loadProperties();
-            //String path = FileSystem.getSettingsPath();
             String path = new File(".").getCanonicalPath();
 
             String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
@@ -722,10 +802,8 @@ public class FiveAxisConfig {
             prop.setProperty("ads.export_mill_5axis_router_rear_length", ""+fulcrumToHousingRearField.getText());
 
             // Bits
-            prop.setProperty("ads.export_mill_5axis_bit_diameter", ""+bitField.getText());
-            prop.setProperty("ads.export_mill_5axis_bit_end_type", String.valueOf(t1BitEndComboBox.getSelectedItem()));
-            prop.setProperty("ads.export_mill_5axis_bit_cutting_length", ""+t1BitCutLengthField.getText());
-            prop.setProperty("ads.export_mill_5axis_bit_cuttip_to_collete_length", ""+t1BitCutTipToColleteLengthField.getText());
+            prop.setProperty("ads.export_bit_index", ""+String.valueOf(usedBitComboBox.getSelectedIndex()));
+            prop.setProperty("ads.export_bit_name", ""+bitToUse[usedBitComboBox.getSelectedIndex()]);
             
             // save properties to project root folder
             prop.store(output, null);
