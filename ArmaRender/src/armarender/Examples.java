@@ -6,14 +6,23 @@
 package armarender;
 
 import java.util.*;
+
+import javax.swing.JCheckBox;
+
 import armarender.math.*;
 import armarender.object.*;
 import java.io.PrintWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Examples {
+
+    private Properties routerConfigProps = new Properties();
+    private Properties bitProps = new Properties();
     
     public Examples(){
         
@@ -58,11 +67,6 @@ public class Examples {
         }
     }
     
-    
-    
-    
-    
-    
     /**
      * finishingThreePlusTwoByFour
      * Description: Routine, run three axis XYZ across the scene with a fixed BC cutter axis fouur times against four directions.
@@ -90,7 +94,8 @@ public class Examples {
                 if(prompt.prompt(false) == false){
                     return;
                 }
-                
+                // Load the router config from property file
+                loadProperties(routerConfigProps, "cam.properties");
                 
                 double accuracy = 0.15;
                 
@@ -98,6 +103,10 @@ public class Examples {
                 
                 boolean ballNoseTipType = true; // the geometry of the tip type. [true = ball, false = flat end]
                 boolean display = true; // display intermediate steps.
+                String toolName = getStringProperty(routerConfigProps, "ads.export_bit_name", "T1");
+                
+                // Load bit config from property file
+                loadProperties(bitProps, toolName.toLowerCase() + ".properties");
                 
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
@@ -110,6 +119,7 @@ public class Examples {
                 double b = prompt.getBValue();
                 double c = prompt.getCValue();
                 accuracy = prompt.getAccuracy();
+                ballNoseTipType = getBooleanProperty(routerConfigProps, "ads.export_mill_5axis_bit_end_type", ballNoseTipType);
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1 );
@@ -125,7 +135,7 @@ public class Examples {
                     "G49 (Cancel Tool Length Offset)\n" +
                     "G20 (Inches Mode)\n"+
                     "G17 (XY Plane or flat to ground)\n"+
-                    "(T3 M6) (Switch Tool)\n"+
+                    "(" + toolName + " M6) (Switch Tool)\n"+
                     "(S9000 M3) (Set Spindle RPM, Clockwise direction)\n"+
                     "G55 (Work Coordinate System selection)"+
                     "\n" +
@@ -141,7 +151,7 @@ public class Examples {
                             
                 
                 gCode = header + gCode + footer;
-               
+                System.out.println("ToolName: " + toolName);
                 
                 //Vector<SurfacePointContainer> toolPath2 = calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
                 //gCode += toolPathToGCode(window, toolPath2 );
@@ -189,12 +199,7 @@ public class Examples {
         }).start();
     } // end demo function
     
-    
-    
-    
-    
-    
-    
+
     /**
      * calculateFinishingRoutingPassWithBC
      * Desscription:
@@ -219,23 +224,33 @@ public class Examples {
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
         
-        
         // Router Size information.
         double routerHousingPosition = 1.25;
         double routerHousingSize = 0.75;
         double bitTipPosition = 0.12;
         double bitTipSize = 0.09;  // 0.08   .25 infinite loop
-        
         double backEndLength = 5; // inches router housing extends back from the fulcrum.
-        
-        
         //  we set the length from B/C pivot to tool tip with two values: 1 from the config collete length + the Particular tool length
         // Length of fulcrum to tool tip
         double fulcrumToToolTipLength = 12.6821; // T3
-        
         // Collision Properties
-        double retractionValue = 0.60; // 0.5 Hhigher means more change, more pull out, Lower means smoother finish, longer processing time.
+        double retractionValue = 0.60; // 0.5 Higher means more change, more pull out, Lower means smoother finish, longer processing time.
         
+        // Take values from properties file
+        routerHousingPosition = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_collete_distance", 10) + getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_cuttip_to_collete_length", 5);
+        routerHousingSize = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_router_housing_diameter", routerHousingSize);
+        bitTipSize = getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_diameter", bitTipSize);
+        bitTipPosition = bitTipSize / 2.0; // 1/2 of tool diameter
+        backEndLength = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_router_rear_length", backEndLength); // fulcrum to rear
+        fulcrumToToolTipLength = routerHousingPosition; // Same as router housing position
+
+        System.out.println("RouterHousingPosition: " + routerHousingPosition);
+        System.out.println("RouterHousingSize: " + routerHousingSize);
+        System.out.println("bitTipSize: " + bitTipSize);
+        System.out.println("bitTipPosition: " + bitTipPosition);
+        System.out.println("backEndLength: " + backEndLength);
+        System.out.println("fulcrumToToolTipLength: " + fulcrumToToolTipLength);
+         
         // Note: This concept could be used by running the following code example 4 times with the
         // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
         // This way each of the sides are covered by at leas one pass.
@@ -2600,12 +2615,52 @@ public class Examples {
             return new Vector<SurfacePointContainer>();
         }
         
-        
         return generatedCuttingPath;
     }
+
+    public void loadProperties(Properties prop, String fileName) {
+        try {
+            String path = new File(".").getCanonicalPath();
+            //System.out.println("path: " + path);
+            String propertyFileName = path + System.getProperty("file.separator") + fileName;
+            InputStream input = new FileInputStream(propertyFileName);
+            // load a properties file
+            prop.load(input);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public double getDoubleProperty(Properties prop, String property, double defaultVal){
+        double d = defaultVal;
+        String strValue = prop.getProperty(property);
+        if(strValue != null){
+            d = Double.parseDouble(strValue);
+        }
+        return d;
+    } 
+
+    public boolean getBooleanProperty(Properties prop, String property, boolean defaultVal){
+        String value = prop.getProperty(property);
+        if(value != null){
+            if(value.equals("false")){
+                return false;
+            }
+            if(value.equals("true")){
+                return true;
+            }
+        }
+
+        return defaultVal;
+    }
     
-    
-    
-    
+    public String getStringProperty(Properties prop, String property, String deafultVal) {
+        String value = prop.getProperty(property);
+        if (value != null && !value.isEmpty()) {
+            return value;
+        } 
+
+        return deafultVal;
+    }
 }
 
