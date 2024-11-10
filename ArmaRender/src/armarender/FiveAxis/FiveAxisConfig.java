@@ -40,6 +40,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.*;
 
 public class FiveAxisConfig {
@@ -57,7 +59,7 @@ public class FiveAxisConfig {
     private double drill_bit_angle = 135;
     private double rough_drill_bit = 0.25;
     private double pass_height = 0.5;   // drill cuts this much material per pass
-    private double material_height = 10; // 2 - 10 cut scene into layers this thick for seperate parts/files.
+    private double bed_height = 10; // 2 - 10 cut scene into layers this thick for seperate parts/files.
     private double nozzleDistance = 10.0; // .5 distance from nozzle to 4/5 axis.
     private double depthPerPass = 1.25; // max material that can be removed in one pass
     private double cAngleOrigin = 0; // c axis (rotation vertically) origin. Machine vs cad coordinate system may be different.
@@ -66,6 +68,7 @@ public class FiveAxisConfig {
     private double routerHousingDiameter = 4.2;
     private double fulcrumToHousingRear = 6.2;
     
+    String[] bitEndTypesToChoose = {"Ball Nose", "Flat End"};
     private double t1_drill_bit_cut_Length = 2;
     private double t1_drill_bit_tip_to_collete_length = 5;
     
@@ -77,7 +80,9 @@ public class FiveAxisConfig {
     private static Properties prop = new Properties();
     
     private JTextField heightField;
-    private JTextField accuracyField;
+    private JTextField widthField;
+    private JTextField depthField;
+
     private JTextField bitField;
     //private JTextField bitAngleField; // remove? replace with types (Flat end or ball nose)
     private JTextField nozzleDistanceField; // Collete dist
@@ -95,6 +100,8 @@ public class FiveAxisConfig {
     private JCheckBox simulateCheck;
     private JCheckBox invertBDirectionCheck;
     private JCheckBox invertCDirectionCheck;
+
+    private JComboBox<String> t1BitEndComboBox;
     
     public FiveAxisConfig(){
         prompt();
@@ -104,7 +111,7 @@ public class FiveAxisConfig {
 
     /**
      * prompt
-     * Description:
+     * Description: Some fields are not saved to minimize the number of save
      */
     public void prompt(){
         
@@ -128,9 +135,15 @@ public class FiveAxisConfig {
         widthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(widthLabel);
         
-        JTextField widthField = new JTextField(new String(width+""));
+        widthField = new JTextField(new String(width+""));
         widthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(widthField);
+        widthField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                save();
+            }
+        });
+
         //widthField.getDocument().addDocumentListener(myListener);
         cellHeight += rowSpacing;
         
@@ -142,9 +155,14 @@ public class FiveAxisConfig {
         labelDepth.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(labelDepth);
         
-        JTextField depthtField = new JTextField( new String(depth+""));
-        depthtField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
-        panel.add(depthtField);
+        depthField = new JTextField( new String(depth+""));
+        depthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(depthField);
+        depthField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent event) {
+                save();
+            }
+        });
         
         
         cellHeight += rowSpacing;
@@ -155,7 +173,7 @@ public class FiveAxisConfig {
         labelHeight.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(labelHeight);
         
-        heightField = new JTextField(new String(material_height+""));
+        heightField = new JTextField(new String(bed_height+""));
         heightField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(heightField);
         heightField.addKeyListener(new KeyAdapter() {
@@ -229,7 +247,7 @@ public class FiveAxisConfig {
         csHeight.setBounds(0, cellHeight, 280, 40); // x, y, width, height
         panel.add(csHeight);
         
-        // C angle
+        // Offset C angle
         cellHeight += rowSpacing;
         JLabel cAngleOriginLabel = new JLabel("C Axis Angle Origin");
         cAngleOriginLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -266,7 +284,7 @@ public class FiveAxisConfig {
             }
         });
         
-        // Offset B Degrees
+        // Offset B angle
         cellHeight += rowSpacing;
         JLabel bAngleOriginLabel = new JLabel("B Axis Angle Origin");
         bAngleOriginLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -279,7 +297,7 @@ public class FiveAxisConfig {
         panel.add(bAngleOriginField);
         bAngleOriginField.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent event) {
-                //save();
+                save();
             }
         });
         
@@ -321,7 +339,7 @@ public class FiveAxisConfig {
         
         
         cellHeight += rowSpacing;
-        JLabel nozzleDistanceLabel = new JLabel("Fulcrum to Collet Distance"); // TODO
+        JLabel nozzleDistanceLabel = new JLabel("Fulcrum to Collete Distance"); // TODO
         nozzleDistanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         nozzleDistanceLabel.setFont(new Font("Arial", Font.BOLD, 11));
         nozzleDistanceLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
@@ -339,7 +357,7 @@ public class FiveAxisConfig {
         
         // Collete Width
         cellHeight += rowSpacing;
-        JLabel colleteWidthLabel = new JLabel("Collet Width"); // TODO
+        JLabel colleteWidthLabel = new JLabel("Collete Width"); // TODO
         colleteWidthLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         colleteWidthLabel.setFont(new Font("Arial", Font.BOLD, 11));
         colleteWidthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
@@ -429,11 +447,14 @@ public class FiveAxisConfig {
         labelBitT1End.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(labelBitT1End);
         
-        String[] bitEndTypesToChoose = {"Ball Nose", "Flat End"};
-        JComboBox<String> t1BitEndComboBox = new JComboBox<>(bitEndTypesToChoose);
+        t1BitEndComboBox = new JComboBox<>(bitEndTypesToChoose);
         t1BitEndComboBox.setBounds(secondColX, cellHeight, inputFieldWidth, 40);
         panel.add(t1BitEndComboBox);
-        
+        t1BitEndComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                save();
+            }
+        });
         
         // Bit Cut Length
         cellHeight += rowSpacing;
@@ -556,12 +577,12 @@ public class FiveAxisConfig {
         int result = JOptionPane.showConfirmDialog(null, panel, "Five Axis CNC Configuration", JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION,  iconImage);
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("width value: " + widthField.getText());
-            //System.out.println("depth value: " + depthtField.getText());
+            //System.out.println("depth value: " + depthField.getText());
             //System.out.println("height value: " + heightField.getText());
             //System.out.println("bit value: " + bitField.getText());
             this.width = Integer.parseInt(widthField.getText());
-            this.depth = Integer.parseInt(depthtField.getText());
-            this.material_height = Double.parseDouble(heightField.getText());
+            this.depth = Integer.parseInt(depthField.getText());
+            this.bed_height = Double.parseDouble(heightField.getText());
             //this.depthPerPass = Double.parseDouble(depthPerPassField.getText());
             this.drill_bit = Double.parseDouble(bitField.getText());
             //this.rough_drill_bit = Double.parseDouble(roughBitField.getText());
@@ -594,7 +615,7 @@ public class FiveAxisConfig {
     }
 
     
-    public static void loadProperties(){
+    public static void loadProperties() throws IOException {
         try {
             String path = new File(".").getCanonicalPath();
             //System.out.println("path: " + path);
@@ -603,7 +624,7 @@ public class FiveAxisConfig {
             // load a properties file
             prop.load(input);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw ex;
         }
     }
     
@@ -615,35 +636,36 @@ public class FiveAxisConfig {
      */
     public void load(){
         try {
-            //String path = FileSystem.getSettingsPath(); //
-            String path = new File(".").getCanonicalPath();
-            //System.out.println("path: " + path);
-            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
-            InputStream input = new FileInputStream(propertyFileName);
-            // load a properties file
-            prop.load(input);
-            
+            loadProperties();
+
             //setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
             //setBooleanProperty(prop, optimizationCheck, "ads.export_mill_5axis_cut_optimization");
             //setBooleanProperty(prop, minimizePassesCheck, "ads.export_mill_5axis_minimize_passes");
             //setBooleanProperty(prop, simulateCheck, "ads.export_mill_5axis_simulate");
             
-            setStringProperty(prop, heightField, "ads.export_mill_5axis_material_height");
-            //setStringProperty(prop, accuracyField, "ads.export_mill_5axis_accuracy"); // moved to other dialog
-            setStringProperty(prop, bitField, "ads.export_mill_5axis_bit_diameter");
-            //setStringProperty(prop, bitAngleField, "ads.export_mill_5axis_bit_angle");
-            setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_bc_distance");
+            // Bed dimension
+            setStringProperty(prop, heightField, "ads.export_mill_5axis_bed_height");
+            setStringProperty(prop, widthField, "ads.export_mill_5axis_bed_width");
+            setStringProperty(prop, depthField, "ads.export_mill_5axis_bed_depth");
+
+            // Coordinate System
             setStringProperty(prop, cAngleOriginField, "ads.export_mill_5axis_c_angle_orientation");
+            setStringProperty(prop, bAngleOriginField, "ads.export_mill_5axis_b_angle_orientation");
+            setBooleanProperty(prop, invertCDirectionCheck, "ads.export_mill_5axis_c_invert_direction");
+            setBooleanProperty(prop, invertBDirectionCheck, "ads.export_mill_5axis_b_invert_direction");
             
-            
-            setStringProperty(prop, fulcrumToHousingRearField, "ads.export_mill_5axis_router_rear_length");
-            setStringProperty(prop, routerHousingDiameterField, "ads.export_mill_5axis_router_housing_diameter");
-            
-            
-            setStringProperty(prop, colleteWidthField, "ads.export_mill_5axis_collete_diameter");
+            // Router Dimensions
             setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_collete_distance");
+            setStringProperty(prop, colleteWidthField, "ads.export_mill_5axis_collete_diameter");            
+            setStringProperty(prop, routerHousingDiameterField, "ads.export_mill_5axis_router_housing_diameter");
+            setStringProperty(prop, fulcrumToHousingRearField, "ads.export_mill_5axis_router_rear_length");
             
-           
+            // Bits
+            setStringProperty(prop, bitField, "ads.export_mill_5axis_bit_diameter");
+            setStringProperty(prop, t1BitCutLengthField, "ads.export_mill_5axis_bit_cutting_length");
+            setStringProperty(prop, t1BitCutTipToColleteLengthField, "ads.export_mill_5axis_bit_cuttip_to_collete_length");
+            setJComboProperty(prop, t1BitEndComboBox, "ads.export_mill_5axis_bit_end_type");
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -667,6 +689,13 @@ public class FiveAxisConfig {
             }
         }
     }
+
+    public void setJComboProperty(Properties prop, JComboBox field, String property) {
+        String value = prop.getProperty(property);
+        if (value!= null && field != null) {
+            field.setSelectedItem(value);
+        }
+    }
     
     public String getProperty(String property){
         String value = prop.getProperty(property);
@@ -686,18 +715,9 @@ public class FiveAxisConfig {
      */
     public void save(){
         try {
+            loadProperties();
             //String path = FileSystem.getSettingsPath();
-        String path = new File(".").getCanonicalPath();
-
-            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
-            InputStream input = new FileInputStream(propertyFileName);
-            prop.load(input);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        try {
-            //String path = FileSystem.getSettingsPath();
-        String path = new File(".").getCanonicalPath();
+            String path = new File(".").getCanonicalPath();
 
             String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
             OutputStream output = new FileOutputStream(propertyFileName);
@@ -709,28 +729,36 @@ public class FiveAxisConfig {
             //prop.setProperty("ads.export_mill_5axis_minimize_passes", ""+minimizePassesCheck.isSelected());
             //prop.setProperty("ads.export_mill_5axis_simulate", ""+simulateCheck.isSelected());
             
-            prop.setProperty("ads.export_mill_5axis_material_height", ""+heightField.getText());
-            //prop.setProperty("ads.export_mill_5axis_accuracy", ""+accuracyField.getText()); // moved to other dialog
-            prop.setProperty("ads.export_mill_5axis_bit_diameter", ""+bitField.getText());
-            //prop.setProperty("ads.export_mill_5axis_bit_angle", ""+bitAngleField.getText());
-            prop.setProperty("ads.export_mill_5axis_bc_distance", ""+nozzleDistanceField.getText());
+            // Bed dimensions
+            prop.setProperty("ads.export_mill_5axis_bed_height", ""+heightField.getText());
+            prop.setProperty("ads.export_mill_5axis_bed_width", ""+widthField.getText());
+            prop.setProperty("ads.export_mill_5axis_bed_depth", ""+depthField.getText());
+
+            // Coordinate system
             prop.setProperty("ads.export_mill_5axis_c_angle_orientation", ""+cAngleOriginField.getText());
-            
-            
-            prop.setProperty("ads.export_mill_5axis_router_rear_length", ""+fulcrumToHousingRearField.getText());
-            prop.setProperty("ads.export_mill_5axis_router_housing_diameter", ""+routerHousingDiameterField.getText());
-            
-            
-            prop.setProperty("ads.export_mill_5axis_collete_diameter", ""+colleteWidthField.getText());
+            prop.setProperty("ads.export_mill_5axis_b_angle_orientation", ""+bAngleOriginField.getText());
+            prop.setProperty("ads.export_mill_5axis_c_invert_direction", invertCDirectionCheck.isSelected() ? "true" : "false");
+            prop.setProperty("ads.export_mill_5axis_b_invert_direction", invertBDirectionCheck.isSelected() ? "true" : "false");
+
+            // Router dimensions            
             prop.setProperty("ads.export_mill_5axis_collete_distance", ""+nozzleDistanceField.getText());
+            prop.setProperty("ads.export_mill_5axis_collete_diameter", ""+colleteWidthField.getText());
+            prop.setProperty("ads.export_mill_5axis_router_housing_diameter", ""+routerHousingDiameterField.getText());
+            prop.setProperty("ads.export_mill_5axis_router_rear_length", ""+fulcrumToHousingRearField.getText());
+
+            // Bits
+            prop.setProperty("ads.export_mill_5axis_bit_diameter", ""+bitField.getText());
+            prop.setProperty("ads.export_mill_5axis_bit_end_type", String.valueOf(t1BitEndComboBox.getSelectedItem()));
+            prop.setProperty("ads.export_mill_5axis_bit_cutting_length", ""+t1BitCutLengthField.getText());
+            prop.setProperty("ads.export_mill_5axis_bit_cuttip_to_collete_length", ""+t1BitCutTipToColleteLengthField.getText());
             
-            
-          
             // save properties to project root folder
             prop.store(output, null);
         } catch (IOException io) {
             io.printStackTrace();
         }
+
+        System.out.println("Saved Router Config");
     }
     
     
@@ -747,12 +775,12 @@ public class FiveAxisConfig {
      * getColleteDistance
      * Description: Load the length value for the B/C fulcrum to the collete length from the property file.
      */
-    public static double getColleteDistance(){
-        double value = 0;
-        loadProperties();
-        value = getDoubleProperty("ads.export_mill_5axis_collete_diameter");
-        return value;
-    }
+    // public static double getColleteDistance(){
+    //     double value = 0;
+    //     loadProperties();
+    //     value = getDoubleProperty("ads.export_mill_5axis_collete_diameter");
+    //     return value;
+    // }
     
     
     // TODO: Get other peroperties. Used by the router classes generating GCode.
