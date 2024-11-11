@@ -94,19 +94,22 @@ public class Examples {
                 if(prompt.prompt(false) == false){
                     return;
                 }
-                // Load the router config from property file
-                loadProperties(routerConfigProps, "cam.properties");
-                
                 double accuracy = 0.15;
+                double b = prompt.getBValue();
+                double c = prompt.getCValue();
+                accuracy = prompt.getAccuracy();
                 
                 boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
-                
-                boolean ballNoseTipType = true; // the geometry of the tip type. [true = ball, false = flat end]
                 boolean display = true; // display intermediate steps.
+                
+                // Load the router config from property file
+                loadProperties(routerConfigProps, "cam.properties");
                 String toolName = getStringProperty(routerConfigProps, "ads.export_bit_name", "T1");
                 
                 // Load bit config from property file
                 loadProperties(bitProps, toolName.toLowerCase() + ".properties");
+                String tipType = getStringProperty(bitProps, "ads.export_mill_5axis_bit_end_type", "Ball Nose");
+                boolean ballNoseTipType = tipType.equals("Ball Nose"); // the geometry of the tip type. [true = ball, false = flat end]
                 
                 Vector<SurfacePointContainer> scanedSurfacePoints = new Vector<SurfacePointContainer>(); // used to define surface features, and avoid duplicate routing paths over areas allready cut.
                 Vector<RouterElementContainer> routerElements = new Vector<RouterElementContainer>();  // : Make list of objects that construct the tool
@@ -115,16 +118,10 @@ public class Examples {
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 90, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 2, display );
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
                 //gCode += calculateFinishingRoutingPassWithBC( window, 45, 15 + 270, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display );
-                
-                double b = prompt.getBValue();
-                double c = prompt.getCValue();
-                accuracy = prompt.getAccuracy();
-                ballNoseTipType = getBooleanProperty(routerConfigProps, "ads.export_mill_5axis_bit_end_type", ballNoseTipType);
-                
+
                 Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1 );
-                
-                
+                System.out.println("ToolName: " + toolName);
                 
                 // Append header and footer
                 String header =
@@ -151,7 +148,6 @@ public class Examples {
                             
                 
                 gCode = header + gCode + footer;
-                System.out.println("ToolName: " + toolName);
                 
                 //Vector<SurfacePointContainer> toolPath2 = calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
                 //gCode += toolPathToGCode(window, toolPath2 );
@@ -899,7 +895,8 @@ public class Examples {
                 //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 
                 // speed
-                double speed = 50;
+                double speed = getDoubleProperty(routerConfigProps, "ads.export_5axis_speed", 50);
+
                 if( i > 2 && i < generatedCuttingPath.size() - 6 ){
                     Vec3 oppositeP = generatedCuttingPath.elementAt(i - 1).point;
                     Vec3 oppositeP2 = generatedCuttingPath.elementAt(i - 2).point;
@@ -1007,7 +1004,7 @@ public class Examples {
             //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
             
             // speed
-            double speed = 50;
+            double speed = getDoubleProperty(routerConfigProps, "ads.export_5axis_speed", 50);
             if( i > 2 && i < generatedCuttingPath.size() - 6 ){
                 Vec3 oppositeP = generatedCuttingPath.elementAt(i - 1).point;
                 Vec3 oppositeP2 = generatedCuttingPath.elementAt(i - 2).point;

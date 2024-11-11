@@ -3,11 +3,6 @@ package armarender;
 import java.util.*;
 import armarender.math.*;
 import armarender.object.*;
-import java.io.PrintWriter;
-import java.io.File;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-
 import armarender.math.*;
 import armarender.object.*;
 import armarender.view.CanvasDrawer;
@@ -18,23 +13,11 @@ import buoy.widget.*;
 import armarender.ui.*;
 import java.awt.Color;
 import java.awt.Dimension;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.JLabel;
 import java.awt.Font;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
-import javax.swing.JCheckBox;
 import java.awt.BorderLayout;
-import javax.swing.JDialog;
-import javax.swing.JProgressBar;
-import javax.swing.JFrame;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.HashMap;
-import javax.swing.ImageIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -47,10 +30,14 @@ public class ThreePlusTwoPrompt {
     public JTextField cPositionField = null;
     public JTextField bPositionField = null;
     public JTextField accuracyField = null;
-    public JTextField toolSelectionField = null;
+    public JComboBox toolSelectionField = null;
     public JTextField speedField = null;
     public JTextField depthField = null;
-    
+    public JCheckBox simulateCheck = null;
+
+    private ArrayList<String>bitToUse = new ArrayList<>(Arrays.asList("T1", "T2", "T3", "T4", "T5", "T6")); // ArrayList instead of normal array because this might expand in the future
+    private int savedToolIndex;
+
     public ThreePlusTwoPrompt(boolean roughing){
         //prompt(roughing);
     }
@@ -87,7 +74,6 @@ public class ThreePlusTwoPrompt {
         panel.add(cPositionField);
         //cPositionField.getDocument().addDocumentListener(myListener);
         
-        
         cellHeight += rowSpacing;
         
         JLabel bPositionLabel = new JLabel("B Axis Position");
@@ -100,9 +86,7 @@ public class ThreePlusTwoPrompt {
         bPositionField = new JTextField( new String(45+""));
         bPositionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(bPositionField);
-        
-        
-        
+          
         cellHeight += rowSpacing;
         
         JLabel toolSelectionLabel = new JLabel("Tool Selection");
@@ -112,7 +96,7 @@ public class ThreePlusTwoPrompt {
         toolSelectionLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         panel.add(toolSelectionLabel);
         
-        toolSelectionField = new JTextField( new String("T1"));
+        toolSelectionField = new JComboBox<>(bitToUse.toArray(new String[0]));
         toolSelectionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(toolSelectionField);
         
@@ -129,11 +113,7 @@ public class ThreePlusTwoPrompt {
         accuracyField = new JTextField( new String(0.128+""));
         accuracyField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(accuracyField);
-        
-        
-        
-        
-        
+ 
         cellHeight += rowSpacing;
         
         // Speed
@@ -176,7 +156,7 @@ public class ThreePlusTwoPrompt {
         panel.add(showMarkupLabel);
         
         boolean simulateRoute = true;
-        JCheckBox simulateCheck = new JCheckBox("");
+        simulateCheck = new JCheckBox("");
         simulateCheck.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
         simulateCheck.setSelected( simulateRoute );
         panel.add(simulateCheck);
@@ -185,19 +165,16 @@ public class ThreePlusTwoPrompt {
                 
             }
         });
-        
-        
-        
-     
+    
         
         UIManager.put("OptionPane.minimumSize",new Dimension(500, cellHeight + 80 + 40));
         
-        load(); // read propertyies and set UI fields.
+        load(roughing); // read propertyies and set UI fields.
         
         ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
         
         //int result = JOptionPane.showConfirmDialog(null, panel, "Five Axis CNC Properties", JOptionPane.OK_CANCEL_OPTION);
-        int result = JOptionPane.showConfirmDialog(null, panel, "Three + Two Axis CNC Path Generation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION,  iconImage);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Three + Two Axis CNC Path Generation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,  iconImage);
         if (result == JOptionPane.OK_OPTION) {
             
             /*
@@ -221,29 +198,26 @@ public class ThreePlusTwoPrompt {
             
             this.cAngleOrigin = Double.parseDouble(cAngleOriginField.getText());
             */
+            save(roughing);
+
             return true;
         }
         
         return false;
     }
- 
-    
     
     /**
      * load
      *
      * Description: Load property file attributes and populate the UI fields.
      */
-    public void load(){
+    public void load(boolean roughing){
         try {
-            //String path = FileSystem.getSettingsPath(); //
             String path = new File(".").getCanonicalPath();
-            //System.out.println("path: " + path);
             String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
             InputStream input = new FileInputStream(propertyFileName);
             // load a properties file
             prop.load(input);
-            
             
             /*
             setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
@@ -258,6 +232,49 @@ public class ThreePlusTwoPrompt {
             setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_bc_distance");
             setStringProperty(prop, cAngleOriginField, "ads.export_mill_5axis_c_angle_orientation");
            */
+
+            setStringProperty(prop, cPositionField, "ads.export_5axis_c_axis");
+            setStringProperty(prop, bPositionField, "ads.export_5axis_b_axis");
+            setStringProperty(prop, accuracyField, "ads.export_5axis_accuracy");
+            setStringProperty(prop, speedField, "ads.export_5axis_speed");
+            setBooleanProperty(prop, simulateCheck, "ads.export_5axis_markup");
+
+            // Select saved tool
+            savedToolIndex = Integer.parseInt(prop.getProperty("ads.export_bit_index"));
+            toolSelectionField.setSelectedIndex(savedToolIndex);
+
+            if (roughing)
+                setStringProperty(prop, depthField, "ads.export_mill_5axis_max_depth");
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void save(boolean roughing) {
+        try {
+            String path = new File(".").getCanonicalPath();
+            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
+            OutputStream output = new FileOutputStream(propertyFileName);
+
+            prop.setProperty("ads.export_5axis_c_axis", ""+cPositionField.getText());
+            prop.setProperty("ads.export_5axis_b_axis", ""+bPositionField.getText());
+            prop.setProperty("ads.export_5axis_accuracy", ""+accuracyField.getText());
+            prop.setProperty("ads.export_5axis_speed", ""+speedField.getText());
+            prop.setProperty("ads.export_5axis_markup", ""+simulateCheck.isSelected());
+
+            // Check if user selected other tool
+            int selectedToolIndex = toolSelectionField.getSelectedIndex();
+            if (savedToolIndex != selectedToolIndex) {
+                prop.setProperty("ads.export_bit_index", ""+selectedToolIndex);
+                prop.setProperty("ads.export_bit_name", "T" + (selectedToolIndex+1));
+            }
+
+            if (roughing)
+                prop.setProperty("ads.export_mill_5axis_max_depth", ""+depthField.getText());
+
+
+            prop.store(output, null);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -319,18 +336,6 @@ public class ThreePlusTwoPrompt {
             result = Double.parseDouble(accuracyField.getText());
         }
         return result;
-    }
-    
-    
-    /**
-     * getTool
-     * Description: get Tool to use for this run.
-     */
-    public String getTool(){
-        if(toolSelectionField != null){
-            return toolSelectionField.getText();
-        }
-        return "T1"; // Default
     }
     
     

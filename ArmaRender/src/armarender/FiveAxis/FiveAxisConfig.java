@@ -52,8 +52,8 @@ public class FiveAxisConfig {
     private double routerHousingDiameter = 4.2;
     private double fulcrumToHousingRear = 6.2;
     
-    String[] bitToUse = {"T1", "T2", "T3", "T4", "T5", "T6"};
-    String[] propFilesForBits = {"t1.properties", "t2.properties", "t3.properties", "t4.properties", "t5.properties", "t6.properties"}; // Not an elegant way, but efficient
+    ArrayList<String>bitToUse = new ArrayList<>(Arrays.asList("T1", "T2", "T3", "T4", "T5", "T6")); // ArrayList instead of normal array because this might expand in the future
+    ArrayList<String> propFilesForBits = new ArrayList<>(Arrays.asList("t1.properties", "t2.properties", "t3.properties", "t4.properties", "t5.properties", "t6.properties"));  // Not an elegant way, but efficient
 
     String[] bitEndTypesToChoose = {"Ball Nose", "Flat End"};
     private double t1_drill_bit_cut_Length = 2;
@@ -404,7 +404,7 @@ public class FiveAxisConfig {
         labelUsedBit.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
         bitsPanel.add(labelUsedBit);
 
-        usedBitComboBox = new JComboBox<>(bitToUse);
+        usedBitComboBox = new JComboBox<>(bitToUse.toArray(new String[0]));
         usedBitComboBox.setBounds(secondColX, cellHeight, inputFieldWidth, 40);
         bitsPanel.add(usedBitComboBox);
         usedBitComboBox.addActionListener(new ActionListener() {
@@ -710,7 +710,7 @@ public class FiveAxisConfig {
     public void setBitText() {
         // Load data from bit file
         int bitIndex = usedBitComboBox.getSelectedIndex();
-        String fileName = propFilesForBits[bitIndex];
+        String fileName = propFilesForBits.get(bitIndex);
         try {
             loadProperties(fileName, bitProps);
         } catch (FileNotFoundException ex) {
@@ -720,7 +720,7 @@ public class FiveAxisConfig {
         } 
 
         // Update UI
-        String usedBit = bitToUse[bitIndex];
+        String usedBit = bitToUse.get(bitIndex);
         labelBitDiameter.setText(usedBit + " Bit Diameter");
         labelBitEndType.setText(usedBit + " Bit End Type");
         labelBitCutLength.setText(usedBit + " Bit Cutting Length");
@@ -748,7 +748,7 @@ public class FiveAxisConfig {
         int bitIndex = usedBitComboBox.getSelectedIndex();
         try {
             String path = new File(".").getCanonicalPath();
-            String fileName = propFilesForBits[bitIndex];
+            String fileName = propFilesForBits.get(bitIndex);
 
             String propertyFileName = path + System.getProperty("file.separator") + fileName;
             OutputStream output = new FileOutputStream(propertyFileName);
@@ -803,7 +803,8 @@ public class FiveAxisConfig {
 
             // Bits
             prop.setProperty("ads.export_bit_index", ""+String.valueOf(usedBitComboBox.getSelectedIndex()));
-            prop.setProperty("ads.export_bit_name", ""+bitToUse[usedBitComboBox.getSelectedIndex()]);
+            prop.setProperty("ads.export_bit_number", ""+String.valueOf(bitToUse.size()));
+            prop.setProperty("ads.export_bit_name", ""+usedBitComboBox.getSelectedItem());
             
             // save properties to project root folder
             prop.store(output, null);
