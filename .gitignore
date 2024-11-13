@@ -3,3 +3,8 @@
 .DS_Store
 Adssrc/HelpPlugin/build/
 Adssrc/Translators/build/
+
+ArmaRender.jar
+Plugins/*
+SerialInterface/*
+lib/*
