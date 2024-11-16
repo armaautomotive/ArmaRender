@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import armarender.ui.ProgressDialog;
 
 public class Examples {
     
@@ -70,9 +71,8 @@ public class Examples {
      * @param: Window - access to scene objects.
      */
     public void finishingThreePlusTwo(LayoutWindow window){
-        //ProgressDialog progressDialog = new ProgressDialog("Exporting");
-        //progressDialog.start();
-        //progressDialog.setProgress(1);
+        ProgressDialog progressDialog = new ProgressDialog("Calculating");
+        progressDialog.setProgress(1);
         (new Thread() {
             public void run() {
                 LayoutModeling layout = new LayoutModeling();
@@ -114,7 +114,10 @@ public class Examples {
                 double speed = prompt.getSpeed();
                 restMachiningEnabled = prompt.getRestMachining();
                 
-                Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c,
+                                                                                              accuracy, restMachiningEnabled,
+                                                                                              ballNoseTipType, scanedSurfacePoints, 1, display,
+                                                                                              progressDialog); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1, speed);
                 
                 double toolPathTime = getToolpathTime( toolPath1, speed );
@@ -220,11 +223,12 @@ public class Examples {
                                              boolean ballNoseTipType,
                                              Vector<SurfacePointContainer> scanedSurfacePoints,
                                              int passNumber,
-                                             boolean display){
+                                             boolean display,
+                                            ProgressDialog progressDialog){
+        progressDialog.start();
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
-        
         
         // Router Size information.
         double routerHousingPosition = 1.25;
@@ -304,6 +308,9 @@ public class Examples {
             for(int x = 0; x < width; x++){
                 for(int y = 0; y < height; y++){
                     // xy offset to coords, Translate based on 'toolVector'
+                    
+                    int progress = (int)(((double)x / (double)width) * (double)100);
+                    progressDialog.setProgress(progress);
                     
                     Vec3 samplePoint = new Vec3(regionScan);
                     
@@ -467,6 +474,8 @@ public class Examples {
                 }
             }
         } // bounds
+        
+        progressDialog.close(); // We can't accurately track progress from here on. But at least updates are visible to user.
         
         if(regionSurfacePoints.size() == 0){
             return new Vector<SurfacePointContainer>();
@@ -2347,6 +2356,8 @@ public class Examples {
      * Enter a pass height by user.
      */
     public void roughingThreePlusTwo(LayoutWindow window){
+        ProgressDialog progressDialog = new ProgressDialog("Calculating");
+        progressDialog.setProgress(1);
         (new Thread() {
             public void run() {
                 LayoutModeling layout = new LayoutModeling();
@@ -2382,7 +2393,8 @@ public class Examples {
                 display = prompt.getDisplay();
                 double speed = prompt.getSpeed();
                 
-                Vector<SurfacePointContainer> toolPath1 = calculateRoughingRoutingPassWithBC( window, b, c, accuracy, layerHeight, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display ); // First Pass
+                Vector<SurfacePointContainer> toolPath1 = calculateRoughingRoutingPassWithBC( window, b, c, accuracy, layerHeight, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display,
+                                                                                             progressDialog); // First Pass
                 String gCode = toolPathToGCode(window, toolPath1, speed);
                 
                 double toolPathTime = getToolpathTime( toolPath1, speed );
@@ -2480,12 +2492,12 @@ public class Examples {
                                              boolean ballNoseTipType,
                                              Vector<SurfacePointContainer> scanedSurfacePoints,
                                              int passNumber,
-                                            boolean display){
+                                            boolean display,
+                                            ProgressDialog progressDialog){
+        progressDialog.start();
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
-        
-        
         
         // Router Size information.
         double routerHousingPosition = 1.25;
@@ -2588,6 +2600,9 @@ public class Examples {
                 for(int x = 0; x < width; x++){
                     for(int y = 0; y < height; y++){
                         // xy offset to coords, Translate based on 'toolVector'
+                        
+                        int progress = (int)(((double)x / (double)width) * (double)100);
+                        progressDialog.setProgress(progress);
                         
                         Vec3 samplePoint = new Vec3(regionScan);
                         
@@ -2845,6 +2860,8 @@ public class Examples {
                 }
             }
         } // bounds
+        
+        progressDialog.close(); // We can't accurately track progress from here on. But at least updates are visible to user.
         
         if(regionSurfacePoints.size() == 0){
             return new Vector<SurfacePointContainer>();
