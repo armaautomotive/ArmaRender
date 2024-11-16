@@ -391,11 +391,11 @@ public class Examples {
                                         intersectNormal = normal;
                                     }
                                 }
-                            }
-                        }
-                    }
+                            } // faces
+                        } // tri mesh
+                    } // loop scene obects
                     if(intersectPoint != null){
-                        //System.out.println(" Colision " + intersectPoint );
+                        //System.out.println(" Colision " + intersectPoint + "    intersectNormal: " + intersectNormal );
                         
                         // TODO: If a close point in scanedSurfacePoints exists, then don't include it in the surface to cut as it has allready been done.
                         boolean skipPointAsDuplicate = false; // only skip point if it was added from a different pass!
@@ -550,6 +550,8 @@ public class Examples {
         //
         // If ball nose drill bit type or flat end.
         // Note: This code doesn't appear to work but its a first attempt.
+        // BUG: It appears that the jagged pattern is caused by missing surface normal values in the cutting path data structure.
+        // This causes some points to be retracted and others not.
         if(ballNoseTipType){
             for(int i = 0; i < generatedCuttingPath.size(); i++){
                 SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
@@ -558,20 +560,25 @@ public class Examples {
                     //System.out.println(" Why is surface normal null in regionSurfacePoints? " + i );
                     //surfaceNormal = new Vec3(0, -1, 0);
                     surfaceNormal = new Vec3(0, 1, 0);
-                    //System.out.println(" normal is null ");
+                    //System.out.println(" normal is null " + i);
                 }
-                if(surfaceNormal  != null){
+                if(surfaceNormal != null){
                     double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
+                    //System.out.println(" angle: " + angle);
                     if(angle > 90){
-                        //angle = 90 - angle; // ??? incorrect
-                        angle = angle - 90;
+                        //angle = 90 - angle; // Incorrect
+                        //angle = angle - 90; // Wrong
+                        angle = 180 - angle; // Fixed
                     }
-                    angle = Math.abs(angle);
+                    angle = 90 - angle; // Rotate 90 degrees.
+                    
+                    //angle = Math.abs(angle); // No
                     double ballNoseRadius = bitTipSize / 2;
                     angle = 90 - angle; // we want the angle from vertical.
                     double retract = retractSphereByAngle(ballNoseRadius, Math.toRadians(angle));
-                    //spc.point = new Vec3(   spc.point.plus(    toolVector.times( retract  )  ) );
-                    spc.point.add( toolVector.times( retract ) );
+                    //System.out.println(" i " + i + "   retract: " + retract + "   angle: " + angle + " surfaceNormal: " + surfaceNormal);
+                    //spc.point = new Vec3(   spc.point.plus(    toolVector.times( retract  )  ) ); // OLD
+                    spc.point.add( toolVector.times( retract ) ); // for the current point in the cut path change the position by moving it along the tool path by the retract length.
                     //System.out.println("normal " + surfaceNormal);
                     //System.out.println(" angle " + angle + " retract: " + retract);
                 }
@@ -590,9 +597,12 @@ public class Examples {
                     double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
                     if(angle > 90){
                         //angle = 90 - angle; // ??? incorrect
-                        angle = angle - 90;
+                        //angle = angle - 90;
+                        angle = 180 - angle; // Fixed
                     }
-                    angle = Math.abs(angle);
+                    angle = 90 - angle; // Rotate 90 degrees.
+                    
+                    //angle = Math.abs(angle);
                     double ballNoseRadius = bitTipSize / 2;
                     angle = 90 - angle; // we want the angle from vertical.
                     double retract = retractFlatEndByAngle(ballNoseRadius, Math.toRadians(angle));
@@ -1293,16 +1303,23 @@ public class Examples {
      * Description: Insert mid points in path. Used to ensure regions between points are covered for movement.
      * @param:
      * @param:
+     * @return:
      */
     public Vector<SurfacePointContainer> fillGapsInPointPathSPC(Vector<SurfacePointContainer> regionSurfacePoints, double accuracy){
         for(int i = 1; i < regionSurfacePoints.size(); i++){
             Vec3 a = regionSurfacePoints.elementAt(i-1).point;
             Vec3 b = regionSurfacePoints.elementAt(i).point;
             double distance = a.distance(b);
+            
+            Vec3 pointNormal = regionSurfacePoints.elementAt(i).normal;
+            
             //while(distance > avgSpan * 1.5){ // minSpan
             while(distance > accuracy * 1.9){
                 Vec3 insertMid = a.midPoint(b);
-                SurfacePointContainer insertSPC = new SurfacePointContainer(  insertMid  , regionSurfacePoints.elementAt(i-1).passNumber );
+                SurfacePointContainer insertSPC = new SurfacePointContainer( insertMid , regionSurfacePoints.elementAt(i-1).passNumber );
+                if(pointNormal != null){
+                    insertSPC.normal = pointNormal; // Note: Even though inserted points can't be guarenteed to be on a surface, keep the closest normal anyway.
+                }
                 insertSPC.b = regionSurfacePoints.elementAt(i-1).b;
                 insertSPC.c = regionSurfacePoints.elementAt(i-1).c;
                 insertSPC.onSurface = false; // Inserted points are assumed to not be on a surface.
@@ -2926,9 +2943,11 @@ public class Examples {
                     double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
                     if(angle > 90){
                         //angle = 90 - angle; // ??? incorrect
-                        angle = angle - 90;
+                        //angle = angle - 90; // Wrong
+                        angle = 180 - angle; // Fixed
                     }
-                    angle = Math.abs(angle);
+                    angle = 90 - angle; // Rotate 90 degrees.
+                    //angle = Math.abs(angle);
                     double ballNoseRadius = bitTipSize / 2;
                     angle = 90 - angle; // we want the angle from vertical.
                     double retract = retractSphereByAngle(ballNoseRadius, Math.toRadians(angle));
@@ -2952,9 +2971,11 @@ public class Examples {
                     double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
                     if(angle > 90){
                         //angle = 90 - angle; // ??? incorrect
-                        angle = angle - 90;
+                        //angle = angle - 90;
+                        angle = 180 - angle; // Fixed
                     }
-                    angle = Math.abs(angle);
+                    angle = 90 - angle; // Rotate 90 degrees.
+                    //angle = Math.abs(angle);
                     double ballNoseRadius = bitTipSize / 2;
                     angle = 90 - angle; // we want the angle from vertical.
                     double retract = retractFlatEndByAngle(ballNoseRadius, Math.toRadians(angle));
