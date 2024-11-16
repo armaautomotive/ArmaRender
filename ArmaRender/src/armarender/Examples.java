@@ -2601,7 +2601,7 @@ public class Examples {
                     for(int y = 0; y < height; y++){
                         // xy offset to coords, Translate based on 'toolVector'
                         
-                        int progress = (int)(((double)x / (double)width) * (double)100);
+                        int progress = (int)(((double) ((double)x + ((double)width*(double)l)) / ((double)width * (double)layersCount )) * (double)100);
                         progressDialog.setProgress(progress);
                         
                         Vec3 samplePoint = new Vec3(regionScan);
