@@ -270,6 +270,13 @@ public class Examples {
         BoundingBox sceneBounds = null ; //new BoundingBox(); // Vec3 p1, Vec3 p2
         for(int i = 0; i < sceneObjects.size(); i++){
             ObjectInfo currInfo = sceneObjects.elementAt(i);
+            
+            if(currInfo.getObject() instanceof SceneCamera ||
+               currInfo.getObject() instanceof DirectionalLight ||
+               currInfo.getPhysicalMaterialId() == 500 ){
+                continue;
+            }
+            
             BoundingBox currBounds = currInfo.getTranslatedBounds();
             if(sceneBounds == null){
                 sceneBounds = currBounds;
@@ -1196,7 +1203,7 @@ public class Examples {
         Cube cube = new Cube(size, size, size);
         CoordinateSystem coords = new CoordinateSystem();
         ObjectInfo info = new ObjectInfo(cube, coords, name);
-        
+        info.setPhysicalMaterialId(500);
         UndoRecord undo = new UndoRecord(window, false);
         ((LayoutWindow)window).addObject(info, undo);
         return info;
@@ -1282,7 +1289,7 @@ public class Examples {
         Cylinder cylinder = new Cylinder(height, width/2, width/2, 1.0);
         CoordinateSystem coords = new CoordinateSystem();
         ObjectInfo info = new ObjectInfo(cylinder, coords, name);
-        
+        info.setPhysicalMaterialId(500);
         UndoRecord undo = new UndoRecord(window, false);
         ((LayoutWindow)window).addObject(info, undo);
         return info;
@@ -1301,6 +1308,7 @@ public class Examples {
         Sphere sphere = new Sphere(size/2, size/2, size/2);
         CoordinateSystem coords = new CoordinateSystem();
         ObjectInfo info = new ObjectInfo(sphere, coords, name);
+        info.setPhysicalMaterialId(500);
         UndoRecord undo = new UndoRecord(window, false);
         ((LayoutWindow)window).addObject(info, undo);
         return info;
@@ -2541,6 +2549,11 @@ public class Examples {
         BoundingBox sceneBounds = null ; //new BoundingBox(); // Vec3 p1, Vec3 p2
         for(int i = 0; i < sceneObjects.size(); i++){
             ObjectInfo currInfo = sceneObjects.elementAt(i);
+            if(currInfo.getObject() instanceof SceneCamera ||
+               currInfo.getObject() instanceof DirectionalLight ||
+               currInfo.getPhysicalMaterialId() == 500  ){
+                continue;
+            }
             BoundingBox currBounds = currInfo.getTranslatedBounds();
             if(sceneBounds == null){
                 sceneBounds = currBounds;
@@ -2601,7 +2614,7 @@ public class Examples {
                     for(int y = 0; y < height; y++){
                         // xy offset to coords, Translate based on 'toolVector'
                         
-                        int progress = (int)(((double) ((double)x + ((double)width*(double)l)) / ((double)width * (double)layersCount )) * (double)100);
+                        int progress = (int)(((double)((double)x + ((double)width*(double)l)) / ((double)width * (double)layersCount)) * (double)100);
                         progressDialog.setProgress(progress);
                         
                         Vec3 samplePoint = new Vec3(regionScan);
@@ -2622,9 +2635,7 @@ public class Examples {
                         
                         debugMappingGrid.addElement(currGridPoint);
                         
-                        
                         Vec3 samplePointB = samplePoint.minus(raySubtract); // Second point in ray cast
-                        
                         
                         // Loop through roughing layers.
                         
@@ -2642,10 +2653,6 @@ public class Examples {
                         
                         //System.out.println("layerPointCollision " + layerPointCollision + " sceneBounds.maxy " + sceneBounds.maxy);
                         
-                        
-                        
-                        
-                        
                         // scan scene. If ray collision is above layerPointCollision, then use it instead.
                         
                         // Find collision location
@@ -2657,6 +2664,11 @@ public class Examples {
                             //System.out.println("Checking for intersect in: " + currInfo.getName());
                             
                             if( currInfo.getPhysicalMaterialId() == 500 ){
+                                continue;
+                            }
+                            
+                            //System.out.println("Checking for intersect in: " + currInfo.getName() + " mat " + currInfo.getPhysicalMaterialId());
+                            if(currObj instanceof Curve){
                                 continue;
                             }
                             
