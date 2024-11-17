@@ -220,32 +220,31 @@ public class Examples {
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
         
-        // Router Size information.
-        double routerHousingPosition = 1.25;
-        double routerHousingSize = 0.75;
-        double bitTipPosition = 0.12;
-        double bitTipSize = 0.09;  // 0.08   .25 infinite loop
-        double backEndLength = 5; // inches router housing extends back from the fulcrum.
-        //  we set the length from B/C pivot to tool tip with two values: 1 from the config collete length + the Particular tool length
-        // Length of fulcrum to tool tip
-        double fulcrumToToolTipLength = 12.6821; // T3
         // Collision Properties
-        double retractionValue = 0.60; // 0.5 Higher means more change, more pull out, Lower means smoother finish, longer processing time.
+        double retractionValue = 0.60; // 0.5 Higher means more change, more pull out, Lower means smoother finish, longer processing time.        
         
-        // Take values from properties file
-        routerHousingPosition = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_collete_distance", 10) + getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_cuttip_to_collete_length", 5);
-        routerHousingSize = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_router_housing_diameter", routerHousingSize);
-        bitTipSize = getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_diameter", bitTipSize);
-        bitTipPosition = bitTipSize / 2.0; // 1/2 of tool diameter
-        backEndLength = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_router_rear_length", backEndLength); // fulcrum to rear
-        fulcrumToToolTipLength = routerHousingPosition; // Same as router housing position
-
-        System.out.println("RouterHousingPosition: " + routerHousingPosition);
-        System.out.println("RouterHousingSize: " + routerHousingSize);
-        System.out.println("bitTipSize: " + bitTipSize);
-        System.out.println("bitTipPosition: " + bitTipPosition);
-        System.out.println("backEndLength: " + backEndLength);
-        System.out.println("fulcrumToToolTipLength: " + fulcrumToToolTipLength);
+        // Take values from properties file for router and bit dimensions information
+        double cutTipToColletLength =  getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_cuttip_to_collete_length", 7);
+        double bitTipSize = getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_diameter", 0.2);
+        double routerHousingSize = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_router_housing_diameter", 6);
+        double bitCutLength = getDoubleProperty(bitProps, "ads.export_mill_5axis_bit_cutting_length", 1.5);
+        double bitTipPosition = bitTipSize / 2.0;
+        double backEndLength = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_router_rear_length", 8); // fulcrum to rear
+        double colletSize = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_collete_diameter", 2);
+        double routerHousingPosition = getDoubleProperty(routerConfigProps, "ads.export_mill_5axis_collet_distance", 7.5) + cutTipToColletLength;
+        double fulcrumToToolTipLength = routerHousingPosition; // Same as router housing position
+        
+        // Arbitrary value neccessary for router dimension
+        double routerFrontHeight = 2.0;
+        double routerFrontSize = 4.0;
+        double colletHeight = colletSize; 
+        
+        // System.out.println("RouterHousingPosition: " + routerHousingPosition);
+        // System.out.println("RouterHousingSize: " + routerHousingSize);
+        // System.out.println("bitTipSize: " + bitTipSize);
+        // System.out.println("bitTipPosition: " + bitTipPosition);
+        // System.out.println("backEndLength: " + backEndLength);
+        // System.out.println("fulcrumToToolTipLength: " + fulcrumToToolTipLength);
          
         // Note: This concept could be used by running the following code example 4 times with the
         // following configurations (C=0, B=45), (C=90, B=45), (C=180, B=45), (C=270, B=45)
@@ -482,56 +481,66 @@ public class Examples {
         Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1).point;
         
         
-        ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(fulcrumToToolTipLength) ), "Cutter (" + b + "-" + c + ")", true );
+        ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(fulcrumToToolTipLength + backEndLength) ), "Cutter (" + b + "-" + c + ")", true );
         avatarCutterLine.setPhysicalMaterialId(500);
         Curve currCurve = (Curve)avatarCutterLine.getObject();
         
-        
-        // Router Z height base
-        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength ) ), 0.5, "Router Base (" + b + "-" + c + ")" );
-        routerZBaseCubeInfo.setPhysicalMaterialId(500);
-        //routerZBaseCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
-        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.5) );
         
         //
         // Add motor housing
         //
         // This includes multiple objects that represent the router machine.
         // Use to detect collisions.
-        ObjectInfo drillBodyCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 2.2) ), 0.8, "Router Housing Base (" + b + "-" + c + ")" ); // Cube represents a part of the machine
-        drillBodyCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillBodyCubeInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyCubeInfo, 2.2, 0.8 ) );
+        // Note: Origin of location points changes based on the shape. 
+        //       If it is cylinder, reference center point - width / 2 (For some reason, location changes based on width).
+        //       Otherwise, reference bottom-y center-x point.
         
-        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength + backEndLength) ), 0.8, "Router Back End (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        // Router Housing Base
+        ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength - routerHousingSize / 2.0 ) ), routerHousingSize, "Router Housing Base (" + b + "-" + c + ")" );
+        routerZBaseCubeInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(routerZBaseCubeInfo, c,  b); 
+        routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, fulcrumToToolTipLength - routerHousingSize / 2.0, routerHousingSize) );
+        
+        // Router Front
+        ObjectInfo drillFrontCylinderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(cutTipToColletLength + routerFrontHeight / 2.0)), routerFrontSize, routerFrontHeight, "Router Front (" + b + "-" + c + ")" );
+        drillFrontCylinderInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillFrontCylinderInfo, c, b);
+        routerElements.addElement( new RouterElementContainer( drillFrontCylinderInfo, cutTipToColletLength + colletHeight + routerFrontHeight / 2.0 - routerFrontSize / 2.0, routerFrontSize));
+        
+        // Router Back
+        ObjectInfo drillBodyBackEndCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength + backEndLength - routerHousingSize) ), routerHousingSize, "Router Back (" + b + "-" + c + ")" ); // Cube represents a part of the machine
         drillBodyBackEndCubeInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillBodyBackEndCubeInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, 5.0, 0.8 ) );
+        routerElements.addElement(  new  RouterElementContainer( drillBodyBackEndCubeInfo, fulcrumToToolTipLength + backEndLength - routerHousingSize, routerHousingSize ) );
         
-        ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing (" + b + "-" + c + ")" );
-        drillBodyCilynderInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
-        routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition, routerHousingSize) );
+        // ObjectInfo drillBodyCilynderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(routerHousingPosition) ), routerHousingSize, routerHousingSize,  "Router Housing (" + b + "-" + c + ")" );
+        // drillBodyCilynderInfo.setPhysicalMaterialId(500);
+        // setObjectBCOrientation(drillBodyCilynderInfo, c,  b); // Set orientation
+        // routerElements.addElement(  new  RouterElementContainer( drillBodyCilynderInfo, routerHousingPosition, routerHousingSize) );
         
-        // add Collet
-        ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
-        drillColletInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(drillColletInfo, c,  b);
-        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
+        // Collet
+        ObjectInfo drillColletCylinderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(cutTipToColletLength + colletHeight / 2.0) ), colletSize, colletHeight,  "Collet (" + b + "-" + c + ")" );
+        drillColletCylinderInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(drillColletCylinderInfo, c,  b);
+        routerElements.addElement(  new  RouterElementContainer( drillColletCylinderInfo, cutTipToColletLength + colletHeight / 2.0 - colletSize/2.0, colletSize) );
+
         
-        // Add tool tip
-        //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
-        ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip (" + b + "-" + c + ")" );
-        toolPitCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(toolPitCubeInfo, c,  b);
-        routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
-        
-        // Add tool tip ball nose
-        ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
-        toolBallNoseInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(toolBallNoseInfo, c,  b);
-        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable
+        // Tool Tip
+        ObjectInfo toolTipCylinderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(0.0001 + bitCutLength / 2.0) ), bitTipSize, bitCutLength, "Bit Tip (" + b + "-" + c + ")" );
+        toolTipCylinderInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolTipCylinderInfo, c,  b);
+        routerElements.addElement( new  RouterElementContainer( toolTipCylinderInfo, 0.0001 + bitCutLength / 2.0, bitTipSize)  );
+
+        // ObjectInfo test = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 + bitTipPosition)), bitTipSize, "Test (" + b + "-" + c + ")" ); // Cube represents a part of the machine
+        // test.setPhysicalMaterialId(500);
+        // setObjectBCOrientation(test, c,  b); // Set orientation
+        // routerElements.addElement(  new  RouterElementContainer( test, 0.0001 + bitTipPosition, bitTipSize, false ) );
+
+        // Tool Tip Ball Nose
+        ObjectInfo toolBallNoseSphereInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+        toolBallNoseSphereInfo.setPhysicalMaterialId(500);
+        setObjectBCOrientation(toolBallNoseSphereInfo, c,  b);
+        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseSphereInfo, 0.0001, bitTipSize, false); // Last parameter is enable: DONT detect collision but show
         routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
         //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
        
@@ -546,7 +555,7 @@ public class Examples {
         }
         
         
-        //
+        // TODO: Potential cause for jaggy surface
         // Retract tool based on drill bit tip and angle delta between BC and the surface.
         // This should be more effecient than using the drill tip geometry to collide with the scene for retraction.
         //
@@ -2080,7 +2089,7 @@ public class Examples {
                 // Note: This is only one possible implementation of collision detection.
                 // For a section, capture the locations of the edges, then scan through the objects in the scene,
                 // and check if the edges intersect with any of the faces.
-                // Collitions on multiple objects constructed to represent the router, collete and machine could be used to detect collisions with
+                // Collitions on multiple objects constructed to represent the router, collet and machine could be used to detect collisions with
                 // The mould part.
                 //
                 boolean selectionCollides = false;
@@ -2377,7 +2386,7 @@ public class Examples {
         double backEndLength = 5; // inches router housing extends back from the fulcrum.
         
         
-        //  we set the length from B/C pivot to tool tip with two values: 1 from the config collete length + the Particular tool length
+        //  we set the length from B/C pivot to tool tip with two values: 1 from the config collet length + the Particular tool length
         // Length of fulcrum to tool tip
         double fulcrumToToolTipLength = 12.6821; // T3
         
