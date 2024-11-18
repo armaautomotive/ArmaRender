@@ -14,6 +14,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import armarender.ui.ProgressDialog;
 import armarender.material.*;
+import armarender.texture.*;
 
 public class Examples {
     
@@ -534,32 +535,24 @@ public class Examples {
         drillColletInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillColletInfo, c,  b);
         routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
-        
-        // set color - DOESN'T WORK
+        // set color
         {
-            System.out.println("Colour count " + scene.getNumMaterials()); // This is wrong, returns 0.
-            Material mat = null;
-            for(int i = 0; i < scene.getNumMaterials(); i++){
-                Material currMat = scene.getMaterial(i);
-                if(currMat.getName().equals("Red")){
-                    mat = currMat;
-                    System.out.println("Found color to reuse.");
-                    i = scene.getNumMaterials(); // skip
+            Texture texture = null;
+            for(int i = 0; i < scene.getNumTextures(); i++){
+                Texture currTexture = scene.getTexture(i);
+                if(currTexture.getName().equals("Green")){
+                    texture = currTexture;
+                    i = scene.getNumTextures(); // skip
                 }
             }
-            if(mat == null){ // Create new material
-                System.out.println("Creating a new color.");
-                mat = new UniformMaterial();
-                mat.setName("Red");
-                ((UniformMaterial)mat).matColor = new RGBColor(1.0f, 0.0f, 0.0f);
-                ((UniformMaterial)mat).trueTrans = new RGBColor(1.0f, 0.0f, 0.0f);
-                ((UniformMaterial)mat).trueScat = new RGBColor(1.0f, 0.0f, 0.0f);
-                scene.addMaterial(mat);
+            if(texture == null){
+                texture = new UniformTexture();
+                texture.setName("Red");
+                ((UniformTexture)texture).diffuseColor = new RGBColor(0.1f, 1.0f, 0.1f);
+                scene.addTexture(texture);
             }
-            UniformMaterialMapping mapping = new UniformMaterialMapping(drillColletInfo.getObject(), mat);
-            drillColletInfo.getObject().setMaterial( mat, mapping );
-            drillColletInfo.setMaterial( mat, mapping );
-            //drillColletInfo.clearCachedMeshes();
+            UniformMapping mapping = new UniformMapping(drillColletInfo.getObject(), texture);
+            drillColletInfo.setTexture( texture, mapping );
         }
         
         // Add tool tip
