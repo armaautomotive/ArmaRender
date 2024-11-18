@@ -535,9 +535,9 @@ public class Examples {
         setObjectBCOrientation(drillColletInfo, c,  b);
         routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
         
-        // set color
+        // set color - DOESN'T WORK
         {
-            System.out.println("Colour count " + scene.getNumMaterials());
+            System.out.println("Colour count " + scene.getNumMaterials()); // This is wrong, returns 0.
             Material mat = null;
             for(int i = 0; i < scene.getNumMaterials(); i++){
                 Material currMat = scene.getMaterial(i);
@@ -552,10 +552,12 @@ public class Examples {
                 mat = new UniformMaterial();
                 mat.setName("Red");
                 ((UniformMaterial)mat).matColor = new RGBColor(1.0f, 0.0f, 0.0f);
+                ((UniformMaterial)mat).trueTrans = new RGBColor(1.0f, 0.0f, 0.0f);
+                ((UniformMaterial)mat).trueScat = new RGBColor(1.0f, 0.0f, 0.0f);
                 scene.addMaterial(mat);
             }
-            UniformMaterialMapping mapping = new UniformMaterialMapping( drillColletInfo.getObject(), mat);
-            //drillColletInfo.getObject().setMaterial( redMat, mapping );
+            UniformMaterialMapping mapping = new UniformMaterialMapping(drillColletInfo.getObject(), mat);
+            drillColletInfo.getObject().setMaterial( mat, mapping );
             drillColletInfo.setMaterial( mat, mapping );
             //drillColletInfo.clearCachedMeshes();
         }
