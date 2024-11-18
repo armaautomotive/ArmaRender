@@ -22,7 +22,7 @@ import java.io.*;
 
 public class UniformMaterial extends Material
 {
-  RGBColor transparencyColor, matColor, scatteringColor;
+  public RGBColor transparencyColor, matColor, scatteringColor;
   RGBColor trueTrans, trueScat;
   float density, scattering, transparency;
   double eccentricity;

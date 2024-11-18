@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import armarender.ui.ProgressDialog;
+import armarender.material.*;
 
 public class Examples {
     
@@ -533,6 +534,31 @@ public class Examples {
         drillColletInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillColletInfo, c,  b);
         routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
+        
+        // set color
+        {
+            System.out.println("Colour count " + scene.getNumMaterials());
+            Material mat = null;
+            for(int i = 0; i < scene.getNumMaterials(); i++){
+                Material currMat = scene.getMaterial(i);
+                if(currMat.getName().equals("Red")){
+                    mat = currMat;
+                    System.out.println("Found color to reuse.");
+                    i = scene.getNumMaterials(); // skip
+                }
+            }
+            if(mat == null){ // Create new material
+                System.out.println("Creating a new color.");
+                mat = new UniformMaterial();
+                mat.setName("Red");
+                ((UniformMaterial)mat).matColor = new RGBColor(1.0f, 0.0f, 0.0f);
+                scene.addMaterial(mat);
+            }
+            UniformMaterialMapping mapping = new UniformMaterialMapping( drillColletInfo.getObject(), mat);
+            //drillColletInfo.getObject().setMaterial( redMat, mapping );
+            drillColletInfo.setMaterial( mat, mapping );
+            //drillColletInfo.clearCachedMeshes();
+        }
         
         // Add tool tip
         //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
@@ -2338,6 +2364,15 @@ public class Examples {
         // add Collet
         ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
         drillColletInfo.setPhysicalMaterialId(500);
+        
+        // set color
+        {
+            UniformMaterial redMat = new UniformMaterial();
+            redMat.matColor = new RGBColor(1.0f, 0.0f, 0.0f);
+            UniformMaterialMapping mapping = new UniformMaterialMapping( drillColletInfo.getObject(), redMat);
+            drillColletInfo.getObject().setMaterial( redMat, mapping );
+        }
+            
         setObjectBCOrientation(drillColletInfo, c,  b);
         routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
         
