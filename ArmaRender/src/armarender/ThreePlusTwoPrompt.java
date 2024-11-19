@@ -40,6 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 public class ThreePlusTwoPrompt {
@@ -52,6 +54,7 @@ public class ThreePlusTwoPrompt {
     public JTextField depthField = null;
     public JCheckBox simulateCheck = null;
     public JCheckBox restMachiningCheck = null;
+    public JLabel optimalDepthLabel = null;
     
     
     public ThreePlusTwoPrompt(boolean roughing){
@@ -71,11 +74,11 @@ public class ThreePlusTwoPrompt {
         panel.setLayout(null);
         
         int cellHeight = 20;
-        int secondColX = 190;
+        int secondColX = 140; // 190
         int rowSpacing = 36;
         
-        int labelWidth = 170;
-        int inputFieldWidth = 130;
+        int labelWidth = 120; // 170
+        int inputFieldWidth = 120;
         
         
         JLabel cPositionLabel = new JLabel("C Axis Position");
@@ -103,6 +106,29 @@ public class ThreePlusTwoPrompt {
         bPositionField = new JTextField( new String(45+""));
         bPositionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(bPositionField);
+        
+        //
+        bPositionField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+                        public void insertUpdate(DocumentEvent e) {
+                            onChange();
+                        }
+
+                        @Override
+                        public void removeUpdate(DocumentEvent e) {
+                            onChange();
+                        }
+
+                        @Override
+                        public void changedUpdate(DocumentEvent e) {
+                            onChange();
+                        }
+
+
+                    private void onChange() {
+                        setOptimalCutDepth();
+                    }
+                });
         
         
         
@@ -166,6 +192,21 @@ public class ThreePlusTwoPrompt {
             depthField = new JTextField( new String("0.25"));
             depthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
             panel.add(depthField);
+            
+            
+            // Calculate optimal depth of cut based on angle of bit (B value) and the length of the cutting
+            // portion of the bit.
+            //double optimalDepth = 0;
+            //double bitCutLength = 1.5; // TODO: get this from the config
+            //double bAngle = getBValue();
+            //optimalDepth = bitCutLength * Math.cos(bAngle);
+            double optimalDepth = setOptimalCutDepth();
+            
+            optimalDepthLabel = new JLabel("Optimal Depth: " + roundThree(optimalDepth) + "\"");
+            optimalDepthLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            optimalDepthLabel.setFont(new Font("Arial", Font.BOLD, 11));
+            optimalDepthLabel.setBounds(secondColX + inputFieldWidth + 5 , cellHeight, labelWidth + 40, 40); // x, y, width, height
+            panel.add(optimalDepthLabel);
         }
         
         
@@ -252,6 +293,20 @@ public class ThreePlusTwoPrompt {
     }
  
     
+    /**
+     * setOptimalCutDepth
+     * Description:
+     */
+    public double setOptimalCutDepth(){
+        double optimalDepth = 0;
+        double bitCutLength = 1.5; // TODO: get this from the config
+        double bAngle = Math.toRadians(getBValue());
+        optimalDepth = bitCutLength * Math.cos(bAngle);
+        if(optimalDepthLabel != null){
+            optimalDepthLabel.setText( "Optimal Depth: " + roundThree( optimalDepth ) + "\"");
+        }
+        return optimalDepth;
+    }
     
     /**
      * load
@@ -330,7 +385,7 @@ public class ThreePlusTwoPrompt {
     
     public double getBValue(){
         double result = 0;
-        if(bPositionField != null){
+        if(bPositionField != null && bPositionField.getText().length() > 0){
             result = Double.parseDouble(bPositionField.getText());
         }
         return result;
@@ -393,6 +448,15 @@ public class ThreePlusTwoPrompt {
         return result;
     }
     
+    
+    String roundThree(double x){
+        //double rounded = ((double)Math.round(x * 100000) / 100000);
+        
+        DecimalFormat df = new DecimalFormat("#");
+            df.setMaximumFractionDigits(3);
+
+        return df.format(x);
+    }
 }
 
 
