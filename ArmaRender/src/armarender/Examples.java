@@ -50,6 +50,8 @@ public class Examples {
         public boolean onSurface = true;
         public double b = 0;
         public double c = 0;
+        public boolean collides = false;
+        public boolean finalized = false;
         SurfacePointContainer(Vec3 point, int pasNumber){
             this.point = point;
             this.passNumber = passNumber;
@@ -60,7 +62,6 @@ public class Examples {
             this.passNumber = passNumber;
         }
     }
-    
     
     
     
@@ -123,6 +124,7 @@ public class Examples {
                 String gCode = toolPathToGCode(window, toolPath1, speed);
                 
                 double toolPathTime = getToolpathTime( toolPath1, speed );
+                System.out.println("Machining Time Estimate: " + scene.roundThree(toolPathTime) + " minutes" );
                 
                 // Append header and footer
                 String header =
@@ -231,6 +233,8 @@ public class Examples {
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
+        
+        long startTime = System.currentTimeMillis();
         
         // Router Size information.
         double routerHousingPosition = 1.25;
@@ -682,6 +686,10 @@ public class Examples {
                 SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i);
                 Vec3 currPoint = currSpc.point;
                 
+                if(currSpc.finalized){
+                    continue; // If this point is final then don't evaluate it for collisions.
+                }
+                
                 //  calculate where the cutter would be to when fit to the current region surface point.
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
                 updatedPoints.addElement(currPoint);
@@ -723,6 +731,7 @@ public class Examples {
                     // rec.location
                     if(objectCollidesWithScene(routerElement, sceneObjects, routerElements)){
                         collides = true;
+                        currSpc.collides = true;
                         double currLocationDistance = rec.location - (rec.size / 2);
                         //currLocationDistance = currLocationDistance * 0.5; // this unit might be too much?
                         //retractDistance += (rec.location - (rec.size / 2)); // minus the size of the object?
@@ -835,6 +844,7 @@ public class Examples {
                     
                 } else {
                     //updatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
+                    currSpc.collides = false;
                 }
                 
                 if(display && i % 2 == 0){
@@ -843,6 +853,27 @@ public class Examples {
                     try { Thread.sleep(4); } catch(Exception e){} // Wait
                 }
             } // end loop generatedCuttingPath for each point in path
+            
+            
+            //
+            // Optimization, flag points with lots of adjacent non collisions as being finalized.
+            // Theory: A collision will cause modification to adjacent points to resolve but this
+            // may introduce new collisions. But long stretches of non collision points are unlikely
+            // to be disturbed and thus can be assumed to be finalized.
+            //
+            for(int i = 12; i < generatedCuttingPath.size(); i++){
+                boolean okToFinalize = true;
+                for(int regress = 0; regress < 10; regress++){
+                    SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i - regress);
+                    if(currSpc.collides){
+                        okToFinalize = false;
+                    }
+                }
+                if(okToFinalize){
+                    SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i - 6);
+                    currSpc.finalized = true;
+                }
+            }
             
             
             //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
@@ -1013,6 +1044,9 @@ public class Examples {
             }
         } // end simulate GCode toolpoath
         System.out.println("Collsisions: " + collisions);
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Completion Time: " + ( (endTime - startTime) / 1000  ));
         
         //String shortGCodeExport = gCodeExport.substring(0, Math.min(gCodeExport.length(), 3000));
         //System.out.println("GCode: (Trimmed) " +   shortGCodeExport);
@@ -1360,6 +1394,7 @@ public class Examples {
                 if(pointNormal != null){
                     insertSPC.normal = pointNormal; // Note: Even though inserted points can't be guarenteed to be on a surface, keep the closest normal anyway.
                 }
+                insertSPC.collides = true; // just in case
                 insertSPC.b = regionSurfacePoints.elementAt(i-1).b;
                 insertSPC.c = regionSurfacePoints.elementAt(i-1).c;
                 insertSPC.onSurface = false; // Inserted points are assumed to not be on a surface.
@@ -1553,12 +1588,14 @@ public class Examples {
                 
                 
                 // Performance optimization - check detectInfo if in bounds of current object bounds.
+                // This could be good but is untested.
+                /*
                 BoundingBox currInfoBounds = detectInfo.getTranslatedBounds();
                 if( detectInfoBounds.intersects(currInfoBounds) == false ){ // The bounds must collide for there to be any collision.
                     System.out.println(" * " + currInfo.getName() );
                     continue;
                 }
-                
+                */
                 
                 //
                 // Is the object a TriangleMesh or can it be converted?
@@ -2449,6 +2486,7 @@ public class Examples {
                 String gCode = toolPathToGCode(window, toolPath1, speed);
                 
                 double toolPathTime = getToolpathTime( toolPath1, speed );
+                System.out.println("Machining Time Estimate: " + scene.roundThree(toolPathTime) + " minutes" );
                 
                 // Append header and footer
                 String header =
@@ -2549,6 +2587,8 @@ public class Examples {
         LayoutModeling layout = new LayoutModeling();
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
+        
+        long startTime = System.currentTimeMillis();
         
         // Router Size information.
         double routerHousingPosition = 1.25;
@@ -3088,6 +3128,10 @@ public class Examples {
                 SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i);
                 Vec3 currPoint = currSpc.point;
                 
+                if(currSpc.finalized){
+                    continue; // If this point is final then don't evaluate it for collisions.
+                }
+                
                 //  calculate where the cutter would be to when fit to the current region surface point.
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
                 updatedPoints.addElement(currPoint);
@@ -3251,6 +3295,27 @@ public class Examples {
             } // end loop generatedCuttingPath for each point in path
             
             
+            //
+            // Optimization, flag points with lots of adjacent non collisions as being finalized.
+            // Theory: A collision will cause modification to adjacent points to resolve but this
+            // may introduce new collisions. But long stretches of non collision points are unlikely
+            // to be disturbed and thus can be assumed to be finalized.
+            //
+            for(int i = 12; i < generatedCuttingPath.size(); i++){
+                boolean okToFinalize = true;
+                for(int regress = 0; regress < 10; regress++){
+                    SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i - regress);
+                    if(currSpc.collides){
+                        okToFinalize = false;
+                    }
+                }
+                if(okToFinalize){
+                    SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i - 6);
+                    currSpc.finalized = true;
+                }
+            }
+            
+            
             //System.out.println("size " + generatedCuttingPath.size()  + " collisionCount: " + collisionCount );
             System.out.println(" Collisions: " + collisionCount );
             System.out.println(" Points in path: " + generatedCuttingPath.size() );
@@ -3279,14 +3344,14 @@ public class Examples {
             // Show result of iteration.
             // Update the scene
             window.updateImage();
-            try { Thread.sleep(6); } catch(Exception e){} // Wait
+            //try { Thread.sleep(6); } catch(Exception e){} // Wait
             
         } // end loop resolve collisions
         System.out.println("Collisions resolved in passes: " + iterationCount);
         
         
         // Now simulate the generated tool path to be written to a file.
-        try { Thread.sleep(200); } catch(Exception e){}
+        //try { Thread.sleep(200); } catch(Exception e){}
         System.out.println("Simulating Tool Path.");
         
         
@@ -3419,6 +3484,9 @@ public class Examples {
             }
         } // end simulate GCode toolpoath
         System.out.println("Collsisions: " + collisions);
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Completion Time: " + ( (endTime - startTime) / 1000  ));
         
         return generatedCuttingPath;
     }
