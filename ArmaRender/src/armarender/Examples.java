@@ -275,7 +275,9 @@ public class Examples {
             
             if(currInfo.getObject() instanceof SceneCamera ||
                currInfo.getObject() instanceof DirectionalLight ||
-               currInfo.getPhysicalMaterialId() == 500 ){
+               currInfo.getPhysicalMaterialId() == 500 ||
+               currInfo.getObject() instanceof Curve
+               ){
                 continue;
             }
             
@@ -878,7 +880,7 @@ public class Examples {
         
         
         // Now simulate the generated tool path to be written to a file.
-        try { Thread.sleep(200); } catch(Exception e){}
+        //try { Thread.sleep(200); } catch(Exception e){}
         System.out.println("Simulating Tool Path.");
         
         
@@ -935,7 +937,7 @@ public class Examples {
                 collisions++;
                 System.out.println("ERROR: GCode collision. ");
                 
-                try { Thread.sleep(12); } catch(Exception e){} // Wait to show collision, This shouldn't happen
+                //try { Thread.sleep(12); } catch(Exception e){} // Wait to show collision, This shouldn't happen
             } else {
                 //generatedCuttingPath.addElement(currPoint); // No collision, This point can be safely cut on the machine / GCode.
                 
@@ -1503,6 +1505,8 @@ public class Examples {
         c = layout.getCoords(detectInfo);
         Mat4 mat4 = c.duplicate().fromLocal();
         
+        BoundingBox detectInfoBounds = detectInfo.getTranslatedBounds();
+        
         Object3D selectedObj = detectInfo.getObject();
         TriangleMesh selectedTM = null;
         if(selectedObj instanceof TriangleMesh){
@@ -1546,6 +1550,15 @@ public class Examples {
                 }
                 //System.out.println("   Compare with  scene object: " + currInfo.getName() );
                 Object3D currObj = currInfo.getObject();
+                
+                
+                // Performance optimization - check detectInfo if in bounds of current object bounds.
+                BoundingBox currInfoBounds = detectInfo.getTranslatedBounds();
+                if( detectInfoBounds.intersects(currInfoBounds) == false ){ // The bounds must collide for there to be any collision.
+                    System.out.println(" * " + currInfo.getName() );
+                    continue;
+                }
+                
                 
                 //
                 // Is the object a TriangleMesh or can it be converted?
