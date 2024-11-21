@@ -490,9 +490,10 @@ public class Examples {
             }
         } // bounds
         
-        progressDialog.close(); // We can't accurately track progress from here on. But at least updates are visible to user.
+        //progressDialog.close(); // We can't accurately track progress from here on. But at least updates are visible to user.
         
         if(regionSurfacePoints.size() == 0){
+            progressDialog.close();
             return new Vector<SurfacePointContainer>();
         }
         
@@ -689,6 +690,9 @@ public class Examples {
                 if(currSpc.finalized){
                     continue; // If this point is final then don't evaluate it for collisions.
                 }
+                
+                int progress = (int)(((double)i / (double)generatedCuttingPath.size()) * (double)100);
+                progressDialog.setProgress(progress);
                 
                 //  calculate where the cutter would be to when fit to the current region surface point.
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
@@ -915,6 +919,11 @@ public class Examples {
         System.out.println("Simulating Tool Path.");
         
         
+        //
+        // TODO: trim points to fit in bounds of cutting area.
+        // Primary height.
+        //
+        
         
         //
         // Now simulate cutting of the new GCode which should result in no collisions.
@@ -925,6 +934,9 @@ public class Examples {
         //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
         for(int i = 0; i < generatedCuttingPath.size(); i++){
             Vec3 currPoint = generatedCuttingPath.elementAt(i).point;
+            
+            int progress = (int)(((double)i / (double)generatedCuttingPath.size()) * (double)100);
+            progressDialog.setProgress(progress);
             
             //  calculate where the cutter would be to when fit to the current region surface point.
             Vector<Vec3> updatedPoints = new Vector<Vec3>();
@@ -967,6 +979,9 @@ public class Examples {
             if(collides){
                 collisions++;
                 System.out.println("ERROR: GCode collision. ");
+                
+                // TODO: Add an object to the scene as a marker for the collision so the user knows.
+                
                 
                 //try { Thread.sleep(12); } catch(Exception e){} // Wait to show collision, This shouldn't happen
             } else {
@@ -1043,6 +1058,10 @@ public class Examples {
                 try { Thread.sleep(4); } catch(Exception e){} // Wait
             }
         } // end simulate GCode toolpoath
+        
+        progressDialog.close();
+        
+        
         System.out.println("Collsisions: " + collisions);
         
         long endTime = System.currentTimeMillis();
@@ -2956,7 +2975,7 @@ public class Examples {
             }
         } // bounds
         
-        progressDialog.close(); // We can't accurately track progress from here on. But at least updates are visible to user.
+        //progressDialog.close(); // We can't accurately track progress from here on. But at least updates are visible to user.
         
         if(regionSurfacePoints.size() == 0){
             return new Vector<SurfacePointContainer>();
@@ -3131,6 +3150,9 @@ public class Examples {
                 if(currSpc.finalized){
                     continue; // If this point is final then don't evaluate it for collisions.
                 }
+                
+                int progress = (int)(((double)i / (double)generatedCuttingPath.size()) * (double)100);
+                progressDialog.setProgress(progress);
                 
                 //  calculate where the cutter would be to when fit to the current region surface point.
                 Vector<Vec3> updatedPoints = new Vector<Vec3>();
@@ -3366,6 +3388,9 @@ public class Examples {
         for(int i = 0; i < generatedCuttingPath.size(); i++){
             Vec3 currPoint = generatedCuttingPath.elementAt(i).point;
             
+            int progress = (int)(((double)i / (double)generatedCuttingPath.size()) * (double)100);
+            progressDialog.setProgress(progress);
+            
             //  calculate where the cutter would be to when fit to the current region surface point.
             Vector<Vec3> updatedPoints = new Vector<Vec3>();
             updatedPoints.addElement(currPoint);
@@ -3483,6 +3508,9 @@ public class Examples {
                 try { Thread.sleep(4); } catch(Exception e){} // Wait
             }
         } // end simulate GCode toolpoath
+        
+        progressDialog.close();
+        
         System.out.println("Collsisions: " + collisions);
         
         long endTime = System.currentTimeMillis();
