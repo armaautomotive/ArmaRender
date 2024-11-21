@@ -168,6 +168,10 @@ public class ProgressDialog extends Thread
         }
     }
     
+    public void setTitle(String title){
+        progressDialog.setTitle(title);
+    }
+    
     /**
      * bounceIteration
      *

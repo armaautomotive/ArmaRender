@@ -473,11 +473,19 @@ public class Examples {
                 Vec3 lastRegionSurfacePoint = lastSpc.point;
                 
                 
-                SurfacePointContainer insertFirstSpc = new SurfacePointContainer( new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z), 0 );
-                SurfacePointContainer insertLastSpc = new SurfacePointContainer(  new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z) , 0);
+                SurfacePointContainer insertLocatorSpc = new SurfacePointContainer(
+                                            new Vec3(sceneBounds.minx, sceneBounds.maxy, sceneBounds.minz ), 0 );
+                regionSurfacePoints.add(0, insertLocatorSpc); // insert locator
                 
-                regionSurfacePoints.add(0, insertFirstSpc); // insert entry
-                regionSurfacePoints.add(regionSurfacePoints.size(), insertLastSpc );
+                SurfacePointContainer insertFirstSpc = new SurfacePointContainer(
+                                            new Vec3(firstRegionSurfacePoint.x, sceneBounds.maxy, firstRegionSurfacePoint.z), 0 );
+                regionSurfacePoints.add(1, insertFirstSpc); // insert entry
+                
+                SurfacePointContainer insertLastSpc = new SurfacePointContainer(
+                                            new Vec3(lastRegionSurfacePoint.x, sceneBounds.maxy, lastRegionSurfacePoint.z), 0);
+                regionSurfacePoints.add(regionSurfacePoints.size(), insertLastSpc ); // pull up
+                
+                regionSurfacePoints.add(regionSurfacePoints.size(), insertLocatorSpc ); // Return to locator position.
                 
                 // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
                 regionSurfacePoints = fillGapsInPointPathSPC(regionSurfacePoints, accuracy);
@@ -682,6 +690,7 @@ public class Examples {
             int collisionCount = 0;
             System.out.println("Modifying tool path to remove collisions.");
             //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
+            progressDialog.setTitle("Resolving Collisions");
             
             for(int i = 0; i < generatedCuttingPath.size(); i++){
                 SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i);
@@ -929,6 +938,7 @@ public class Examples {
         // Now simulate cutting of the new GCode which should result in no collisions.
         // NOTE: This is now redundant or for show only. The gcode is made in a new function
         //
+        progressDialog.setTitle("Final Pass");
         String gCodeExport = "";
         int collisions = 0;
         //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
@@ -2845,6 +2855,9 @@ public class Examples {
                                 if(layerPoints.size() > 1){
                                     Vec3 raisedPoint1 = new Vec3(layerPoints.elementAt(layerPoints.size() - 1));
                                     raisedPoint1.y += layerHeight; // layerHeight sceneHeight
+                                    if(raisedPoint1.y > sceneBounds.maxy){
+                                        raisedPoint1.y = sceneBounds.maxy;
+                                    }
                                     layerPoints.addElement(raisedPoint1);
                                     SurfacePointContainer spc = new SurfacePointContainer(raisedPoint1, intersectNormal, passNumber);
                                     spc.b = b;
@@ -2855,6 +2868,9 @@ public class Examples {
                                 
                                 Vec3 raisedPoint2 = new Vec3(layerPointCollision);
                                 raisedPoint2.y += layerHeight * 2; // layerHeight sceneHeight
+                                if(raisedPoint2.y > sceneBounds.maxy){
+                                    raisedPoint2.y = sceneBounds.maxy;
+                                }
                                 layerPoints.addElement(raisedPoint2);
                                 SurfacePointContainer spc = new SurfacePointContainer(raisedPoint2, intersectNormal, passNumber);
                                 spc.b = b;
@@ -2958,11 +2974,19 @@ public class Examples {
                 Vec3 lastRegionSurfacePoint = lastSpc.point;
                 
                 
-                SurfacePointContainer insertFirstSpc = new SurfacePointContainer( new Vec3(firstRegionSurfacePoint.x, firstRegionSurfacePoint.y + (sceneSize/4), firstRegionSurfacePoint.z), 0 );
-                SurfacePointContainer insertLastSpc = new SurfacePointContainer(  new Vec3(lastRegionSurfacePoint.x, lastRegionSurfacePoint.y + (sceneSize/4), lastRegionSurfacePoint.z) , 0);
+                SurfacePointContainer insertLocatorSpc = new SurfacePointContainer(
+                                            new Vec3(sceneBounds.minx, sceneBounds.maxy, sceneBounds.minz ), 0 );
+                regionSurfacePoints.add(0, insertLocatorSpc); // insert locator
                 
-                regionSurfacePoints.add(0, insertFirstSpc); // insert entry
+                SurfacePointContainer insertFirstSpc = new SurfacePointContainer(
+                            new Vec3(firstRegionSurfacePoint.x, sceneBounds.maxy, firstRegionSurfacePoint.z), 0 );
+                regionSurfacePoints.add(1, insertFirstSpc); // insert entry
+                
+                SurfacePointContainer insertLastSpc = new SurfacePointContainer(
+                            new Vec3(lastRegionSurfacePoint.x, sceneBounds.maxy, lastRegionSurfacePoint.z) , 0);
                 regionSurfacePoints.add(regionSurfacePoints.size(), insertLastSpc );
+                
+                regionSurfacePoints.add(regionSurfacePoints.size(), insertLocatorSpc ); // Return to locator position.
                 
                 // Insert/fill points in gaps. Since the router travels in a straight line between points, we need to check each segment for collisions.
                 regionSurfacePoints = fillGapsInPointPathSPC(regionSurfacePoints, accuracy);
@@ -3167,6 +3191,7 @@ public class Examples {
         while(running){
             iterationCount++;
             int collisionCount = 0;
+            progressDialog.setTitle("Resolving Collisions");
             System.out.println("Modifying tool path to remove collisions.");
             //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
             
@@ -3409,6 +3434,7 @@ public class Examples {
         // Now simulate cutting of the new GCode which should result in no collisions.
         // NOTE: This is now redundant or for show only. The gcode is made in a new function
         //
+        progressDialog.setTitle("Final Pass");
         String gCodeExport = "";
         int collisions = 0;
         //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
