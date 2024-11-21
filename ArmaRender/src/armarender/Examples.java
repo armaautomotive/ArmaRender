@@ -320,8 +320,8 @@ public class Examples {
             
             // Loop through grid
             // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
-            for(int x = 0; x < width; x++){
-                for(int y = 0; y < height; y++){
+            for(int x = 0; x < width && progressDialog.isRunning(); x++){
+                for(int y = 0; y < height && progressDialog.isRunning(); y++){
                     // xy offset to coords, Translate based on 'toolVector'
                     
                     int progress = (int)(((double)x / (double)width) * (double)100);
@@ -513,16 +513,23 @@ public class Examples {
         Vec3 lastRegionSurfacePoint = regionSurfacePoints.elementAt(regionSurfacePoints.size() - 1).point;
         
         
+        //
+        // Construct Router 3d model.
+        //
+        
+        //constructRouterGeometry(); // return Vector<RouterElementContainer>
+        
         ObjectInfo avatarCutterLine = addLineToScene(window, firstRegionSurfacePoint, firstRegionSurfacePoint.plus(toolVector.times(fulcrumToToolTipLength) ), "Cutter (" + b + "-" + c + ")", true );
         avatarCutterLine.setPhysicalMaterialId(500);
         Curve currCurve = (Curve)avatarCutterLine.getObject();
-        
         
         // Router Z height base
         ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength ) ), 0.5, "Router Base (" + b + "-" + c + ")" );
         routerZBaseCubeInfo.setPhysicalMaterialId(500);
         //routerZBaseCubeInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
+        //setObjectBCOrientation(routerZBaseCubeInfo, c,  0); // only C is applied
+        setObjectBCOrientation(routerZBaseCubeInfo, c,  b); // Set orientation
+        setObjectLightGrey(scene, routerZBaseCubeInfo);
         routerElements.addElement(  new  RouterElementContainer( routerZBaseCubeInfo, 4, 0.5) );
         
         //
@@ -549,26 +556,9 @@ public class Examples {
         ObjectInfo drillColletInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.5 ) ), 0.2, 0.2,  "Collet (" + b + "-" + c + ")" );
         drillColletInfo.setPhysicalMaterialId(500);
         setObjectBCOrientation(drillColletInfo, c,  b);
-        routerElements.addElement(  new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
+        routerElements.addElement(new  RouterElementContainer( drillColletInfo, 0.5, 0.2) );
         // set color
-        {
-            Texture texture = null;
-            for(int i = 0; i < scene.getNumTextures(); i++){
-                Texture currTexture = scene.getTexture(i);
-                if(currTexture.getName().equals("Green")){
-                    texture = currTexture;
-                    i = scene.getNumTextures(); // skip
-                }
-            }
-            if(texture == null){
-                texture = new UniformTexture();
-                texture.setName("Green");
-                ((UniformTexture)texture).diffuseColor = new RGBColor(0.1f, 1.0f, 0.1f);
-                scene.addTexture(texture);
-            }
-            UniformMapping mapping = new UniformMapping(drillColletInfo.getObject(), texture);
-            drillColletInfo.setTexture( texture, mapping );
-        }
+        setObjectLightGrey(scene, drillColletInfo);
         
         // Add tool tip
         //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
@@ -685,7 +675,7 @@ public class Examples {
         //
         boolean running = true;
         int iterationCount = 0;
-        while(running){
+        while(running && progressDialog.isRunning()){
             iterationCount++;
             int collisionCount = 0;
             System.out.println("Modifying tool path to remove collisions.");
@@ -938,11 +928,13 @@ public class Examples {
         // Now simulate cutting of the new GCode which should result in no collisions.
         // NOTE: This is now redundant or for show only. The gcode is made in a new function
         //
-        progressDialog.setTitle("Final Pass");
+        if(progressDialog != null){
+            progressDialog.setTitle("Final Pass");
+        }
         String gCodeExport = "";
         int collisions = 0;
         //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
-        for(int i = 0; i < generatedCuttingPath.size(); i++){
+        for(int i = 0; i < generatedCuttingPath.size() && progressDialog.isRunning(); i++){
             Vec3 currPoint = generatedCuttingPath.elementAt(i).point;
             
             int progress = (int)(((double)i / (double)generatedCuttingPath.size()) * (double)100);
@@ -2714,7 +2706,7 @@ public class Examples {
             int layersCount = (int)(sceneHeight / layerHeight);
             layersCount++;
             //System.out.println("layersCount: " + layersCount + " " + sceneHeight + " " + layerHeight);
-            for(int l = 0; l < layersCount; l++ ){
+            for(int l = 0; l < layersCount && progressDialog.isRunning(); l++ ){
             
                 currLayerHeight = sceneBounds.maxy - ( l * layerHeight );                   // Height for current layer
             
@@ -2722,8 +2714,8 @@ public class Examples {
                 
                 // Loop through grid
                 // TODO: take user or config data on accuracy units, and calibrate grid spacing to that size.
-                for(int x = 0; x < width; x++){
-                    for(int y = 0; y < height; y++){
+                for(int x = 0; x < width && progressDialog.isRunning(); x++){
+                    for(int y = 0; y < height && progressDialog.isRunning(); y++){
                         // xy offset to coords, Translate based on 'toolVector'
                         
                         int progress = (int)(((double)((double)x + ((double)width*(double)l)) / ((double)width * (double)layersCount)) * (double)100);
@@ -3188,14 +3180,14 @@ public class Examples {
         //
         boolean running = true;
         int iterationCount = 0;
-        while(running){
+        while(running && progressDialog.isRunning()){
             iterationCount++;
             int collisionCount = 0;
             progressDialog.setTitle("Resolving Collisions");
             System.out.println("Modifying tool path to remove collisions.");
             //Vector<Vec3> updatedCuttingPath = new Vector<Vec3>();
             
-            for(int i = 0; i < generatedCuttingPath.size(); i++){
+            for(int i = 0; i < generatedCuttingPath.size() && progressDialog.isRunning(); i++){
                 SurfacePointContainer currSpc = generatedCuttingPath.elementAt(i);
                 Vec3 currPoint = currSpc.point;
                 
@@ -3438,7 +3430,7 @@ public class Examples {
         String gCodeExport = "";
         int collisions = 0;
         //generatedCuttingPath = fillGapsInPointPath(generatedCuttingPath ); // We don't need to do this for the GCode, This is only for demonstration in the simulator.
-        for(int i = 0; i < generatedCuttingPath.size(); i++){
+        for(int i = 0; i < generatedCuttingPath.size() && progressDialog.isRunning(); i++){
             Vec3 currPoint = generatedCuttingPath.elementAt(i).point;
             
             int progress = (int)(((double)i / (double)generatedCuttingPath.size()) * (double)100);
@@ -3596,6 +3588,26 @@ public class Examples {
     public void saveSelectedGCode(LayoutWindow window){
         
         System.out.println("save selected GCode. Not implemented. ");
+    }
+    
+    
+    public void setObjectLightGrey(Scene scene, ObjectInfo info){
+        Texture texture = null;
+        for(int i = 0; i < scene.getNumTextures(); i++){
+            Texture currTexture = scene.getTexture(i);
+            if(currTexture.getName().equals("Light Grey")){
+                texture = currTexture;
+                i = scene.getNumTextures(); // skip
+            }
+        }
+        if(texture == null){
+            texture = new UniformTexture();
+            texture.setName("Light Grey");
+            ((UniformTexture)texture).diffuseColor = new RGBColor(0.8f, 0.8f, 0.8f);
+            scene.addTexture(texture);
+        }
+        UniformMapping mapping = new UniformMapping(info.getObject(), texture);
+        info.setTexture( texture, mapping );
     }
 }
 
