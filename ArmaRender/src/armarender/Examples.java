@@ -3119,6 +3119,33 @@ public class Examples {
         }
         
         
+        //
+        // Retract Roughing Pass padding margin from surface.
+        // because this is the roughing, retract 1/4 width of drill bit to leave material for finishing.
+        // The roughing pass will operate as fast as possible and the drill can wobble causing
+        // incursions into the part. This margin protects the surface for finishing.
+        //
+        for(int i = 0; i < generatedCuttingPath.size(); i++){
+            SurfacePointContainer spc = generatedCuttingPath.elementAt(i);
+            Vec3 surfaceNormal = spc.normal;
+            if(surfaceNormal == null){
+                //surfaceNormal = new Vec3(0, -1, 0);
+                surfaceNormal = new Vec3(0, 1, 0);
+                //System.out.println(" normal is null ");
+            }
+            if(surfaceNormal  != null){
+                //double angle = Vec3.getAngle( toolVector, new Vec3(), surfaceNormal );
+                //if(angle > 90){
+                //    angle = 180 - angle;
+                //}
+                //angle = 90 - angle; // Rotate 90 degrees.
+                double retractDistance = bitTipSize / 4;
+                //angle = 90 - angle; // we want the angle from vertical.
+                spc.point.add( toolVector.times( retractDistance ) );
+            }
+        }
+        
+        
         
         
         if(surfaceMapInfo != null){
