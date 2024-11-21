@@ -560,16 +560,27 @@ public class Examples {
         // set color
         setObjectLightGrey(scene, drillColletInfo);
         
+        
+        // Add tool non cut
+        ObjectInfo toolNonCutInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Shaft (" + b + "-" + c + ")" );
+        toolNonCutInfo.setPhysicalMaterialId(500);
+        setObjectLightGrey(scene, toolNonCutInfo);
+        setObjectBCOrientation(toolNonCutInfo, c,  b);
+        routerElements.addElement( new  RouterElementContainer( toolNonCutInfo, bitTipPosition + 0.1, bitTipSize)  );
+        
+        
         // Add tool tip
         //ObjectInfo toolPitCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, "Bit Tip" ); // Cube represents tip of bit
         ObjectInfo toolPitCubeInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( bitTipPosition ) ), bitTipSize, bitTipSize, "Bit Tip (" + b + "-" + c + ")" );
         toolPitCubeInfo.setPhysicalMaterialId(500);
+        setObjectLightGreen(scene, toolPitCubeInfo);
         setObjectBCOrientation(toolPitCubeInfo, c,  b);
         routerElements.addElement( new  RouterElementContainer( toolPitCubeInfo, bitTipPosition, bitTipSize)  );
         
         // Add tool tip ball nose
         ObjectInfo toolBallNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
         toolBallNoseInfo.setPhysicalMaterialId(500);
+        setObjectLightGreen(scene, toolBallNoseInfo);
         setObjectBCOrientation(toolBallNoseInfo, c,  b);
         RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable
         routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
@@ -3591,6 +3602,11 @@ public class Examples {
     }
     
     
+    
+    /**
+     * setObjectLightGrey
+     * Description:
+     */
     public void setObjectLightGrey(Scene scene, ObjectInfo info){
         Texture texture = null;
         for(int i = 0; i < scene.getNumTextures(); i++){
@@ -3603,7 +3619,30 @@ public class Examples {
         if(texture == null){
             texture = new UniformTexture();
             texture.setName("Light Grey");
-            ((UniformTexture)texture).diffuseColor = new RGBColor(0.8f, 0.8f, 0.8f);
+            ((UniformTexture)texture).diffuseColor = new RGBColor(0.9f, 0.9f, 0.9f);
+            scene.addTexture(texture);
+        }
+        UniformMapping mapping = new UniformMapping(info.getObject(), texture);
+        info.setTexture( texture, mapping );
+    }
+    
+    /**
+     * setObjectLightGreen
+     * Description:
+     */
+    public void setObjectLightGreen(Scene scene, ObjectInfo info){
+        Texture texture = null;
+        for(int i = 0; i < scene.getNumTextures(); i++){
+            Texture currTexture = scene.getTexture(i);
+            if(currTexture.getName().equals("Light Green")){
+                texture = currTexture;
+                i = scene.getNumTextures(); // skip
+            }
+        }
+        if(texture == null){
+            texture = new UniformTexture();
+            texture.setName("Light Green");
+            ((UniformTexture)texture).diffuseColor = new RGBColor(0.3f, 0.9f, 0.3f);
             scene.addTexture(texture);
         }
         UniformMapping mapping = new UniformMapping(info.getObject(), texture);
