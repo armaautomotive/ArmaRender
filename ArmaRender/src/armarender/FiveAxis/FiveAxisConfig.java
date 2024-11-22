@@ -617,16 +617,18 @@ public class FiveAxisConfig {
         
     }
     
-    public static void loadProperties(String filename, Properties prop) throws IOException {
+    public void loadProperties(String fileName, Properties prop) {
         try {
-            String path = new File(".").getCanonicalPath();
+            String propertyFileName = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config" + System.getProperty("file.separator") + fileName;
             //System.out.println("path: " + path);
-            String propertyFileName = path + System.getProperty("file.separator") + filename;
             InputStream input = new FileInputStream(propertyFileName);
             // load a properties file
             prop.load(input);
+        } catch (FileNotFoundException ex) {
+            // Check if the directory exists, then create new file
+            createEmptyPropFile(fileName);
         } catch (IOException ex) {
-            throw ex;
+            ex.printStackTrace();
         }
     }
     
@@ -637,40 +639,36 @@ public class FiveAxisConfig {
      * Description: Load property file attributes and populate the UI fields.
      */
     public void load(){
-        try {
-            loadProperties("cam.properties", prop);
 
-            //setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
-            //setBooleanProperty(prop, optimizationCheck, "ads.export_mill_5axis_cut_optimization");
-            //setBooleanProperty(prop, minimizePassesCheck, "ads.export_mill_5axis_minimize_passes");
-            //setBooleanProperty(prop, simulateCheck, "ads.export_mill_5axis_simulate");
-            
-            // Bed dimension
-            setStringProperty(prop, heightField, "ads.export_mill_5axis_bed_height");
-            setStringProperty(prop, widthField, "ads.export_mill_5axis_bed_width");
-            setStringProperty(prop, depthField, "ads.export_mill_5axis_bed_depth");
+        loadProperties("cam.properties", prop);
 
-            // Coordinate System
-            setStringProperty(prop, cAngleOriginField, "ads.export_mill_5axis_c_angle_orientation");
-            setStringProperty(prop, bAngleOriginField, "ads.export_mill_5axis_b_angle_orientation");
-            setBooleanProperty(prop, invertCDirectionCheck, "ads.export_mill_5axis_c_invert_direction");
-            setBooleanProperty(prop, invertBDirectionCheck, "ads.export_mill_5axis_b_invert_direction");
-            
-            // Router Dimensions
-            setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_collete_distance");
-            setStringProperty(prop, colleteWidthField, "ads.export_mill_5axis_collete_diameter");            
-            setStringProperty(prop, routerHousingDiameterField, "ads.export_mill_5axis_router_housing_diameter");
-            setStringProperty(prop, fulcrumToHousingRearField, "ads.export_mill_5axis_router_rear_length");
-            
-            // Bits
-            String bitIndexStr = prop.getProperty("ads.export_bit_index");
-            int bitIndex = bitIndexStr == null ? 0 : Integer.parseInt(bitIndexStr); // Avoid null read
-            usedBitComboBox.setSelectedIndex(bitIndex);
-            setBitText();
+        //setBooleanProperty(prop, toolpathCheck, "ads.export_mill_5axis_toolpath_markup");
+        //setBooleanProperty(prop, optimizationCheck, "ads.export_mill_5axis_cut_optimization");
+        //setBooleanProperty(prop, minimizePassesCheck, "ads.export_mill_5axis_minimize_passes");
+        //setBooleanProperty(prop, simulateCheck, "ads.export_mill_5axis_simulate");
+        
+        // Bed dimension
+        setStringProperty(prop, heightField, "ads.export_mill_5axis_bed_height");
+        setStringProperty(prop, widthField, "ads.export_mill_5axis_bed_width");
+        setStringProperty(prop, depthField, "ads.export_mill_5axis_bed_depth");
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        // Coordinate System
+        setStringProperty(prop, cAngleOriginField, "ads.export_mill_5axis_c_angle_orientation");
+        setStringProperty(prop, bAngleOriginField, "ads.export_mill_5axis_b_angle_orientation");
+        setBooleanProperty(prop, invertCDirectionCheck, "ads.export_mill_5axis_c_invert_direction");
+        setBooleanProperty(prop, invertBDirectionCheck, "ads.export_mill_5axis_b_invert_direction");
+        
+        // Router Dimensions
+        setStringProperty(prop, nozzleDistanceField, "ads.export_mill_5axis_collete_distance");
+        setStringProperty(prop, colleteWidthField, "ads.export_mill_5axis_collete_diameter");            
+        setStringProperty(prop, routerHousingDiameterField, "ads.export_mill_5axis_router_housing_diameter");
+        setStringProperty(prop, fulcrumToHousingRearField, "ads.export_mill_5axis_router_rear_length");
+        
+        // Bits
+        String bitIndexStr = prop.getProperty("ads.export_bit_index");
+        int bitIndex = bitIndexStr == null ? 0 : Integer.parseInt(bitIndexStr); // Avoid null read when file does not exist
+        usedBitComboBox.setSelectedIndex(bitIndex);
+        setBitText();
     }
     
     public void setStringProperty(Properties prop, JTextField field, String property){
@@ -711,14 +709,8 @@ public class FiveAxisConfig {
         // Load data from bit file
         int bitIndex = usedBitComboBox.getSelectedIndex();
         String fileName = propFilesForBits.get(bitIndex);
-        try {
-            loadProperties(fileName, bitProps);
-        } catch (FileNotFoundException ex) {
-            createEmptyBitFile(fileName);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } 
-
+        loadProperties(fileName, bitProps);
+        
         // Update UI
         String usedBit = bitToUse.get(bitIndex);
         labelBitDiameter.setText(usedBit + " Bit Diameter");
@@ -732,10 +724,15 @@ public class FiveAxisConfig {
         setJComboProperty(bitProps, bitEndComboBox, "ads.export_mill_5axis_bit_end_type");
     }
 
-    public void createEmptyBitFile(String fileName) {
+    public void createEmptyPropFile(String fileName) {
         try {
-            String path = new File(".").getCanonicalPath();
-            String propertyFileName = path + System.getProperty("file.separator") + fileName;
+            String dirPath = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config";
+            File d = new File(dirPath);
+            if (d.exists() == false) {
+                d.mkdir();
+            }
+
+            String propertyFileName = dirPath + System.getProperty("file.separator") + fileName;
             OutputStream output = new FileOutputStream(propertyFileName);
 
             bitProps.store(output, null);
@@ -747,10 +744,9 @@ public class FiveAxisConfig {
     public void saveBitInfo() {
         int bitIndex = usedBitComboBox.getSelectedIndex();
         try {
-            String path = new File(".").getCanonicalPath();
             String fileName = propFilesForBits.get(bitIndex);
+            String propertyFileName = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config" + System.getProperty("file.separator") + fileName;
 
-            String propertyFileName = path + System.getProperty("file.separator") + fileName;
             OutputStream output = new FileOutputStream(propertyFileName);
 
             bitProps.setProperty("ads.export_mill_5axis_bit_diameter", ""+bitField.getText());
@@ -772,9 +768,7 @@ public class FiveAxisConfig {
      */
     public void save(){
         try {
-            String path = new File(".").getCanonicalPath();
-
-            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
+            String propertyFileName = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config" + System.getProperty("file.separator") + "cam.properties";
             OutputStream output = new FileOutputStream(propertyFileName);
             
             // set the properties value

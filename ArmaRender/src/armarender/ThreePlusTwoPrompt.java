@@ -213,8 +213,18 @@ public class ThreePlusTwoPrompt {
      */
     public void load(boolean roughing){
         try {
-            String path = new File(".").getCanonicalPath();
-            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
+            String dirPath = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config";
+            File d = new File(dirPath);
+            if (d.exists() == false) {
+                d.mkdir();
+            }
+
+            String propertyFileName = dirPath + System.getProperty("file.separator") + "cam.properties";
+            File propFile = new File(propertyFileName);
+            if (propFile.exists() == false) {
+                propFile.createNewFile();
+            }
+
             InputStream input = new FileInputStream(propertyFileName);
             // load a properties file
             prop.load(input);
@@ -240,7 +250,8 @@ public class ThreePlusTwoPrompt {
             setBooleanProperty(prop, simulateCheck, "ads.export_5axis_markup");
 
             // Select saved tool
-            savedToolIndex = Integer.parseInt(prop.getProperty("ads.export_bit_index"));
+            String bitIndexStr = prop.getProperty("ads.export_bit_index");
+            savedToolIndex = bitIndexStr == null ? 0 : Integer.parseInt(bitIndexStr); // Avoid null read when file does not exist
             toolSelectionField.setSelectedIndex(savedToolIndex);
 
             if (roughing)
@@ -253,8 +264,7 @@ public class ThreePlusTwoPrompt {
 
     public void save(boolean roughing) {
         try {
-            String path = new File(".").getCanonicalPath();
-            String propertyFileName = path + System.getProperty("file.separator") + "cam.properties";
+            String propertyFileName = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config" + System.getProperty("file.separator") + "cam.properties";
             OutputStream output = new FileOutputStream(propertyFileName);
 
             prop.setProperty("ads.export_5axis_c_axis", ""+cPositionField.getText());

@@ -11,6 +11,10 @@ import javax.swing.JCheckBox;
 
 import armarender.math.*;
 import armarender.object.*;
+import armarender.texture.Texture;
+import armarender.texture.UniformMapping;
+import armarender.texture.UniformTexture;
+
 import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -524,6 +528,11 @@ public class Examples {
         setObjectBCOrientation(drillColletCylinderInfo, c,  b);
         routerElements.addElement(  new  RouterElementContainer( drillColletCylinderInfo, cutTipToColletLength + colletHeight / 2.0 - colletSize/2.0, colletSize) );
 
+        // Non cutting tool
+        ObjectInfo nonCuttingDrill = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(bitCutLength + (cutTipToColletLength - bitCutLength) / 2.0) ), bitTipSize, cutTipToColletLength - bitCutLength, "Non Cutting Drill (" + b + "-" + c + ")" );
+        nonCuttingDrill.setPhysicalMaterialId(500);
+        setObjectBCOrientation(nonCuttingDrill, c,  b);
+        routerElements.addElement( new  RouterElementContainer( nonCuttingDrill, bitCutLength + (cutTipToColletLength - bitCutLength) / 2.0,  bitTipSize)  );
         
         // Tool Tip
         ObjectInfo toolTipCylinderInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times(0.0001 + bitCutLength / 2.0) ), bitTipSize, bitCutLength, "Bit Tip (" + b + "-" + c + ")" );
@@ -531,19 +540,69 @@ public class Examples {
         setObjectBCOrientation(toolTipCylinderInfo, c,  b);
         routerElements.addElement( new  RouterElementContainer( toolTipCylinderInfo, 0.0001 + bitCutLength / 2.0, bitTipSize)  );
 
+        // Set color for tool tip
+        {
+            Texture texture = null;
+            for(int i = 0; i < scene.getNumTextures(); i++){
+                Texture currTexture = scene.getTexture(i);
+                if(currTexture.getName().equals("Red")){
+                    texture = currTexture;
+                    i = scene.getNumTextures(); // skip
+                }
+            }
+            if(texture == null){
+                texture = new UniformTexture();
+                texture.setName("Red");
+                ((UniformTexture)texture).diffuseColor = new RGBColor(1.0f, 0.1f, 0.1f);
+                scene.addTexture(texture);
+            }
+            UniformMapping mapping = new UniformMapping(toolTipCylinderInfo.getObject(), texture);
+            toolTipCylinderInfo.setTexture( texture, mapping );
+        } 
+
         // ObjectInfo test = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 + bitTipPosition)), bitTipSize, "Test (" + b + "-" + c + ")" ); // Cube represents a part of the machine
         // test.setPhysicalMaterialId(500);
         // setObjectBCOrientation(test, c,  b); // Set orientation
         // routerElements.addElement(  new  RouterElementContainer( test, 0.0001 + bitTipPosition, bitTipSize, false ) );
 
-        // Tool Tip Ball Nose
-        ObjectInfo toolBallNoseSphereInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
-        toolBallNoseSphereInfo.setPhysicalMaterialId(500);
-        setObjectBCOrientation(toolBallNoseSphereInfo, c,  b);
-        RouterElementContainer ballNoseREC = new  RouterElementContainer( toolBallNoseSphereInfo, 0.0001, bitTipSize, false); // Last parameter is enable: DONT detect collision but show
-        routerElements.addElement(  ballNoseREC ); // Disabled collisions because BUGGY
+        // Tool Tip Nose
+        ObjectInfo toolNoseInfo = null;
+        RouterElementContainer toolNoseREC = null;
+        if (ballNoseTipType) { // Add sphere if it is ball nose
+            toolNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+            toolNoseInfo.setPhysicalMaterialId(500);
+            setObjectBCOrientation(toolNoseInfo, c,  b);
+            toolNoseREC = new  RouterElementContainer( toolNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable: DONT detect collision but show
+        } else { // Add cyclinder if it is flat end
+            toolNoseInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 + bitTipSize / 2.0) ), bitTipSize, bitTipSize, "Bit Flat End (" + b + "-" + c + ")" );
+            toolNoseInfo.setPhysicalMaterialId(500);
+            setObjectBCOrientation(toolNoseInfo, c, b);
+            toolNoseREC = new RouterElementContainer(toolNoseInfo, 0.0001, bitTipSize, false);
+        }
+
+        // Set color for tool tip
+        {
+            Texture texture = null;
+            for(int i = 0; i < scene.getNumTextures(); i++){
+                Texture currTexture = scene.getTexture(i);
+                if(currTexture.getName().equals("Red")){
+                    texture = currTexture;
+                    i = scene.getNumTextures(); // skip
+                }
+            }
+            if(texture == null){
+                texture = new UniformTexture();
+                texture.setName("Red");
+                ((UniformTexture)texture).diffuseColor = new RGBColor(1.0f, 0.1f, 0.1f);
+                scene.addTexture(texture);
+            }
+            UniformMapping mapping = new UniformMapping(toolNoseInfo.getObject(), texture);
+            toolNoseInfo.setTexture( texture, mapping );
+        } 
+
+        routerElements.addElement(  toolNoseREC ); // Disabled collisions because BUGGY
         //System.out.println(" Ball size " + ballNoseREC.size + "  loc " + ballNoseREC.location );
-       
+
         
         //
         // Scan surface mesh to create tool path.
@@ -2626,9 +2685,7 @@ public class Examples {
 
     public void loadProperties(Properties prop, String fileName) {
         try {
-            String path = new File(".").getCanonicalPath();
-            //System.out.println("path: " + path);
-            String propertyFileName = path + System.getProperty("file.separator") + fileName;
+            String propertyFileName = new File(".").getCanonicalPath() + System.getProperty("file.separator") + "config" + System.getProperty("file.separator") + fileName;
             InputStream input = new FileInputStream(propertyFileName);
             // load a properties file
             prop.load(input);
