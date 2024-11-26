@@ -499,6 +499,9 @@ public class Examples {
         //       If it is cylinder, reference center point - width / 2 (For some reason, location changes based on width).
         //       Otherwise, reference bottom-y center-x point.
         
+        // IF second run, setPhysicalMaterialId to 
+        // scene.getObjects scene.removeObject if getPhysicalMaterialId == 500
+
         // Router Housing Base
         ObjectInfo routerZBaseCubeInfo = addCubeToScene(window, firstRegionSurfacePoint.plus(toolVector.times( fulcrumToToolTipLength - routerHousingSize / 2.0 ) ), routerHousingSize, "Router Housing Base (" + b + "-" + c + ")" );
         routerZBaseCubeInfo.setPhysicalMaterialId(500);
