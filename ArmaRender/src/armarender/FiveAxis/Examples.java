@@ -725,6 +725,13 @@ public class Examples {
                     
                     
                     //
+                    // Geometry close to the tip of the cutter may not move enought to resolve conflicts. So Make sure it always moves.
+                    //
+                    if(retractDistance < (bitTipSize / 50)){
+                        retractDistance = bitTipSize / 50;
+                    }
+                    
+                    //
                     // Pull all points in channel.
                     // We do this because when we call fill gaps we create new points that could collide,
                     // We don't want to reciursivly add and remove points in an infinite loop.
@@ -2416,15 +2423,15 @@ public class Examples {
         ObjectInfo toolNoseInfo = null;
         RouterElementContainer toolNoseREC = null;
         if (ballNoseTipType) { // Add sphere if it is ball nose
-            toolNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
+            toolNoseInfo = addSphereToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.001 ) ), bitTipSize, "Bit Ball Nose (" + b + "-" + c + ")" );
             toolNoseInfo.setPhysicalMaterialId(500);
             setObjectBCOrientation(toolNoseInfo, c,  b);
-            toolNoseREC = new  RouterElementContainer( toolNoseInfo, 0.0001, bitTipSize, false); // Last parameter is enable: DONT detect collision but show
+            toolNoseREC = new  RouterElementContainer( toolNoseInfo, 0.001, bitTipSize, true); // Last parameter is enable: DONT detect collision but show
         } else { // Add cyclinder if it is flat end
-            toolNoseInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.0001 + bitTipSize / 2.0) ), bitTipSize, bitTipSize, "Bit Flat End (" + b + "-" + c + ")" );
+            toolNoseInfo = addCylinderToScene(window, firstRegionSurfacePoint.plus(toolVector.times( 0.001 + bitTipSize / 2.0) ), bitTipSize, bitTipSize, "Bit Flat End (" + b + "-" + c + ")" );
             toolNoseInfo.setPhysicalMaterialId(500);
             setObjectBCOrientation(toolNoseInfo, c, b);
-            toolNoseREC = new RouterElementContainer(toolNoseInfo, 0.0001, bitTipSize, false);
+            toolNoseREC = new RouterElementContainer(toolNoseInfo, 0.001, bitTipSize, true);
         }
 
         // Set color for tool tip
@@ -3221,6 +3228,12 @@ public class Examples {
                      
                     // NOTE: an optimization would be to take into account which machine object collided and retract the length needed not just the full length.
                     
+                    //
+                    // Geometry close to the tip of the cutter may not move enought to resolve conflicts. So Make sure it always moves.
+                    //
+                    if(retractDistance < (bitTipSize / 50)){
+                        retractDistance = bitTipSize / 50;
+                    }
                     
                     //
                     // Pull all points in channel.
