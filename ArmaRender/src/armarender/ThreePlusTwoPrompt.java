@@ -23,6 +23,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 public class ThreePlusTwoPrompt {
@@ -38,6 +40,10 @@ public class ThreePlusTwoPrompt {
     private ArrayList<String>bitToUse = new ArrayList<>(Arrays.asList("T1", "T2", "T3", "T4", "T5", "T6")); // ArrayList instead of normal array because this might expand in the future
     private int savedToolIndex;
 
+    public JCheckBox restMachiningCheck = null;
+    public JLabel optimalDepthLabel = null;
+    
+    
     public ThreePlusTwoPrompt(boolean roughing){
         //prompt(roughing);
     }
@@ -55,11 +61,11 @@ public class ThreePlusTwoPrompt {
         panel.setLayout(null);
         
         int cellHeight = 20;
-        int secondColX = 190;
+        int secondColX = 140; // 190
         int rowSpacing = 36;
         
-        int labelWidth = 170;
-        int inputFieldWidth = 130;
+        int labelWidth = 120; // 170
+        int inputFieldWidth = 120;
         
         
         JLabel cPositionLabel = new JLabel("C Axis Position");
@@ -86,7 +92,32 @@ public class ThreePlusTwoPrompt {
         bPositionField = new JTextField( new String(45+""));
         bPositionField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(bPositionField);
-          
+        
+        //
+        bPositionField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+                        public void insertUpdate(DocumentEvent e) {
+                            onChange();
+                        }
+
+                        @Override
+                        public void removeUpdate(DocumentEvent e) {
+                            onChange();
+                        }
+
+                        @Override
+                        public void changedUpdate(DocumentEvent e) {
+                            onChange();
+                        }
+
+
+                    private void onChange() {
+                        setOptimalCutDepth();
+                    }
+                });
+        
+        
+        
         cellHeight += rowSpacing;
         
         JLabel toolSelectionLabel = new JLabel("Tool Selection");
@@ -140,9 +171,24 @@ public class ThreePlusTwoPrompt {
             depthLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
             panel.add(depthLabel);
             
-            depthField = new JTextField( new String("0.5"));
+            depthField = new JTextField( new String("0.25"));
             depthField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
             panel.add(depthField);
+            
+            
+            // Calculate optimal depth of cut based on angle of bit (B value) and the length of the cutting
+            // portion of the bit.
+            //double optimalDepth = 0;
+            //double bitCutLength = 1.5; // TODO: get this from the config
+            //double bAngle = getBValue();
+            //optimalDepth = bitCutLength * Math.cos(bAngle);
+            double optimalDepth = setOptimalCutDepth();
+            
+            optimalDepthLabel = new JLabel("Optimal Depth: " + roundThree(optimalDepth) + "\"");
+            optimalDepthLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            optimalDepthLabel.setFont(new Font("Arial", Font.BOLD, 11));
+            optimalDepthLabel.setBounds(secondColX + inputFieldWidth + 5 , cellHeight, labelWidth + 40, 40); // x, y, width, height
+            panel.add(optimalDepthLabel);
         }
         
         
@@ -165,7 +211,31 @@ public class ThreePlusTwoPrompt {
                 
             }
         });
-    
+        
+        
+        if(!roughing){
+            cellHeight += rowSpacing;
+            
+            JLabel restMachiningLabel = new JLabel("Rest Machining");
+            //restMachiningLabel.setForeground(new Color(255, 255, 0));
+            restMachiningLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            restMachiningLabel.setFont(new Font("Arial", Font.BOLD, 11));
+            restMachiningLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+            panel.add(restMachiningLabel);
+            
+            boolean restMachining = true;
+            restMachiningCheck = new JCheckBox("");
+            restMachiningCheck.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
+            restMachiningCheck.setSelected( restMachining );
+            panel.add(restMachiningCheck);
+            restMachiningCheck.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    
+                }
+            });
+        }
+        
+     
         
         UIManager.put("OptionPane.minimumSize",new Dimension(500, cellHeight + 80 + 40));
         
@@ -204,6 +274,22 @@ public class ThreePlusTwoPrompt {
         }
         
         return false;
+    }
+ 
+    
+    /**
+     * setOptimalCutDepth
+     * Description:
+     */
+    public double setOptimalCutDepth(){
+        double optimalDepth = 0;
+        double bitCutLength = 1.5; // TODO: get this from the config
+        double bAngle = Math.toRadians(getBValue());
+        optimalDepth = bitCutLength * Math.cos(bAngle);
+        if(optimalDepthLabel != null){
+            optimalDepthLabel.setText( "Optimal Depth: " + roundThree( optimalDepth ) + "\"");
+        }
+        return optimalDepth;
     }
     
     /**
@@ -333,7 +419,7 @@ public class ThreePlusTwoPrompt {
     
     public double getBValue(){
         double result = 0;
-        if(bPositionField != null){
+        if(bPositionField != null && bPositionField.getText().length() > 0){
             result = Double.parseDouble(bPositionField.getText());
         }
         return result;
@@ -347,13 +433,13 @@ public class ThreePlusTwoPrompt {
         }
         return result;
     }
-    
-    
-    public String getSpeed(){
+
+    public double getSpeed(){
+        double result = 50;
         if(speedField != null){
-            return speedField.getText();
+            result = Double.parseDouble(speedField.getText()); 
         }
-        return "30";
+        return result;
     }
     
     
@@ -365,6 +451,33 @@ public class ThreePlusTwoPrompt {
         return result;
     }
     
+    public boolean getDisplay(){
+        boolean result = true;
+        if(simulateCheck != null){
+            result = simulateCheck.isSelected();
+        }
+        return result;
+    }
+    
+    
+    
+    public boolean getRestMachining(){
+        boolean result = true;
+        if(restMachiningCheck != null){
+            result = restMachiningCheck.isSelected();
+        }
+        return result;
+    }
+    
+    
+    String roundThree(double x){
+        //double rounded = ((double)Math.round(x * 100000) / 100000);
+        
+        DecimalFormat df = new DecimalFormat("#");
+            df.setMaximumFractionDigits(3);
+
+        return df.format(x);
+    }
 }
 
 
