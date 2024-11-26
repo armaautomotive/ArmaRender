@@ -25,6 +25,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+
+import buoy.xml.IconResource;
 
 import javax.swing.*;
 
@@ -107,7 +114,48 @@ public class FiveAxisConfig {
      */
     public void prompt(){
         
-
+        //
+        // User window
+        //
+        JFrame frame = new JFrame("Five Axis Configuration");
+        frame.setSize(600, 600); // Set the window size
+        frame.setLayout(new BorderLayout()); // Use a layout manager (optional)
+        
+        
+        //
+        // Infographic image header
+        //
+        ImageIcon fiveAxisBoundsIcon = new IconResource("armarender/images/5axis_bounds.png");
+        ImageIcon fiveAxisCoordsIcon = new IconResource("armarender/images/5axis_coords.png");
+        ImageIcon fiveAxisDimensionsIcon = new IconResource("armarender/images/5axis_dimensions.png");
+        ImageIcon fiveAxisBitsIcon = new IconResource("armarender/images/5axis_bits.png");
+        
+        JLabel infographicImageLabel = new JLabel(fiveAxisBoundsIcon);
+        infographicImageLabel.setHorizontalAlignment(JLabel.CENTER);
+        infographicImageLabel.setVerticalAlignment(JLabel.CENTER);
+        
+        
+        //
+        // Tabbed control panel
+        //
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int selectedTabIndex = tabbedPane.getSelectedIndex();
+                String tabTitle = tabbedPane.getTitleAt(selectedTabIndex);
+                if(selectedTabIndex == 0){
+                    infographicImageLabel.setIcon(fiveAxisBoundsIcon);
+                } else if(selectedTabIndex == 1){
+                    infographicImageLabel.setIcon(fiveAxisCoordsIcon);
+                } else if(selectedTabIndex == 2){
+                    infographicImageLabel.setIcon(fiveAxisDimensionsIcon);
+                } else if(selectedTabIndex == 3){
+                    infographicImageLabel.setIcon(fiveAxisBitsIcon);
+                }
+            }
+        });
+        
         // Different tabs to organize
         JPanel bedPanel = new JPanel();
         JPanel coordPanel = new JPanel();
@@ -119,7 +167,25 @@ public class FiveAxisConfig {
         routerPanel.setLayout(null);
         bitsPanel.setLayout(null);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        
+        //
+        // Buttons at the bottom.
+        //
+        JPanel buttonsPanel = new JPanel();
+        JButton okButton = new JButton("Ok");
+        buttonsPanel.add(okButton);
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+            }
+        });
+        buttonsPanel.add(cancelButton);
+        
+        frame.add(infographicImageLabel, BorderLayout.NORTH);
+        frame.add(tabbedPane, BorderLayout.CENTER);
+        frame.add(buttonsPanel, BorderLayout.SOUTH);
         
         int cellHeight = 20;
         int maxCellHeight = cellHeight;
@@ -188,19 +254,7 @@ public class FiveAxisConfig {
         maxCellHeight = cellHeight;
         cellHeight = 20;
 
-        /*
-        //depthPerPass
-        cellHeight += rowSpacing;
-        JLabel labelDepthPerPass = new JLabel("Depth Per Pass");
-        labelDepthPerPass.setHorizontalAlignment(SwingConstants.CENTER);
-        labelDepthPerPass.setFont(new Font("Arial", Font.BOLD, 11));
-        labelDepthPerPass.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
-        panel.add(labelDepthPerPass);
         
-        JTextField depthPerPassField = new JTextField(new String(depthPerPass +""));
-        depthPerPassField.setBounds(130, cellHeight, 130, 40); // x, y, width, height
-        panel.add(depthPerPassField);
-        */
         
         /*
         // quanta_length
@@ -222,24 +276,6 @@ public class FiveAxisConfig {
         });
          */
     
-        
-        
-        
-        /*
-        cellHeight += rowSpacing;
-        JLabel roughLabelBit = new JLabel("Rough Drill Bit Diameter");                  // NEW
-        //roughLabelBit.setForeground(new Color(255, 255, 0));
-        roughLabelBit.setHorizontalAlignment(SwingConstants.CENTER);
-        roughLabelBit.setFont(new Font("Arial", Font.BOLD, 11));
-        roughLabelBit.setBounds(0, cellHeight, 130, 40); // x, y, width, height
-        panel.add(roughLabelBit);
-        
-        JTextField roughBitField = new JTextField("" + rough_drill_bit);
-        roughBitField.setBounds(130, cellHeight, 130, 40); // x, y, width, height
-        panel.add(roughBitField);
-        */
-        
-        
         
         //
         // Coordinate system.
@@ -497,26 +533,6 @@ public class FiveAxisConfig {
         // Add Tabbed pane to the main panel
         // panel.add(tabbedPane);
         
-        /*
-        cellHeight += 40;
-        JLabel optimizationLabel = new JLabel("Cut Optimization ");
-        //labelHeight.setForeground(new Color(255, 255, 0));
-        optimizationLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        optimizationLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        optimizationLabel.setBounds(0, cellHeight, 130, 40); // x, y, width, height
-        panel.add(optimizationLabel);
-        
-        optimizationCheck = new JCheckBox("");
-        optimizationCheck.setBounds(secondColX, cellHeight, 130, 40); // x, y, width, height
-        optimizationCheck.setSelected( cutOptimization );
-        panel.add(optimizationCheck);
-        optimizationCheck.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                save();
-                System.out.println("save optimize ");
-            }
-        });
-        */
         
         /*
         cellHeight += 40;
@@ -570,14 +586,19 @@ public class FiveAxisConfig {
         panel.add(warningHeight);
         */
         int paneHeight = maxCellHeight + 120;
-        UIManager.put("OptionPane.minimumSize",new Dimension(500, paneHeight));
-        tabbedPane.setPreferredSize(new Dimension(450, paneHeight));
+        //UIManager.put("OptionPane.minimumSize",new Dimension(500, paneHeight));
+        //tabbedPane.setPreferredSize(new Dimension(450, paneHeight));
 
         load(); // read propertyies and set UI fields.
-        ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
+        //ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
+        
+        frame.setAlwaysOnTop(true);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
 
+        /*
         //int result = JOptionPane.showConfirmDialog(null, panel, "Five Axis CNC Properties", JOptionPane.OK_CANCEL_OPTION);
-        int result = JOptionPane.showConfirmDialog(null, tabbedPane, "Five Axis CNC Configuration", JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION,  iconImage);
+        int result = JOptionPane.showConfirmDialog(null, frame, "Five Axis CNC Configuration", JOptionPane.OK_CANCEL_OPTION, JOptionPane.OK_CANCEL_OPTION,  iconImage);
         if (result == JOptionPane.OK_OPTION) {
             //System.out.println("width value: " + widthField.getText());
             //System.out.println("depth value: " + depthField.getText());
@@ -614,6 +635,30 @@ public class FiveAxisConfig {
             
             //return true;
         }
+         */
+        
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                width = Integer.parseInt(widthField.getText());
+                depth = Integer.parseInt(depthField.getText());
+                bed_height = Double.parseDouble(heightField.getText());
+                drill_bit = Double.parseDouble(bitField.getText());
+                nozzleDistance = Double.parseDouble(nozzleDistanceField.getText());
+                cAngleOrigin = Double.parseDouble(cAngleOriginField.getText());
+                
+                // Router
+                fulcrumToHousingRear = Double.parseDouble(fulcrumToHousingRearField.getText());
+                routerHousingDiameter = Double.parseDouble(routerHousingDiameterField.getText());
+                colleteWidth = Double.parseDouble(colleteWidthField.getText());
+                nozzleDistance = Double.parseDouble(nozzleDistanceField.getText()); // collete distance
+                
+                // Tools T1
+                drill_bit = Double.parseDouble(bitField.getText()); // T1 Bit Diameter
+                
+                frame.dispose();
+            }
+        });
         
     }
     
