@@ -26,6 +26,9 @@ import armarender.ui.ProgressDialog;
 import armarender.material.*;
 import armarender.texture.*;
 
+import java.io.*;
+import javax.swing.*;
+
 public class Examples {
 
     private Properties routerConfigProps = new Properties();
@@ -3569,8 +3572,124 @@ public class Examples {
      * 3) You can use it to tell a finishing pass not to cut existing areas allready cut using the 'rest machining' checkbox.
      */
     public void loadGCode(LayoutWindow window){
+        //System.out.println("load GCode. Not implemented. ");
         
-        System.out.println("load GCode. Not implemented. ");
+        // Prompt user for gcode file.
+        JFileChooser fileChooser = new JFileChooser();
+
+        // Set the title of the dialog
+        fileChooser.setDialogTitle("Select a GCode file");
+
+        // Show the file chooser dialog
+        int result = fileChooser.showOpenDialog(null);
+
+        // Check if the user selected a file
+        if (result == JFileChooser.APPROVE_OPTION) {
+            // Get the selected file
+            File selectedFile = fileChooser.getSelectedFile();
+            //System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+            Vector<SurfacePointContainer> pathPoints = new Vector<SurfacePointContainer>();
+            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    //System.out.println(line); // Print each line
+                    // x-2.801 y-1.875 z-.547 b0 c0 f50;
+                    double x = 0;
+                    double y = 0;
+                    double z = 0;
+                    double b = 0;
+                    double c = 0;
+                    int xStart = line.indexOf("x");
+                    if(xStart != -1){
+                        int xEnd = line.indexOf(" ", xStart);
+                        if(xEnd != -1){
+                            String xSection = line.substring(xStart + 1, xEnd);
+                            //System.out.println("xSection: _" + xSection + "_" );
+                            if(xSection.length() > 0){
+                                try {
+                                    x = Double.parseDouble(xSection);
+                                } catch (Exception e){
+                                    
+                                }
+                            }
+                        }
+                    }
+                    int yStart = line.indexOf("y");
+                    if(yStart != -1){
+                        int yEnd = line.indexOf(" ", yStart);
+                        if(yEnd != -1){
+                            String ySection = line.substring(yStart + 1, yEnd);
+                            //System.out.println("xSection: _" + xSection + "_" );
+                            if(ySection.length() > 0){
+                                try {
+                                    //System.out.println("ySection: _" + ySection + "_" );
+                                    y = Double.parseDouble(ySection);
+                                } catch (Exception e){
+                                    
+                                }
+                            }
+                        }
+                    }
+                    int zStart = line.indexOf("z");
+                    if(zStart != -1){
+                        int zEnd = line.indexOf(" ", zStart);
+                        if(zEnd != -1){
+                            String zSection = line.substring(zStart + 1, zEnd);
+                            //System.out.println("xSection: _" + xSection + "_" );
+                            if(zSection.length() > 0){
+                                try {
+                                    z = Double.parseDouble(zSection);
+                                } catch (Exception e){
+                                    
+                                }
+                            }
+                        }
+                    }
+                    /*
+                    int bStart = line.indexOf("b");
+                    if(bStart != -1){
+                        int bEnd = line.indexOf(" ", bStart);
+                        if(bEnd != -1){
+                            String bSection = line.substring(bStart + 1, bEnd);
+                            //
+                            if(bSection.length() > 0){
+                                System.out.println("xSection: _" + bSection + "_" );
+                                b = Double.parseDouble(bSection);
+                            }
+                        }
+                    }
+                    int cStart = line.indexOf("b");
+                    if(cStart != -1){
+                        int cEnd = line.indexOf(" ", cStart);
+                        if(cEnd != -1){
+                            String cSection = line.substring(cStart + 1, cEnd);
+                            //System.out.println("xSection: _" + xSection + "_" );
+                            if(cSection.length() > 0){
+                                c = Double.parseDouble(cSection);
+                            }
+                        }
+                    }
+                    */
+                    
+                    //
+                    if(x != 0 && y != 0 && z != 0){
+                        Vec3 point = new Vec3(x, z, y);
+                        SurfacePointContainer pointContainer = new SurfacePointContainer(point, 0);
+                        pathPoints.addElement(pointContainer);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            // Add path to scene.
+            addLineToSceneSPC(window, pathPoints, "Loaded GCode Tool Path", true);
+            
+            window.updateImage();
+            
+        } else {
+            System.out.println("No file was selected.");
+        }
     }
     
     
@@ -3580,8 +3699,172 @@ public class Examples {
      * TODO: what about the attributes? Capture them from an existing gcode file by the same name?
      */
     public void saveSelectedGCode(LayoutWindow window){
+        Scene theScene = window.getScene();
+        //System.out.println("save selected GCode. Not implemented. ");
         
-        System.out.println("save selected GCode. Not implemented. ");
+        // Check that a curve is selected.
+        int selection [] = theScene.getSelection();
+                
+            
+        //Object selectedObjects[] = itemTree.getSelectedObjects();
+        if(selection.length > 0){
+            ObjectInfo selectedInfo = (ObjectInfo) theScene.getObject(selection[0]);
+            if(selectedInfo.getObject() instanceof Curve){
+                
+                // Prompt for speed, andgle?
+                
+                writeCurveToGCode(window, selectedInfo);
+                
+            } else {
+                // Error
+            }
+        } else {
+            // Error
+            
+        }
+    }
+    
+    
+    /**
+     * writeCurveToGCode
+     *
+     * Description:
+     *
+     *@param: window -
+     *@param: ObjectInfo -
+     */
+    public void writeCurveToGCode(LayoutWindow window, ObjectInfo info){
+        Scene scene = window.getScene();
+        double speed = 60;
+        
+        Vector<SurfacePointContainer> toolPath1 = new Vector<SurfacePointContainer>();
+        if(info.getObject() instanceof Curve){
+            Curve curve = (Curve)info.getObject();
+            // verts
+            Vec3 [] verts = curve.getVertexPositions();
+            for(int i = 0; i < verts.length; i++){
+                Vec3 vec = verts[i];
+                SurfacePointContainer spc = new SurfacePointContainer(vec, 0);
+                toolPath1.addElement(spc);
+            }
+        }
+        
+        
+        String gCode = toolPathToGCode(window, toolPath1, speed);
+        
+        double toolPathTime = getToolpathTime( toolPath1, speed );
+        System.out.println("Machining Time Estimate: " + scene.roundThree(toolPathTime) + " minutes" );
+        String toolName = "N/A";
+        
+        // Append header and footer
+        String header =
+        "(Arma Automotive Inc.)\n"+
+        "(Date: n/a)\n"+
+            "(Duration Minutes: "+ scene.roundThree(toolPathTime) +")\n"+
+            "()\n"+
+            "G90 (Absolute Positioning)\n" +
+            "G94 (Feed Per Minute. f = units per minute)\n" +
+            "G40 (Disable Cutter Radius Compensation)\n" +
+            "G49 (Cancel Tool Length Offset)\n" +
+            "G20 (Inches Mode)\n"+
+            "G17 (XY Plane or flat to ground)\n"+
+            "(" + toolName + " M6) (Switch Tool)\n"+
+            "(S9000 M3) (Set Spindle RPM, Clockwise direction)\n"+
+            "G55 (Work Coordinate System selection)"+
+            "\n" +
+            "G01\n";
+                        //"//G28 (Return to Machine Home)
+        
+        String footer = "\n" +
+            "(M5) (Stop Spindle)\n" +
+            "G28  (Return to Machine Home)\n" +
+            "G90 (Absolute Positioning)\n" +
+            "G0 B0. C0. (Orient Router B/C)\n" +
+            "M30 (Program End and Rest)\n";
+                    
+        
+        gCode = header + gCode + footer;
+        
+        //Vector<SurfacePointContainer> toolPath2 = calculateFinishingRoutingPassWithBC( window, 45, 15 + 180, accuracy, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 3, display ); // Second Pass -> Rotated N degrees
+        //gCode += toolPathToGCode(window, toolPath2 );
+        
+        window.updateImage(); // Update scene
+        
+        
+        // Write GCode to file..
+        try {
+            String fileName =  window.getScene().getName() ==null?"Untitled.ads":window.getScene().getName();
+            int extensionPos = fileName.indexOf(".ads");
+            if(extensionPos != -1){
+                fileName = fileName.substring(0, extensionPos);
+            }
+            
+            String dirString = window.getScene().getDirectory() + System.getProperty("file.separator") + fileName;
+            File d = new File(dirString);
+            if(d.exists() == false){
+                d.mkdir();
+            }
+            
+            // folder for tube bends
+            dirString = window.getScene().getDirectory() + System.getProperty("file.separator") + fileName + System.getProperty("file.separator") + "mill5axis"; // TODO: put the folder 'mill5axis' in a constant somewhere
+            d = new File(dirString);
+            if(d.exists() == false){
+                d.mkdir();
+            }
+            
+            // Choose file to write.
+            
+            /*
+            File f = new File( dirString + System.getProperty("file.separator") + "finishing_3+2_"+b+"_"+c+"_"+accuracy+".gcode" );
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
+            out.write(gCode);
+            out.close();
+            */
+            
+            
+            JFileChooser fileChooser = new JFileChooser( d );
+
+            // Set the dialog title
+            fileChooser.setDialogTitle("Specify a file to save");
+            fileChooser.setSelectedFile(new File( info.getName() + "_write.gcode"));
+
+            // Show the save dialog
+            int userSelection = fileChooser.showSaveDialog(null);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+
+                // Attempt to create the file
+                try {
+                    if (fileToSave.createNewFile()) {
+                        System.out.println("File created: " + fileToSave.getAbsolutePath());
+                        
+                        // gCode
+                        try (FileWriter writer = new FileWriter(fileToSave)) {
+                            writer.write(gCode);
+                            //System.out.println("Successfully wrote to the file: " + filePath);
+                        } catch (IOException e) {
+                            System.err.println("An error occurred while writing to the file.");
+                            e.printStackTrace();
+                        }
+                        
+                    } else {
+                        System.out.println("File already exists at: " + fileToSave.getAbsolutePath());
+                    }
+                } catch (IOException e) {
+                    System.err.println("An error occurred while creating the file.");
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("File creation was canceled by the user.");
+            }
+            
+            
+            //window.loadExportFolder();
+            
+        } catch (Exception e){
+            
+        }
     }
     
     
