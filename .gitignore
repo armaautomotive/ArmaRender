@@ -8,3 +8,5 @@ ArmaRender.jar
 Plugins/*
 SerialInterface/*
 lib/*
+*.jar
+config/*
