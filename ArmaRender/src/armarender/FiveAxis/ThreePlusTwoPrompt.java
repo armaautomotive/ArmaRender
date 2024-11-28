@@ -34,6 +34,7 @@ public class ThreePlusTwoPrompt {
     public JTextField accuracyField = null;
     public JComboBox toolSelectionField = null;
     public JTextField speedField = null;
+    public JTextField rpmField = null;
     public JTextField depthField = null;
     public JCheckBox simulateCheck = null;
 
@@ -159,7 +160,20 @@ public class ThreePlusTwoPrompt {
         speedField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
         panel.add(speedField);
         
+        cellHeight += rowSpacing;
+
+        // RPM
+        JLabel rpmLabel = new JLabel("Rate Per Min (RPM)");
+        //rpmLabel.setForeground(new Color(255, 255, 0));
+        rpmLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        rpmLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        rpmLabel.setBounds(0, cellHeight, labelWidth, 40); // x, y, width, height
+        panel.add(rpmLabel);
         
+        rpmField = new JTextField( new String("9000"));
+        rpmField.setBounds(secondColX, cellHeight, inputFieldWidth, 40); // x, y, width, height
+        panel.add(rpmField);
+
         // Max cut depth
         if(roughing){
             cellHeight += rowSpacing;
@@ -333,6 +347,7 @@ public class ThreePlusTwoPrompt {
             setStringProperty(prop, bPositionField, "ads.export_5axis_b_axis");
             setStringProperty(prop, accuracyField, "ads.export_5axis_accuracy");
             setStringProperty(prop, speedField, "ads.export_5axis_speed");
+            setStringProperty(prop, rpmField, "ads.export_5axis_rpm");
             setBooleanProperty(prop, simulateCheck, "ads.export_5axis_markup");
 
             // Select saved tool
@@ -357,6 +372,7 @@ public class ThreePlusTwoPrompt {
             prop.setProperty("ads.export_5axis_b_axis", ""+bPositionField.getText());
             prop.setProperty("ads.export_5axis_accuracy", ""+accuracyField.getText());
             prop.setProperty("ads.export_5axis_speed", ""+speedField.getText());
+            prop.setProperty("ads.export_5axis_rpm", ""+rpmField.getText());
             prop.setProperty("ads.export_5axis_markup", ""+simulateCheck.isSelected());
 
             // Check if user selected other tool
@@ -442,6 +458,13 @@ public class ThreePlusTwoPrompt {
         return result;
     }
     
+    public int getRPM(){
+        int result = 9000;
+        if(rpmField != null){
+            result = Integer.parseInt(rpmField.getText()); 
+        }
+        return result;
+    }
     
     public double getDepth(){
         double result = 0.25;
@@ -479,5 +502,3 @@ public class ThreePlusTwoPrompt {
         return df.format(x);
     }
 }
-
-

@@ -30,6 +30,7 @@ public class Examples {
 
     private Properties routerConfigProps = new Properties();
     private Properties bitProps = new Properties();
+    private static Vector<ObjectInfo> previousObjects;
     
     public Examples(){
         
@@ -89,6 +90,7 @@ public class Examples {
             public void run() {
                 LayoutModeling layout = new LayoutModeling();
                 Scene scene = window.getScene();
+
                 
                 // Prompt user for:
                 // 1) B angle: default 45
@@ -103,6 +105,8 @@ public class Examples {
                     return;
                 }
 
+                removeObjectsSecondRun(window);
+                
                 // Load the router config and bit config from property files
                 loadProperties(routerConfigProps, "cam.properties");
                 String toolName = getStringProperty(routerConfigProps, "ads.export_bit_name", "T1");
@@ -129,6 +133,7 @@ public class Examples {
                 double accuracy = prompt.getAccuracy();
                 display = prompt.getDisplay();
                 double speed = prompt.getSpeed();
+                int rpm = prompt.getRPM();
                 restMachiningEnabled = prompt.getRestMachining();
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateFinishingRoutingPassWithBC( window, b, c,
@@ -153,7 +158,7 @@ public class Examples {
                     "G20 (Inches Mode)\n"+
                     "G17 (XY Plane or flat to ground)\n"+
                     "(" + toolName + " M6) (Switch Tool)\n"+
-                    "(S9000 M3) (Set Spindle RPM, Clockwise direction)\n"+
+                    "(S" + rpm + " M3) (Set Spindle RPM, Clockwise direction)\n"+
                     "G55 (Work Coordinate System selection)"+
                     "\n" +
                     "G01\n";
@@ -2456,6 +2461,26 @@ public class Examples {
 
         routerElements.addElement(  toolNoseREC ); // Disabled collisions because BUGGY
     }
+
+    /**
+     * removeObjectsSecondRun
+     * Description: remove unnecessary objects from scene for the second run.
+     * Mostly remove router and mapping objects.
+     */
+    public void removeObjectsSecondRun(LayoutWindow window) {
+        // Remove unecessary objects from scene
+        Scene scene = window.getScene();
+        Vector<ObjectInfo> sceneObjects = scene.getObjects();
+        for (int i = 0; i < sceneObjects.size(); i ++) { 
+            ObjectInfo object = sceneObjects.elementAt(i);
+
+            if (object.getPhysicalMaterialId() == 500) {
+                scene.removeObjectInfo(object);
+                i--;
+            }
+        }
+        window.updateTree();
+    }
     
     
     /**
@@ -2476,6 +2501,8 @@ public class Examples {
                     return;
                 }
 
+                removeObjectsSecondRun(window);
+
                 // Load the router config and bit config from property files
                 loadProperties(routerConfigProps, "cam.properties");
                 String toolName = getStringProperty(routerConfigProps, "ads.export_bit_name", "T1");
@@ -2494,8 +2521,6 @@ public class Examples {
                 double maxCutDepth = 0.5; // only cut depth at one time.
                 double drillBitWidth = 0.2;
                 double layerHeight = 3; // define the height of the material to be cut. Will be higher than the geometry of the scene.
-                
-                boolean restMachiningEnabled = true;    // Will only cut regions that have not been cut allready by a previous pass.
                 boolean display = true; // display intermediate steps.
                 
                 
@@ -2507,6 +2532,8 @@ public class Examples {
                 layerHeight = prompt.getDepth();
                 display = prompt.getDisplay();
                 double speed = prompt.getSpeed();
+                int rpm = prompt.getRPM();
+                boolean restMachiningEnabled = prompt.getRestMachining();
                 
                 Vector<SurfacePointContainer> toolPath1 = calculateRoughingRoutingPassWithBC( window, b, c, accuracy, layerHeight, restMachiningEnabled, ballNoseTipType, scanedSurfacePoints, 1, display,
                                                                                              progressDialog); // First Pass
@@ -2528,7 +2555,7 @@ public class Examples {
                     "G20 (Inches Mode)\n"+
                     "G17 (XY Plane or flat to ground)\n"+
                     "(" + toolName + " M6) (Switch Tool)\n"+
-                    "(S9000 M3) (Set Spindle RPM, Clockwise direction)\n"+
+                    "(S" + rpm + " M3) (Set Spindle RPM, Clockwise direction)\n"+
                     "G55 (Work Coordinate System selection)"+
                     "\n" +
                     "G01\n";

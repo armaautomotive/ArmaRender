@@ -6920,7 +6920,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void constructRouterGeometryCommand(){
         Examples ex = new Examples();
-        ex.constructRouterGeometry(this);
+        //ex.constructRouterGeometry(this);
     }
     
     
