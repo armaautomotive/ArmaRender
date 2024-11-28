@@ -105,7 +105,7 @@ public class Examples {
                     return;
                 }
 
-                removeObjectsSecondRun(window);
+                removeGeneratedObjectsFromScene(window);
                 
                 // Load the router config and bit config from property files
                 loadProperties(routerConfigProps, "cam.properties");
@@ -2463,11 +2463,11 @@ public class Examples {
     }
 
     /**
-     * removeObjectsSecondRun
+     * removeGeneratedObjectsFromScene
      * Description: remove unnecessary objects from scene for the second run.
      * Mostly remove router and mapping objects.
      */
-    public void removeObjectsSecondRun(LayoutWindow window) {
+    public void removeGeneratedObjectsFromScene(LayoutWindow window) {
         // Remove unecessary objects from scene
         Scene scene = window.getScene();
         Vector<ObjectInfo> sceneObjects = scene.getObjects();
@@ -2501,7 +2501,7 @@ public class Examples {
                     return;
                 }
 
-                removeObjectsSecondRun(window);
+                removeGeneratedObjectsFromScene(window);
 
                 // Load the router config and bit config from property files
                 loadProperties(routerConfigProps, "cam.properties");
