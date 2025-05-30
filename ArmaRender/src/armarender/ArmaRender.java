@@ -209,6 +209,10 @@ public class ArmaRender
     
     
     // Import code from libs (for GraalVM)
+          
+          
+          PluginRegistry.registerPlugin(new armarender.translators.OpenFOAMTranslator());
+          
     PluginRegistry.registerPlugin(new armarender.translators.OBJTranslator());
     PluginRegistry.registerPlugin(new armarender.translators.STLTranslator());
     PluginRegistry.registerPlugin(new armarender.translators.POVTranslator());

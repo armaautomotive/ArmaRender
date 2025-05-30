@@ -6920,7 +6920,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     
     public void constructRouterGeometryCommand(){
         Examples ex = new Examples();
-        ex.constructRouterGeometry(this);
+        //ex.constructRouterGeometry(this);
     }
     
     
@@ -7036,7 +7036,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         if(theScene == null){
             
             UIManager.put("OptionPane.minimumSize",new Dimension(300, 100));
-            ImageIcon iconImage = new ImageIcon(getClass().getResource("/armadesignstudio/Icons/favicon-32x32.png"));
+            ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
             
             JOptionPane.showMessageDialog(null, "Scene not loaded.",  "Error" , JOptionPane.ERROR_MESSAGE , iconImage);
             return;
@@ -7045,7 +7045,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
         // If unsaved, display error.
         if(theScene.getDirectory() == null){
             UIManager.put("OptionPane.minimumSize",new Dimension(300, 100));
-            ImageIcon iconImage = new ImageIcon(getClass().getResource("/armadesignstudio/Icons/favicon-32x32.png"));
+            ImageIcon iconImage = new ImageIcon(getClass().getResource("/armarender/Icons/favicon-32x32.png"));
             
             
             JOptionPane.showMessageDialog(null, "Save or load a Project.",  "Error" , JOptionPane.ERROR_MESSAGE , iconImage);
