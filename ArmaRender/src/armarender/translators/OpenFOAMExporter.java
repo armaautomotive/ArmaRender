@@ -96,7 +96,7 @@ public class OpenFOAMExporter
         
         for(int a = 0; a < objects.size(); a++){
             ObjectInfo info = (ObjectInfo)objects.elementAt(a);
-            if(info.getParent() == null){   // Only process root level objects.
+            //if(info.getParent() == null){   // Only process root level objects.
                 Object3D obj = info.getObject();
                 //if( obj.canConvertToTriangleMesh() != Object3D.CANT_CONVERT ){
                 
@@ -148,7 +148,7 @@ public class OpenFOAMExporter
                 
                 //int progress = (int) (((float)(a) / (float)(objects.size())) * (float)100);
                 //progressDialog.setProgress(progress);
-            }
+            //}
         }
         
         
