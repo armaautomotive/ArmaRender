@@ -4089,7 +4089,7 @@ public class Scene
         // *** todo
     }
 
-	String roundThree(double x){
+	public String roundThree(double x){
 		//double rounded = ((double)Math.round(x * 100000) / 100000);
 		
 		DecimalFormat df = new DecimalFormat("#");

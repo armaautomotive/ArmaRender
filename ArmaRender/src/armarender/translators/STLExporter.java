@@ -1,12 +1,8 @@
-/* Copyright (C) 2002-2009 by Peter Eastman
+/* Copyright (C) 2025 Jon Taylor
 
-   This program is free software; you can redistribute it and/or modify it under the
-   terms of the GNU General Public License as published by the Free Software
-   Foundation; either version 2 of the License, or (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-   PARTICULAR PURPOSE.  See the GNU General Public License for more details. */
+    
+ TODO: Add preogress bar
+ */
 
 package armarender.translators;
 
@@ -29,6 +25,10 @@ public class STLExporter
   
   public static void exportFile(BFrame parent, Scene theScene)
   {
+      System.out.println("STL Export.");
+      Thread worker = new Thread() {
+          public void run() {
+      
     // Display a dialog box with options on how to export the scene.
     
     ValueField errorField = new ValueField(0.05, ValueField.POSITIVE);
@@ -57,16 +57,43 @@ public class STLExporter
 	  new Widget [] {exportChoice, errorField, smoothBox, normalsBox, mtlBox, Translate.label("imageSizeForTextures"), widthField, heightField, qualitySlider},
 	  new String [] {null, Translate.text("maxSurfaceError"), null, null, null, null, Translate.text("Width"), Translate.text("Height"), Translate.text("imageQuality")});
     else
-      dlg = new ComponentsDialog(parent, Translate.text("exportToOBJ"), 
+      dlg = new ComponentsDialog(parent, Translate.text("exportToSTL"),
 	  new Widget [] {errorField, smoothBox, normalsBox, mtlBox, Translate.label("imageSizeForTextures"), widthField, heightField, qualitySlider},
 	  new String [] {Translate.text("maxSurfaceError"), null, null, null, null, Translate.text("Width"), Translate.text("Height"), Translate.text("imageQuality")});
     if (!dlg.clickedOk())
       return;
 
+      
+      
+      // format file name
+      String fileName = theScene.getName();
+      int extensionPos = fileName.indexOf(".ads");
+      if(extensionPos != -1){
+          fileName = fileName.substring(0, extensionPos);
+      }
+      
+      String exportDir = theScene.getDirectory() + System.getProperty("file.separator") + fileName;
+      File d = new File(exportDir);
+      if(d.exists() == false){
+          d.mkdir();
+      }
+      
+      // folder for tube bends
+      exportDir = theScene.getDirectory() + System.getProperty("file.separator") + fileName + System.getProperty("file.separator") + "stl";
+      d = new File(exportDir);
+      if(d.exists() == false){
+          d.mkdir();
+      }
+      
+      
+      
     // Ask the user to select the output file.
-
-    BFileChooser fc = new BFileChooser(BFileChooser.SAVE_FILE, Translate.text("exportToOBJ"));
-    fc.setSelectedFile(new File("Untitled.obj"));
+    BFileChooser fc = new BFileChooser(BFileChooser.SAVE_FILE, Translate.text("exportToSTL"), d); // SelectionMode mode, String title, File directory
+      
+      //fc.setDirectory(new File(exportDir));
+      fc.setSelectedFile(new File(fileName + ".stl"));
+      
+    //fc.setSelectedFile(new File(fileName + ".stl"));
     if (ArmaRender.getCurrentDirectory() != null)
       fc.setDirectory(new File(ArmaRender.getCurrentDirectory()));
     if (!fc.showDialog(parent))
@@ -74,8 +101,11 @@ public class STLExporter
     File dir = fc.getDirectory();
     File f = fc.getSelectedFile();
     String name = f.getName();
-    String baseName = (name.endsWith(".obj") ? name.substring(0, name.length()-4) : name);
-    ArmaRender.setCurrentDirectory(dir.getAbsolutePath());
+    String baseName = (name.endsWith(".stl") ? name.substring(0, name.length()-4) : name);
+              ArmaRender.setCurrentDirectory(dir.getAbsolutePath());
+      
+      
+      
     
     // Create the output files.
 
@@ -83,19 +113,27 @@ public class STLExporter
     {
       TextureImageExporter textureExporter = null;
       String mtlFilename = null;
-      if (mtlBox.getState())
+      /*
+        if (mtlBox.getState())
       {
         textureExporter = new TextureImageExporter(dir, baseName, (int) (100*qualitySlider.getValue()),
             TextureImageExporter.DIFFUSE+TextureImageExporter.HILIGHT+TextureImageExporter.EMISSIVE,
             (int) widthField.getValue(), (int) heightField.getValue());
-        mtlFilename = baseName.replace(' ', '_')+".mtl";
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(new File(dir, mtlFilename))));
-        writeTextures(theScene, out, exportChoice.getSelectedIndex() == 0, textureExporter);
-        out.close();
+        
+          mtlFilename = baseName.replace(' ', '_')+".mtl";
+        //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(new File(dir, mtlFilename))));
+        //writeTextures(theScene, out, exportChoice.getSelectedIndex() == 0, textureExporter);
+        //out.close();
         textureExporter.saveImages();
       }
+       */
       PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
-      writeScene(theScene, out, exportChoice.getSelectedIndex() == 0, errorField.getValue(), smoothBox.getState(), normalsBox.getState(), textureExporter, mtlFilename);
+      writeScene(theScene, out,
+                 exportChoice.getSelectedIndex() == 0,
+                 errorField.getValue(),
+                 smoothBox.getState(),
+                 normalsBox.getState(),
+                 textureExporter, mtlFilename, fileName);
       out.close();
     }
     catch (Exception ex)
@@ -103,20 +141,44 @@ public class STLExporter
         ex.printStackTrace();
         new BStandardDialog("", new String [] {Translate.text("errorExportingScene"), ex.getMessage() == null ? "" : ex.getMessage()}, BStandardDialog.ERROR).showMessageDialog(parent);
       }
+      
+              
+              
+          }
+      };
+      worker.start();
+      
   }
 
-  /** Write out the scene in OBJ format to the specified PrintWriter.  The other parameters
-      correspond to the options in the dialog box displayed by exportFile(). */
-
-  public static void writeScene(Scene theScene, PrintWriter out, boolean wholeScene, double tol, boolean smooth, boolean alwaysStoreNormals, TextureImageExporter textureExporter, String mtlFilename)
+    
+  /**
+   * Write out the scene in STL format to the specified PrintWriter.  The other parameters
+   *   correspond to the options in the dialog box displayed by exportFile().
+   */
+  public static void writeScene(Scene theScene,
+                                PrintWriter out,
+                                boolean wholeScene,
+                                double tol,
+                                boolean smooth,
+                                boolean alwaysStoreNormals,
+                                TextureImageExporter textureExporter,
+                                String mtlFilename,
+                                String fileName)
   {
+      
+      ProgressDialog progressDialog = new ProgressDialog("Exporting");
+      progressDialog.start();
+      progressDialog.setProgress(1);
+      
     // Write the header information.
 
-    out.println("#Produced by Arma Automotive - Arma Render "+ArmaRender.getVersion()+", "+(new Date()).toString());
-    if (mtlFilename != null)
-      out.println("mtllib "+mtlFilename);
+    out.println("comment Produced by Arma Automotive - Arma Design Studio "+ArmaRender.getVersion()+", "+(new Date()).toString());
+    //if (mtlFilename != null)
+    //  out.println("mtllib "+mtlFilename);
 
     // Write the objects in the scene.
+      
+      out.println("solid " + fileName);
 
     int numVert = 0, numNorm = 0, numTexVert = 0;
     Hashtable<String, String> groupNames = new Hashtable<String, String>();
@@ -125,6 +187,9 @@ public class STLExporter
     nf.setGroupingUsed(false);
     for (int i = 0; i < theScene.getNumObjects(); i++)
       {
+          int progress = (int) (((float)(i / (float)(theScene.getNumObjects())) * (float)100));
+          progressDialog.setProgress(progress);
+          
         // Get a rendering mesh for the object.
         
         ObjectInfo info = theScene.getObject(i);
@@ -132,20 +197,27 @@ public class STLExporter
           continue;
         if (info.getObject().getTexture() == null)
           continue;
-        FacetedMesh mesh;
-        if (!smooth && info.getObject() instanceof FacetedMesh)
-          mesh = (FacetedMesh) info.getObject();
+          
+          if(info.getObject() instanceof Curve){
+              continue;
+          }
+          
+          TriangleMesh mesh;
+        if (!smooth && info.getObject() instanceof TriangleMesh)
+          mesh = (TriangleMesh) info.getObject();
         else
           mesh = info.getObject().convertToTriangleMesh(tol);
         if (mesh == null)
           continue;
 
+          
         // Find the normals.
 
         Vec3 norm[];
         int normIndex[][] = new int[mesh.getFaceCount()][];
-        if (mesh instanceof TriangleMesh)
+          if (mesh instanceof TriangleMesh ) // && mesh instanceof Curve == false
         {
+            System.out.println(" - " + info.getName()  + " " + mesh.getClass().getName() );
           RenderingMesh rm = ((TriangleMesh) mesh).getRenderingMesh(Double.MAX_VALUE, false, info);
           norm = rm.norm;
           for (int j = 0; j < normIndex.length; j++)
@@ -162,10 +234,76 @@ public class STLExporter
           }
         }
 
+          
         // Determine whether normals are actually required.
 
         MeshVertex vert[] = mesh.getVertices();
-        boolean needNormals = false;
+        
+          boolean needNormals = true;
+          
+          
+          /*
+          Mat4 trans = info.getCoords().fromLocal();
+          for (int j = 0; j < vert.length; j++)
+            {
+              Vec3 v = trans.times(vert[j].r);
+              out.println("v "+nf.format(v.x)+" "+nf.format(v.y)+" "+nf.format(v.z));
+            }
+          
+          
+          for (int j = 0; j < mesh.getFaceCount(); j++)
+          {
+            out.print("f ");
+            for (int k = 0; k < mesh.getFaceVertexCount(j); k++)
+            {
+              int vertIndex = mesh.getFaceVertexIndex(j, k)+1;
+              if (k > 0){
+                out.print(' ');
+              }
+              out.print(vertIndex+numVert);
+              //if (needNormals)
+              //{
+              //  out.print("//");
+              //  out.print(normIndex[j][k]+numNorm+1);
+              //}
+            }
+            out.println();
+          }
+           */
+          
+          //CoordinateSystem cs =
+          Mat4 trans = info.getCoords().fromLocal();
+          
+          TriangleMesh.Face[] faces = mesh.getFaces();
+          
+          for(int f = 0; f < faces.length; f++){
+              TriangleMesh.Face face = faces[f];
+              Vec3 a = new Vec3(vert[ face.v1 ].r);
+              Vec3 b = new Vec3(vert[ face.v2 ].r);
+              Vec3 c = new Vec3(vert[ face.v3 ].r);
+              trans.transform(a);
+              trans.transform(b);
+              trans.transform(c);
+              
+              
+              
+              Vec3 normal = Vec3.getFaceNormal(a, b, c);
+              
+              //System.out.println(" a " + normal);
+              
+              out.print("  facet normal " + theScene.roundThree(normal.x) + " " + theScene.roundThree(normal.y)+ " " + theScene.roundThree(normal.z) + "\n");
+              out.print("    outer loop\n");
+              out.print("      vertex " + theScene.roundThree(a.x) + " " + theScene.roundThree(a.y) + " " + theScene.roundThree(a.z) + "\n");
+              out.print("      vertex " + theScene.roundThree(b.x) + " " + theScene.roundThree(b.y) + " " + theScene.roundThree(b.z) + "\n");
+              out.print("      vertex " + theScene.roundThree(c.x) + " " + theScene.roundThree(c.y) + " " + theScene.roundThree(c.z) + "\n");
+              out.print("    endloop\n");
+              out.print("  endfacet\n");
+          }
+          
+          
+          
+          
+          /*
         if (alwaysStoreNormals)
           needNormals = true;
         else
@@ -176,8 +314,9 @@ public class STLExporter
               if (!norm[normIndex[j][k]].equals(norm[normIndex[j][0]]))
                 needNormals = true;
           }
-          if (!needNormals)
+          if (!needNormals){
             out.println("s 0"); // The mesh is faceted, so we can simply disable smoothing
+          }
           else
           {
             needNormals = false;
@@ -198,6 +337,8 @@ public class STLExporter
               out.println("s 1"); // The mesh is fully smoothed, so we can simply use a smoothing group
           }
         }
+           */
+           
         
         // Select a name for the group.
         
@@ -210,20 +351,17 @@ public class STLExporter
         
         // Write out the object.
         
-        out.println("g "+name);
+        //out.println("g "+name);
         TextureImageInfo ti = null;
         if (textureExporter != null)
           {
-            ti = textureExporter.getTextureInfo(info.getObject().getTexture());
-            if (ti != null)
-              out.println("usemtl "+ti.name);
+            //ti = textureExporter.getTextureInfo(info.getObject().getTexture());
+            //if (ti != null)
+            //  out.println("usemtl "+ti.name);
           }
-        Mat4 trans = info.getCoords().fromLocal();
-        for (int j = 0; j < vert.length; j++)
-          {
-            Vec3 v = trans.times(vert[j].r);
-            out.println("v "+nf.format(v.x)+" "+nf.format(v.y)+" "+nf.format(v.z));
-          }
+        
+          
+          /*
         if (needNormals)
           for (int j = 0; j < norm.length; j++)
             {
@@ -235,6 +373,10 @@ public class STLExporter
                   out.println("vn "+nf.format(v.x)+" "+nf.format(v.y)+" "+nf.format(v.z));
                 }
             }
+          */
+          
+          
+          /*
         if (ti != null && ((Object3D) mesh).getTextureMapping() instanceof UVMapping && ((UVMapping) ((Object3D) mesh).getTextureMapping()).isPerFaceVertex(mesh))
         {
           // A per-face-vertex texture mapping.
@@ -260,11 +402,11 @@ public class STLExporter
               out.print(vertIndex+numVert);
               out.print('/');
               out.print(k+1+numTexVert);
-              if (needNormals)
-              {
-                out.print('/');
-                out.print(normIndex[j][k]+numNorm+1);
-              }
+              //if (needNormals)
+              //{
+              //  out.print('/');
+              //  out.print(normIndex[j][k]+numNorm+1);
+              //}
             }
             out.println();
             numTexVert += coords[j].length;
@@ -294,11 +436,11 @@ public class STLExporter
               out.print(vertIndex+numVert);
               out.print('/');
               out.print(vertIndex+numTexVert);
-              if (needNormals)
-              {
-                out.print('/');
-                out.print(normIndex[j][k]+numNorm+1);
-              }
+              //if (needNormals)
+              //{
+              //  out.print('/');
+              //  out.print(normIndex[j][k]+numNorm+1);
+              //}
             }
             out.println();
           }
@@ -306,30 +448,20 @@ public class STLExporter
         }
         else
         {
+           */
+          
           // No texture coordinates.
           
-          for (int j = 0; j < mesh.getFaceCount(); j++)
-          {
-            out.print("f ");
-            for (int k = 0; k < mesh.getFaceVertexCount(j); k++)
-            {
-              int vertIndex = mesh.getFaceVertexIndex(j, k)+1;
-              if (k > 0)
-                out.print(' ');
-              out.print(vertIndex+numVert);
-              if (needNormals)
-              {
-                out.print("//");
-                out.print(normIndex[j][k]+numNorm+1);
-              }
-            }
-            out.println();
-          }
-        }
+          
+        //}
         numVert += vert.length;
-        if (needNormals)
-          numNorm += norm.length;
+        //if (needNormals)
+        //  numNorm += norm.length;
       }
+      
+      out.println("endsolid " + fileName);
+      
+      progressDialog.close();
   }
   
   /** Write out the .mtl file describing the textures. */

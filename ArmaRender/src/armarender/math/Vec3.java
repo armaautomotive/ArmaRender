@@ -501,4 +501,16 @@ public float magnitude()
 
     
     
+    /**
+     * getFaceNormal
+     * Description: Get normal of face given by three points.
+     */
+    public static Vec3 getFaceNormal(Vec3 faceA, Vec3 faceB, Vec3 faceC){
+        Vec3 normal = faceB.minus(faceA).cross(faceC.minus(faceA));
+        double length = normal.length();
+        if (length > 0.0){
+            normal.scale(1.0/length);
+        }
+        return normal;
+    }
 }

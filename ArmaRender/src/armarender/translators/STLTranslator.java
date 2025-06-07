@@ -31,7 +31,7 @@ public class STLTranslator implements Translator
   
   public boolean canExport()
   {
-    return false;
+    return true;
   }
   
   public void importFile(BFrame parent, Scene theScene)

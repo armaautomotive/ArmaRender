@@ -1208,7 +1208,7 @@ public class LayoutWindow extends BFrame implements EditingWindow, PopupMenuMana
     // csv export - todo move to module
     exportMenu.add(Translate.menuItem("Curve Points (.csv)", this, "exportObjectCSV"));
       
-    exportMenu.add(Translate.menuItem("Stereolithography (.stl)", this, "exportSTL"));
+    //exportMenu.add(Translate.menuItem("Stereolithography (.stl)", this, "exportSTL"));
     exportMenu.add(Translate.menuItem("Initial Graphics Exchange Specification (.iges)", this, "exportIGES"));
       
     // BeamNG Drive
